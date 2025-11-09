@@ -8,7 +8,7 @@
 import Foundation
 
 
-let allDumpData: Data = Data(allDumpSample)
+let allDumpSampleData: Data = Data(allDumpSample)
 
 let allDumpSample: [UInt8] =
 [
@@ -69,7 +69,7 @@ let allDumpSample: [UInt8] =
 ]
 
 
-let singleProgramData: Data = Data(singleProgramSample)
+let singleProgramSampleData: Data = Data(singleProgramSample)
 
 let singleProgramSample: [UInt8] = [
     

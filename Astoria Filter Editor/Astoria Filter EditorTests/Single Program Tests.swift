@@ -14,34 +14,41 @@ struct Single_Program_Tests {
     private(set) var programData: Data
     
     init () async throws {
-        programData = singleProgramData
+        programData = singleProgramSampleData
     }
     
     
     // Length
-    @Test func length() async throws {
+    @Test("Program Length Test")
+    func length() async throws {
         #expect(programData.count == 37)
     }
     
-    @Test func incorrectLength() async throws {
+    
+    @Test("Incorrect Length Test")
+    func incorrectLength() async throws {
+        #expect(programData.count != 36)
         #expect(programData.count != 38)
     }
 
     
     // Parsing single dump
-    @Test func singleDumpParsing() async throws {
+    @Test("Single Dump Parsing Test")
+    func singleDumpParsing() async throws {
         let dataType = try await SysExMessage.parseType(data: programData)
         
         #expect({
             if case .programDump = dataType {
                 return true
             }
-            else { return false } }())
+            else { return false }
+        }())
     }
     
     
     // Checksum on single dump
-    @Test func singleDumpChecksum() async throws {
+    @Test("Single Dump Checksum Test")
+    func singleDumpChecksum() async throws {
         let isValid = await SysExMessage.isValidChecksum(for: .programDumpMessage, data: programData)
         
         #expect(isValid)
@@ -49,7 +56,8 @@ struct Single_Program_Tests {
     
     
     // Checksum error on single dump
-    @Test func singleDumpChecksumError() async throws {
+    @Test("Single Dump Checksum Error Test")
+    func singleDumpChecksumError() async throws {
         var programData = self.programData
         programData[35] = 0xFF
         
@@ -62,7 +70,8 @@ struct Single_Program_Tests {
     
     
     // Parse and Encode
-    @Test func singleDumpParseAndEncode() async throws {
+    @Test("Single Dump Parse and Encode Test")
+    func singleDumpParseAndEncode() async throws {
         let program = try await SysExObjectCodec.decodeProgram(data: programData)
         
         let encoded = await SysExObjectCodec.encodeToSysEx(program: program)
@@ -73,7 +82,8 @@ struct Single_Program_Tests {
     
     // Encode and parse
     /// Take the data, create an object, then convert the object back to data
-    @Test func singleDumpEncodeAndParse() async throws {
+    @Test("Single Dump Encode and Parse Test")
+    func singleDumpEncodeAndParse() async throws {
         
         let program = await MiniWorksProgram(data: programData)
         
@@ -92,7 +102,8 @@ struct Single_Program_Tests {
     }
     
     // Request Message
-    @Test func singleDumpRequestMessage() async throws {
+    @Test("Single Dump Request Message Test")
+    func singleDumpRequestMessage() async throws {
         let programNumber = 2
         let request = await SysExMessageRequest.programDump(for: programNumber)
         #expect(request.count == 7)
@@ -105,4 +116,3 @@ struct Single_Program_Tests {
 
 
 }
-

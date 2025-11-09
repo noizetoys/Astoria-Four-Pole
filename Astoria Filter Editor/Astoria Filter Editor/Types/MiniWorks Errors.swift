@@ -8,10 +8,9 @@
 import Foundation
 
 
-enum MiniWorksError: Error {
+enum MiniWorksError: Error, Equatable {
     case malformedMessage(Data)
     case incompleteMessage(Data)
-    
     
     case wrongManufacturerID(UInt8)
     case wrongMachineID(UInt8)

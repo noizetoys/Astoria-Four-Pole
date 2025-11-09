@@ -6,39 +6,74 @@
 //
 
 import Testing
+import Foundation
+
+@testable import Astoria_Filter_Editor
 
 
 struct All_Dump_Tests {
+    private(set) var dumpData: Data
+    
+    
+    init() async throws {
+        dumpData = allDumpSampleData
+    }
+    
+    
     // Length
     
-    @Test func length() async throws {
+    @Test("All Dump Length Test")
+    func length() async throws {
+        #expect(dumpData.count == 593)
         
     }
     
-    @Test func incorrectLength() async throws {
+    
+    @Test("All Dump Incorrect Length Test")
+    func incorrectLength() async throws {
+        #expect(dumpData.count != 592)
+        #expect(dumpData.count != 594)
     }
 
     
     // Parse AllDump
-    @Test func allDumpParsing() async throws {
+    @Test("All Dump Parsing Test")
+    func allDumpParsing() async throws {
+        let dataType = try await SysExMessage.parseType(data: dumpData)
         
+        #expect({
+            if case .allDump = dataType {
+                return true
+            }
+            else { return false }
+        }())
     }
     
     
-    @Test func allDumpParsingError() async throws {
-        
-    }
-    
-
+//    @Test("All Dump Parsing Error")
+//    func allDumpParsingError() async throws {
+//        
+//    }
+//    
+//
     // checksum on all Dump
-    @Test func allDumpChecksum() async throws {
+    @Test("All Dump Checksum Test")
+    func allDumpChecksum() async throws {
+        let isValid = await SysExMessage.isValidChecksum(for: .allDumpMessage, data: dumpData)
         
+        #expect(isValid)
     }
     
     
     // checksum error on all dump
-    @Test func allDumpChecksumError() async throws {
+    @Test("All Dump Checksum Error")
+    func allDumpChecksumError() async throws {
+        var testData = dumpData
+        testData[591] = 0xFF
         
+        let isValid = await SysExMessage.isValidChecksum(for: .allDumpMessage, data: testData)
+        
+        #expect(!isValid)
     }
     
     
