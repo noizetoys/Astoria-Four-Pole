@@ -33,7 +33,6 @@ struct Single_Program_Tests {
     }
 
     
-    // Parsing single dump
     @Test("Single Dump Parsing Test")
     func singleDumpParsing() async throws {
         let dataType = try await SysExMessage.parseType(data: programData)
@@ -47,7 +46,6 @@ struct Single_Program_Tests {
     }
     
     
-    // Checksum on single dump
     @Test("Single Dump Checksum Test")
     func singleDumpChecksum() async throws {
         let isValid = await SysExMessage.isValidChecksum(for: .programDumpMessage, data: programData)
@@ -56,7 +54,6 @@ struct Single_Program_Tests {
     }
     
     
-    // Checksum error on single dump
     @Test("Single Dump Checksum Error Test")
     func singleDumpChecksumError() async throws {
         var programData = self.programData
@@ -81,7 +78,6 @@ struct Single_Program_Tests {
     }
     
     
-    // Encode and parse
     /// Take the data, create an object, then convert the object back to data
     @Test("Single Dump Encode and Parse Test")
     func singleDumpEncodeAndParse() async throws {
@@ -98,11 +94,9 @@ struct Single_Program_Tests {
         
         let reEncodedData = await SysExObjectCodec.encodeToSysEx(program: decodedProgramData!)
         #expect(programData.count == reEncodedData.count)
-        
-
     }
     
-    // Request Message
+    
     @Test("Single Dump Request Message Test")
     func singleDumpRequestMessage() async throws {
         let programNumber = 2
@@ -115,5 +109,17 @@ struct Single_Program_Tests {
         #expect(request[6] == 0xF7)
     }
 
+    
+    @Test("Single Bulk Dump Request Message Test")
+    func singleBulkDumpRequestMessage() async throws {
+        let programNumber = 2
+        let request = await SysExMessageRequest.programBulkDump(for: programNumber)
+        #expect(request.count == 7)
+        
+        #expect(request[0] == 0xF0)
+        #expect(request[4] == 0x41)
+        #expect(request[5] == programNumber)
+        #expect(request[6] == 0xF7)
+    }
 
 }
