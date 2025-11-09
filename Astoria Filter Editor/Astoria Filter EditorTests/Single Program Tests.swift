@@ -10,6 +10,7 @@ import Foundation
 
 @testable import Astoria_Filter_Editor
 
+
 struct Single_Program_Tests {
     private(set) var programData: Data
     
@@ -85,7 +86,7 @@ struct Single_Program_Tests {
     @Test("Single Dump Encode and Parse Test")
     func singleDumpEncodeAndParse() async throws {
         
-        let program = await MiniWorksProgram(data: programData)
+        let program = try? await MiniWorksProgram(data: programData)
         
         #expect(program != nil)
         

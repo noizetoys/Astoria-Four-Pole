@@ -25,7 +25,6 @@ struct All_Dump_Tests {
     @Test("All Dump Length Test")
     func length() async throws {
         #expect(dumpData.count == 593)
-        
     }
     
     
@@ -50,12 +49,6 @@ struct All_Dump_Tests {
     }
     
     
-//    @Test("All Dump Parsing Error")
-//    func allDumpParsingError() async throws {
-//        
-//    }
-//    
-//
     // checksum on all Dump
     @Test("All Dump Checksum Test")
     func allDumpChecksum() async throws {
@@ -78,8 +71,13 @@ struct All_Dump_Tests {
     
     
     // Parse and Encode
-    @Test func allDumpParseAndEncode() async throws {
+    @Test("All Dump Parse and Encode Test")
+    func allDumpParseAndEncode() async throws {
+        let allDump = try await SysExObjectCodec.decodeAllDump(data: allDumpSampleData)
         
+        let encoded = await SysExObjectCodec.encodeSysEx(allDump: allDump)
+        
+        #expect(allDumpSampleData.count == encoded.count)
     }
     
     
@@ -89,10 +87,12 @@ struct All_Dump_Tests {
     
 
     @Test func allDumpEncodeAndParse() async throws {
+        
     }
     
     
     @Test func allDumpEncodeAndParseError() async throws {
+        
     }
     
     

@@ -31,7 +31,7 @@ enum SysExObjectCodec {
     // Decode
     /// Takes Program/Bulk Dump
     static func decodeProgram(data: Data) throws -> MiniWorksProgram {
-        if let program = MiniWorksProgram(data: data) {
+        if let program = try? MiniWorksProgram(data: data) {
             return program
         }
         else {
@@ -47,27 +47,35 @@ enum SysExObjectCodec {
     /// Produce Byte stream of all programs and global data for All Dump Sys Ex Message
     /// - Provides complete message
     /// - Containing header, data, checksum, EOD
-    static func encodeSysExMessage(allDump configuration: MachineConfiguration) -> Data {
+    static func encodeSysEx(allDump configuration: MachineConfiguration) -> Data {
         let configurationBytes = configuration.encodeToBytes()
         let checksumData = SysExMessage.checksum(from: configurationBytes)
         
         return Data(SysExConstant.header
                     + [SysExMessageType.allDumpMessage.rawValue]
                     + configurationBytes
-                    + [checksumData, SysExConstant.endOfMessage])
+                    + [checksumData, SysExConstant.endOfMessage]
+        )
     }
     
     
     // Decode
     /// Takes complete 'All Dump' data
-    static private func decodeAllDump(data: Data) throws -> MachineConfiguration {
+    static func decodeAllDump(data: Data) throws -> MachineConfiguration {
         let bytes = [UInt8](data)
-        return try decodeAllDump(bytes: bytes)
+        
+        do {
+            let dump = try decodeAllDump(bytes: bytes)
+            return dump
+        }
+        catch {
+            throw error
+        }
     }
     
     
     /// Takes complete 'All Dump' byte stream
-    static private func decodeAllDump(bytes: [UInt8]) throws -> MachineConfiguration {
+    static func decodeAllDump(bytes: [UInt8]) throws -> MachineConfiguration {
         // Parse (20) Individual Programs (0-19)
         var programs: [MiniWorksProgram] = []
         

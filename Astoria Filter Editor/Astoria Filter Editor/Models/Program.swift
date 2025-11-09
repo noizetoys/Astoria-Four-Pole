@@ -54,16 +54,21 @@ class MiniWorksProgram: Codable, Identifiable {
 
     
     /// Creates 'Program' from raw dump
-    convenience init?(data: Data) {
+    convenience init?(data: Data) throws {
         let bytes = [UInt8](data)
-        let isHeaderValid = try? SysExMessage.isValidHeader(data: data)
         
-        guard
-            isHeaderValid == true
-        else { return nil }
-        
-        let programData: [UInt8] = Array(bytes[6..<bytes.count])
-        self.init(bytes: programData, number: Int(bytes[5]) + 1)
+        do {
+            let isValid = try? SysExMessage.isValidHeader(data: data)
+            
+            if isValid == true {
+                let programData: [UInt8] = Array(bytes[6..<bytes.count])
+                
+                // Adjust the program number from 0 index
+                self.init(bytes: programData, number: Int(bytes[5]) + 1)
+            }
+            else { throw MiniWorksError.malformedMessage(data) }
+        }
+        catch { throw error }
     }
     
     
@@ -115,12 +120,17 @@ class MiniWorksProgram: Codable, Identifiable {
     
     
     static func copyROM(_ data: Data) -> MiniWorksProgram {
-        MiniWorksProgram(data: data) ?? MiniWorksProgram()
+        if let program = try? MiniWorksProgram(data: data) {
+            return program
+        }
+        else {
+            return MiniWorksProgram()
+        }
     }
     
     
-    func encodeToBytes() -> [UInt8] {
-        [
+    func encodeToBytes(forAllDump: Bool = false) -> [UInt8] {
+        var bytes: [UInt8] = [
             UInt8(programNumber),
             
             vcfEnvelopeAttack,
@@ -160,6 +170,12 @@ class MiniWorksProgram: Codable, Identifiable {
             UInt8(triggerSource.rawValue),
             UInt8(triggerMode.rawValue)
         ]
+        
+        if forAllDump {
+            bytes.removeFirst(1)
+        }
+        
+        return bytes
     }
     
 }

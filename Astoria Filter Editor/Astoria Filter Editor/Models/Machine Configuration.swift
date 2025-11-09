@@ -83,7 +83,7 @@ class MachineConfiguration: Identifiable, Codable {
         
         // Seperated to make debugging easier
         for program in programs {
-            programBytes.append(contentsOf: program.encodeToBytes())
+            programBytes.append(contentsOf: program.encodeToBytes(forAllDump: true))
         }
         
         var globalBytes: [UInt8] = []

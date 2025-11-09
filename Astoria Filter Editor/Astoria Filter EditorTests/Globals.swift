@@ -13,6 +13,7 @@ struct Globals {
     @Test func length() async throws {
     }
     
+    
     @Test func incorrectLength() async throws {
     }
     
@@ -21,6 +22,7 @@ struct Globals {
     @Test func globalsParsing() async throws {
         
     }
+    
     
     @Test func globalParsingError() async throws {
         
@@ -32,6 +34,7 @@ struct Globals {
         
     }
     
+    
     @Test func parseAndEncodeError() async throws {
         
     }
@@ -40,6 +43,7 @@ struct Globals {
     @Test func encodeAndParse() async throws {
         
     }
+    
     
     @Test func encodeAndParseError() async throws {
         
