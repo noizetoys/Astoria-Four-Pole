@@ -11,9 +11,9 @@ import Foundation
 enum SysExConstant {
     static let appName: String = "4 Pole for the Win"
     
-    static let messageStart: UInt8 = 0xF0
-    static let manufacturerID: UInt8 = 0x3E
-    static let machineID: UInt8 = 0x04
+    static let messageStart: UInt8 = 0xF0   // [0]
+    static let manufacturerID: UInt8 = 0x3E // [1]
+    static let machineID: UInt8 = 0x04      // [2]
     
     static var DEV: UInt8 { MiniWorksUserDefaults.shared.deviceID }
     
