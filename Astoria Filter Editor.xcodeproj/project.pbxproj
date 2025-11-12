@@ -33,7 +33,9 @@
 		2EE9E7FC2EC4383B0081C1EE /* Exceptions for "Astoria Filter Editor" folder in "Astoria Filter Editor" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"UI/Claude Log.swift",
 				"UI/Many Controls.swift",
+				UI/MIDIMonitorApp.swift,
 				"UI/Pan Indicator.swift",
 			);
 			target = 2EC3F4CB2EBFEE8700D70CC0 /* Astoria Filter Editor */;
