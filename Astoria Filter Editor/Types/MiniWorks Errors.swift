@@ -9,15 +9,17 @@ import Foundation
 
 
 enum MiniWorksError: Error {
-    case invalidChecksum(Data)
-    case invalidProgramNumber(Data)
-    
     case malformedMessage(Data)
     case incompleteMessage(Data)
     
-    case unknownCommandByte(Data)
     
-    case wrongManufacturerID(Data)
-    case wrongMachineID(Data)
+    case wrongManufacturerID(UInt8)
+    case wrongMachineID(UInt8)
+    case wrongDeviceID(UInt8)
     
+    case unknownCommandByte(UInt8)
+
+    case invalidProgramNumber(UInt8)
+
+    case invalidChecksum(UInt8)
 }

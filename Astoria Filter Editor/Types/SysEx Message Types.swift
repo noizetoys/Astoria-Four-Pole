@@ -8,14 +8,16 @@
 import Foundation
 
 
-enum SysExMessageType: UInt8, Codable {
+enum SysExMessageType: UInt8, Codable, Equatable {
     case programDumpMessage = 0x00
     case programBulkDumpMessage = 0x01
     case allDumpMessage = 0x08
     
+    
     var isRequest: Bool {
         return self.rawValue.isMultiple(of: 0x40)
     }
+    
     
     var isResponse: Bool {
         return !self.isRequest
@@ -40,18 +42,24 @@ enum SysExMessageType: UInt8, Codable {
 }
 
 
-enum SysExRequestMessageType: UInt8, Codable {
-    case programDumpRequest = 0x40
-    case programBulkDumpRequest = 0x41
-    case allDumpRequest = 0x48
+enum SysExRequestMessageType: Codable {
+    case programDumpRequest(Int)
+    case programBulkDumpRequest(Int)
+    case allDumpRequest
+    
+    var hexValue: [UInt8] {
+        switch self {
+            case .programDumpRequest(let num): [0x40, UInt8(num)]
+            case .programBulkDumpRequest(let num): [0x41, UInt8(num)]
+            case .allDumpRequest: [0x48]
+        }
+    }
 }
 
 
-enum SysExDataType {
+enum SysExDataType: Equatable {
     case programDump(Data)
     case programBulkDump(Data)
     case allDump(Data)
-    
-    
 }
 

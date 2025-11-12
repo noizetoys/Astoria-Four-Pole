@@ -40,7 +40,8 @@ class MiniWorksUserDefaults {
     private let deviceIDKey = "DEVICE_ID"
     var deviceID: UInt8 {
         set { defaults.set(Int(newValue), forKey: deviceIDKey) }
-        get { UInt8(defaults.integer(forKey: deviceIDKey)) }
+        get { 0x01 }
+//        get { UInt8(defaults.integer(forKey: deviceIDKey)) }
     }
     
     
