@@ -1,0 +1,7 @@
+# Virtual MiniWorks Project - File Inventory
+
+## Source Code (19 files)
+
+## Documentation (4 files)
+
+## Resources (2 files)

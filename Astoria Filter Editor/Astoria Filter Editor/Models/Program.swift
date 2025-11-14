@@ -183,7 +183,18 @@ class MiniWorksProgram: Codable, Identifiable {
 /*
  Byte order in Program and Bulk Dump
  
+ Start of SysEx = bytes[0] (0xF0)
+ Waldorf ID = bytes[1] (0x3E)
+ Miniworks Model ID = bytes[2] (0x04)
+ Device ID = bytes[3] (0x?? - User Set)
+ Dump Type = bytes[4] (0x00 or 01) = Program, (0x08) = All
+ 
+ -> Program <-
+ 
  programNumber = bytes[5]
+ 
+ -> Add Dump <-
+ -> Subtract 1 from index below <-
  
  vcfEnvelopeAttack = bytes[6]
  vcfEnvelopeDecay = bytes[7]
@@ -221,4 +232,10 @@ class MiniWorksProgram: Codable, Identifiable {
  gateTime = bytes[32]
  triggerSource = TriggerSource(rawValue: bytes[33]) ?? .audio
  triggerMode = TriggerMode(rawValue: bytes[34]) ?? .single
+ 
+ 
+ -> Program Dump <-
+ Checksum = bytes[35]
+ End of SysEx = bytes[36] (0xF7)
+
  */

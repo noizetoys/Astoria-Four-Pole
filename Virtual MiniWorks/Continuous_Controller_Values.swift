@@ -40,16 +40,16 @@ enum ContinuousControllerValue: UInt8, Codable, CaseIterable {
     case resonanceModulationAmount = 0x48   // CC#72
     case resonanceModulationSource = 0x49   // CC#73
     
-    case volumeModulationAmount = 0x4A      // CC#74
-    case volumeModulationSource = 0x2A      // CC#75
+    case volumeModulationAmount = 0x4a      // CC#74
+    case volumeModulationSource = 0x2a      // CC#75
     
     case panningModulationAmount = 0x4C     // CC#76
     case panningModulationSource = 0x4D     // CC#77
     
     case cutoff = 0x4E                      // CC#78
     case resonance = 0x4F                   // CC#79
-    
     case gateTime = 0x50                    // CC#80
+    
     case triggerSource = 0x51               // CC#81
     case triggerMode = 0x52                 // CC#82
     

@@ -73,6 +73,22 @@ let single = [
     0x0D, 0xF7
 ]
 
+let rawSingle = "00 0A 00 38 28 32 36 00 7F 20 5E 40 7F 40 01 06 1E 40 18 7F 01 00 01 05 00 7F 14 2C 00 00 02"
+//let rawSingle = "F0 3E 04 01 00 0A 00 38 28 32 36 00 7F 20 5E 40 7F 40 01 06 1E 40 18 7F 01 00 01 05 00 7F 14 2C 00 00 02 12 F7"
+
+
+//let adjustedSingle = rawSingle.split(separator: " ").con
+
+func rawStringToHex(_ hexString: String) -> [UInt8] {
+    let parts = hexString.split(separator: " ")
+    let byteArray: [UInt8] = parts.compactMap { byteStr in
+        UInt8(byteStr, radix: 16)
+    }
+    
+    return byteArray
+//    return Array(parts.map({ "0x\($0)"}).joined(separator: " "))
+//    
+}
 
 let allDumpNoHeader = Array(allDump)
 var checksum: UInt8 = allDump.reduce(0) { $0 &+ $1} & 0x7F
@@ -81,6 +97,12 @@ print("Checksum (reduce) = \(checksum)")
 checksum = 0
 
 print("0X1D = \(0x1D)")
+
+let convertedHex = rawStringToHex(rawSingle)
+let conChecksum = convertedHex.reduce(0) { $0 &+ $1} & 0x7F
+print("Checksum (reduce) = \(conChecksum)")
+print("0X12 = \(0x12)")
+
 
 enum Waldorf4PoleParameter: Int, CaseIterable {
         // Edit Level 1 - VCF Envelope
