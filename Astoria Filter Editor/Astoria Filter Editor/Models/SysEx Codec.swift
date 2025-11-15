@@ -9,6 +9,17 @@ import Foundation
 
 /// Used to encode and decode Sys Ex to Programs or Cofigurations
 enum MiniworksSysExCodec {
+    
+    static private var currentDeviceID: UInt8 {
+        UInt8(UserDefaults.standard.integer(forKey: "deviceID"))
+    }
+    
+    /// Returns a synchronous snapshot of the current device ID by reading on the main actor.
+    static func currentDeviceIDSnapshot() -> UInt8 {
+        @MainActor @inline(__always) func read() -> UInt8 { currentDeviceID }
+        return read()
+    }
+    
         /// Provides the type of (validated) message and the data
         /// - Object creation is done elsewhere
     static func parseDataType(from bytes: [UInt8]) throws -> SysExMessageType {
@@ -155,7 +166,8 @@ enum MiniworksSysExCodec {
         let programChecksum: UInt8 = checksum(from: programData)
         
         return SysExConstant.header
-        + [SysExConstant.programDumpMessage]
+//        + [MiniWorksUserDefaults.shared.deviceID, SysExConstant.programDumpMessage]
+        + [currentDeviceIDSnapshot(), SysExConstant.programDumpMessage]
         + programData
         + [programChecksum, SysExConstant.endOfMessage]
     }
@@ -185,7 +197,7 @@ enum MiniworksSysExCodec {
         let checksumData = checksum(from: configurationBytes)
         
         return SysExConstant.header
-        + [SysExConstant.allDumpMessage]
+        + [currentDeviceIDSnapshot(), SysExConstant.allDumpMessage]
         + configurationBytes
         + [checksumData, SysExConstant.endOfMessage]
     }

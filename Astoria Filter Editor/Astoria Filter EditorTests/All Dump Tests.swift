@@ -87,15 +87,26 @@ struct All_Dump_Tests {
         #expect(dumpData.count == encoded.count)
     }
     
-    
+   /*
+    Byte    #   Value Description
+    0       F0    Start of System Exclusive
+    1       3E    Waldorf Electronics GmbH Manufacturer ID
+    2       04    MiniWorks 4-Pole Machine ID
+    3       DEV   Global parameter Device ID, see manual 5.6
+    4       48h   Dump Type, here All Dump Request
+    5       F7h   End of System Exclusive
+    */
     @Test("All Dump Request Message Test")
     func allDumpRequestMessage() async throws {
-        let request = await SysExMessageRequest.allDumpRequest()
+        let request = try SysExMessageType.allDumpRequest.requestMessage()
         #expect(request.count == 6)
         
-        #expect(request[0] == 0xF0)
-        #expect(request[4] == 0x48)
-        #expect(request[5] == 0xF7)
+        #expect(request[0] == SysExConstant.messageStart)
+        #expect(request[1] == SysExConstant.manufacturerID)
+        #expect(request[2] == SysExConstant.machineID)
+            // Can't guaranteee The Device ID so we ignore it.
+        #expect(request[4] == SysExConstant.allDumpRequest)
+        #expect(request[5] == SysExConstant.endOfMessage)
     }
     
     

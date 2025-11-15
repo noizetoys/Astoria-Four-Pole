@@ -8,6 +8,7 @@
 import Foundation
 
 
+nonisolated
 enum SysExMessageType: Codable, Equatable {
     case programDumpMessage([UInt8])
     case programDumpRequest(UInt8)
@@ -34,20 +35,44 @@ enum SysExMessageType: Codable, Equatable {
     var isRequest: Bool { self.rawValue.isMultiple(of: 0x40) }
     var isResponse: Bool { !self.isRequest }
     
+    
     var checksumStartIndex: Int {
         if case .allDumpMessage(_) = self { return 5 }
         else { return 4 }
     }
+    
     
     var checksumEndIndex: Int {
         if case .allDumpMessage(_) = self { return 590 }
         else { return 34 }
     }
     
+    
     var checksumIndex: Int {
         if case .allDumpMessage(_) = self { return 591 }
         else { return 35 }
     }
+    
+    
+    func requestMessage() throws -> [UInt8] {
+        let header = SysExConstant.header   // [messageStart, manufacturerID, machineID]
+        let deviceID = UInt8(UserDefaults.standard.integer(forKey: SysExConstant.deviceIDKey))
+        var body: [UInt8] = []
+        
+        
+        switch self {
+            case .programDumpRequest(let program):
+                body = [SysExConstant.programDumpRequest, program]
+            case .programBulkDumpRequest(let program):
+                body = [SysExConstant.programBulkDumpRequest, program]
+            case .allDumpRequest:
+                body = [SysExConstant.allDumpRequest]
+            default: throw SysExError.invalidRequest(message: "Wrong request type for this method")
+        }
+        
+        return header + [deviceID] + body + [SysExConstant.endOfMessage]
+    }
+    
     
     static func type(from num: UInt8, bytes: [UInt8]) -> Self {
         switch num {
@@ -61,20 +86,5 @@ enum SysExMessageType: Codable, Equatable {
         }
     }
 }
-
-
-//enum SysExRequestMessageType: Codable {
-//    case programDumpRequest(UInt8)
-//    case programBulkDumpRequest(UInt8)
-//    case allDumpRequest
-//    
-//    var hexValue: [UInt8] {
-//        switch self {
-//            case .programDumpRequest(let num): [SysExConstant.programDumpRequest, num]
-//            case .programBulkDumpRequest(let num): [SysExConstant.programBulkDumpRequest, num]
-//            case .allDumpRequest: [SysExConstant.allDumpRequest]
-//        }
-//    }
-//}
 
 

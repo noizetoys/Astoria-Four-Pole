@@ -51,7 +51,6 @@ struct MiniWorksProgram: Codable, Identifiable, Equatable, Sendable {
     var gateTime: UInt8 = 64
     var triggerSource: TriggerSource = .audio
     var triggerMode: TriggerMode = .single
-    
 }
 
 

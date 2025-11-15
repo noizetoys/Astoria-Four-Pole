@@ -22,38 +22,22 @@ import Foundation
 
 class MiniWorksGlobalData: Codable, Sendable {
     /// MIDI Channel for receiving and transmitting
-    var midiChannel: UInt8 = 1 {
-        didSet { MiniWorksUserDefaults.shared.midiChannel = midiChannel }
-    }
+    var midiChannel: UInt8 = 1
     
     /// How controls are transmitted or received
-    var midiControl: GlobalMIDIControl = .ctr {
-        didSet { MiniWorksUserDefaults.shared.midiControl = midiControl }
-    }
+    var midiControl: GlobalMIDIControl = .ctr
     
     /// User settable 0-126
-    var deviceID: UInt8 = 0 {
-        didSet { MiniWorksUserDefaults.shared.deviceID = deviceID }
-    }
+    var deviceID: UInt8 = 0
     
     /// Program loaded automatically on startup
-    var startUpProgramID: UInt8 = 1 {
-        didSet {
-            MiniWorksUserDefaults.shared.startUpProgramID = startUpProgramID
-        }
-    }
+    var startUpProgramID: UInt8 = 1
     
     /// Used to trigger envelope
-    var noteNumber: UInt8 = 60 {
-        didSet {
-            MiniWorksUserDefaults.shared.noteNumber = noteNumber
-        }
-    }
+    var noteNumber: UInt8 = 60
     
     /// How knobs sync with value display
-    var knobMode: GlobalKnobMode = .relative {
-        didSet { MiniWorksUserDefaults.shared.knobMode = knobMode }
-    }
+    var knobMode: GlobalKnobMode = .relative
     
     
     // MARK: - Lifecycle
@@ -82,6 +66,11 @@ class MiniWorksGlobalData: Codable, Sendable {
     }
     
     
+    /// Create instance using saved Default Values
+    init() {
+        self.loadFromDefaults()
+    }
+    
     // MARK: - Public
     
     /// Encode to byte stream
@@ -97,6 +86,32 @@ class MiniWorksGlobalData: Codable, Sendable {
             noteNumber,
             UInt8(knobMode.rawValue)
         ]
+    }
+    
+    
+    /// Save current values to User Defaults
+    func saveToDefaults() {
+        UserDefaults.standard.set(midiChannel, forKey: SysExConstant.midiChannelKey)
+        UserDefaults.standard.set(midiControl.rawValue, forKey: SysExConstant.midiControlKey)
+        UserDefaults.standard.set(deviceID, forKey: SysExConstant.deviceIDKey)
+        UserDefaults.standard.set(startUpProgramID, forKey: SysExConstant.startUpProgramIDKey)
+        UserDefaults.standard.set(noteNumber, forKey: SysExConstant.noteNumberKey)
+        UserDefaults.standard.set(knobMode.rawValue, forKey: SysExConstant.knobModeKey)
+    }
+    
+    ///  Set Values to stored values (User Defaults)
+    func loadFromDefaults() {
+        midiChannel = UInt8(UserDefaults.standard.integer(forKey: SysExConstant.midiChannelKey))
+        
+        let control = UInt8(UserDefaults.standard.integer(forKey: SysExConstant.midiControlKey))
+        midiControl = GlobalMIDIControl(rawValue: control) ?? .off
+        
+        deviceID = UInt8(UserDefaults.standard.integer(forKey: SysExConstant.deviceIDKey))
+        startUpProgramID = UInt8(UserDefaults.standard.integer(forKey: SysExConstant.startUpProgramIDKey))
+        noteNumber = UInt8(UserDefaults.standard.integer(forKey: SysExConstant.noteNumberKey))
+        
+        let knob = UInt8(UserDefaults.standard.integer(forKey: SysExConstant.knobModeKey))
+        knobMode = GlobalKnobMode(rawValue: knob) ?? .relative
     }
 }
 

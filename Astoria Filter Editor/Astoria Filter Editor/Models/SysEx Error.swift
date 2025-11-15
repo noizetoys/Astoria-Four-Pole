@@ -26,4 +26,6 @@ enum SysExError: Error, LocalizedError {
     case invalidParameterValue(byte: UInt8)
     
     case invalideProgramNumber(number: UInt8)
+    
+    case invalidRequest(message: String)
 }

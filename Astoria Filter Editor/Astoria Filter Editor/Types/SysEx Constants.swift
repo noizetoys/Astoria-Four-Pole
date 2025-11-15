@@ -8,6 +8,7 @@
 import Foundation
 
 
+nonisolated
 enum SysExConstant {
     static let appName: String = "4 Pole for the Win"
     
@@ -15,10 +16,6 @@ enum SysExConstant {
     static let manufacturerID: UInt8 = 0x3E // [1]
     static let machineID: UInt8 = 0x04      // [2]
     
-    static var DEV: UInt8 {                 // [3]
-        MiniWorksUserDefaults.shared.deviceID
-    }
-
     // Type of Response
     static let programDumpMessage: UInt8 = 0x00    // [4]
     static let programBulkDumpMessage: UInt8 = 0x01// [4]
@@ -31,6 +28,13 @@ enum SysExConstant {
     
     static let endOfMessage: UInt8 = 0xF7   // [36 or 592]
     
+    static let header: [UInt8] = [messageStart, manufacturerID, machineID]
     
-    static let header : [UInt8] = [messageStart, manufacturerID, machineID, DEV]
+    
+    static let midiChannelKey = "MIDI_CHANNEL"
+    static let midiControlKey = "MIDI_CONTROL"
+    static let deviceIDKey = "DEVICE_ID"
+    static let startUpProgramIDKey = "START_UP_PROGRAM_ID"
+    static let noteNumberKey = "NOTE_NUMBER"
+    static let knobModeKey = "KNOB_MODE"
 }

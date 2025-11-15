@@ -38,7 +38,7 @@ class MiniworksROMPrograms {
         guard (21...40).contains(program)
         else { throw SysExError.invalideProgramNumber(number: UInt8(program))}
             
-        return ROMPrograms[program]!
+        return ROMProgramsData[program]
     }
     
     
@@ -47,6 +47,12 @@ class MiniworksROMPrograms {
         return try MiniWorksProgram(bytes: sysEx)!
     }
     
+    
+    static func programs() -> [MiniWorksProgram] {
+        ROMProgramsData
+            .enumerated()
+            .map { MiniWorksProgram(bytes: $1, number: UInt8($0)) }
+    }
     
     
     // MARK: - Individual program dumps (user-facing 21–40)
@@ -194,27 +200,27 @@ class MiniworksROMPrograms {
     // MARK: - Lookup
     
     /// Dictionary of all program dumps keyed by *user-facing* program number (21–40).
-    static private let ROMPrograms: [Int: SysExDump] = [
-        21: program21,
-        22: program22,
-        23: program23,
-        24: program24,
-        25: program25,
-        26: program26,
-        27: program27,
-        28: program28,
-        29: program29,
-        30: program30,
-        31: program31,
-        32: program32,
-        33: program33,
-        34: program34,
-        35: program35,
-        36: program36,
-        37: program37,
-        38: program38,
-        39: program39,
-        40: program40
+    static private let ROMProgramsData: [SysExDump] = [
+        program21,
+        program22,
+        program23,
+        program24,
+        program25,
+        program26,
+        program27,
+        program28,
+        program29,
+        program30,
+        program31,
+        program32,
+        program33,
+        program34,
+        program35,
+        program36,
+        program37,
+        program38,
+        program39,
+        program40
     ]
     
 }

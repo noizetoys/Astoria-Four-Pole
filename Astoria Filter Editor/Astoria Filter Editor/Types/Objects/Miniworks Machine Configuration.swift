@@ -64,6 +64,13 @@ class MachineConfiguration: Identifiable, Codable, Sendable {
     }
     
     
+    /// Used to create a 'new' machine based
+    /// - Gloabals use User Defaults
+    /// - Programs are copy of ROM programs (21-40)
+    static func newMachineConfiguration() -> MachineConfiguration {
+        .init(programs: MiniworksROMPrograms.programs(), globals: MiniWorksGlobalData())
+    }
+    
     // MARK: - Public
     
     func program(number programNumber: Int) -> MiniWorksProgram {
