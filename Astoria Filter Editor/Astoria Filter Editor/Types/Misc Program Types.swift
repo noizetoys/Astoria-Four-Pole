@@ -15,7 +15,6 @@ enum LFOShape: UInt8, Codable {
     case pulse = 3
     case sampleHold = 4
     
-    
     var name: String {
         switch self {
             case .sine: return "Sine"
@@ -33,7 +32,6 @@ enum TriggerSource: UInt8, Codable {
     case MIDI = 1
     case all = 2
     
-    
     var name: String {
         switch self {
             case .audio: return "Audio"
@@ -47,7 +45,6 @@ enum TriggerSource: UInt8, Codable {
 enum TriggerMode: UInt8, Codable {
     case multi = 0
     case single = 1
-    
     
     var name: String {
         switch self {

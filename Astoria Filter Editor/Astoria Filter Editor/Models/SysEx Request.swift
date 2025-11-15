@@ -11,23 +11,24 @@ import Foundation
 class SysExMessageRequest {
     static func programDump(for program: Int) -> [UInt8] {
         SysExConstant.header
-        + SysExRequestMessageType.programDumpRequest(program).hexValue
-           + [SysExConstant.endOfMessage]
+        + [SysExConstant.programDumpRequest,
+           UInt8(program),
+           SysExConstant.endOfMessage]
     }
     
     
     static func programBulkDump(for program: Int) -> [UInt8] {
         SysExConstant.header
-        + SysExRequestMessageType.programBulkDumpRequest(program).hexValue
-        + [SysExConstant.endOfMessage]
+        + [SysExConstant.programBulkDumpRequest,
+           UInt8(program),
+           SysExConstant.endOfMessage]
     }
     
     
     static func allDumpRequest() -> [UInt8] {
         SysExConstant.header
-        + SysExRequestMessageType.allDumpRequest.hexValue
-        + [SysExConstant.endOfMessage]
-        
+        + [SysExConstant.allDumpRequest,
+           SysExConstant.endOfMessage]
     }
     
 }

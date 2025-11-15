@@ -40,7 +40,7 @@ struct All_Dump_Tests {
         let dataType = try await MiniworksSysExCodec.parseDataType(from: dumpData)
         
         #expect({
-            if case .allDump = dataType {
+            if case .allDumpMessage(_) = dataType {
                 return true
             }
             else { return false }
@@ -50,7 +50,7 @@ struct All_Dump_Tests {
     
     @Test("All Dump Checksum Test")
     func allDumpChecksum() async throws {
-        let isValid = await MiniworksSysExCodec.isValidChecksum(for: .allDumpMessage, bytes: dumpData)
+        let isValid = await MiniworksSysExCodec.isValidChecksum(for: .allDumpMessage(dumpData))
         
         #expect(isValid)
     }
@@ -61,7 +61,7 @@ struct All_Dump_Tests {
         var testData = dumpData
         testData[591] = 0xFF
         
-        let isValid = await MiniworksSysExCodec.isValidChecksum(for: .allDumpMessage, bytes: testData)
+        let isValid = await MiniworksSysExCodec.isValidChecksum(for: .allDumpMessage(testData))
         
         #expect(!isValid)
     }

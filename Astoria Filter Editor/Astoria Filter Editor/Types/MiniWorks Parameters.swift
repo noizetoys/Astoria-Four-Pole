@@ -64,38 +64,4 @@ enum MiniWorksParameter: Int, Codable {
         }
     }
     
-    
-//    func mappedMIDIValue(_ value: Int) -> Int {
-//        switch self {
-//            // Log - 0 = 2ms, 64 = 60 sec, 127 = 1 min.
-//            case .VCFEnvelopeAttack, .VCAEnvelopeAttack: return 0
-//                
-//                // 0.008 - 261.1 Hz
-//            case .LFOSpeed: return 0
-//                
-//                // 000...508 ms, 1.00...1.02
-//            case .gateTime: return 0
-//                
-//                // 0...127 -> -64...63
-//            case .VCFEnvelopeCutoffAmount, .VCAEnvelopeVolumeAmount,
-//                    .LFOSpeedModulationAmount, .cutoffModulationAmount,
-//                    .resonanceModulationAmount, .volumeModulationAmount,
-//                    .panning, .panningModulationAmount: return value - 64
-//
-//            default: return value
-////                // 0-127
-////            case .VCFEnvelopeDecay, .VCFEnvelopeSustain, .VCFEnvelopeRelease, .VCAEnvelopeDecay, .VCAEnvelopeSustain, .VCAEnvelopeRelease:
-////            case .LFOShape: return value
-////            case .LFOSpeedModulationSource, .cutoffModulationSource,
-////                    .resonanceModulationSource, .volumeModulationSource,
-////                    .panningModulationSource, .triggerSource, .triggerMode:
-////                return value
-////
-////            case .cutoff:
-////            case .resonance:
-////            case .volume:
-//
-//        }
-//    }
-    
 }

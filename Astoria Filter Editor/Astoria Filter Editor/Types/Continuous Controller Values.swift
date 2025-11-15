@@ -10,7 +10,8 @@ import Foundation
 
 enum ContinuousControllerValue: UInt8, Codable, CaseIterable {
     case modulationWheel = 0x01             // CC#1
-    case breathControl = 0x02               // CC#2
+    case breathControl = 0x02               // CC#2 - Used for Envelope Display
+    
     case volumeParameter = 0x09             // CC#9
     case panningParameter = 0x0A            // CC#10
     

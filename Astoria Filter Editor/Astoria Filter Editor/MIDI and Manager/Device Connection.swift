@@ -13,6 +13,7 @@ typealias NoteEvent = (isNoteOn: Bool, channel: UInt8, note: UInt8, velocity: UI
 typealias ContinuousControllerEvent = (channel: UInt8, cc: UInt8, value: UInt8)
 
 
+/// Represents a connection with endpoints and continuations
 struct DeviceConnection {
     let source: MIDIDevice
     let destination: MIDIDevice

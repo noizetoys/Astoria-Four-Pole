@@ -38,7 +38,7 @@ struct Single_Program_Tests {
         let dataType = try await MiniworksSysExCodec.parseDataType(from: programData)
         
         #expect({
-            if case .programDump = dataType {
+            if case .programDumpMessage(_) = dataType {
                 return true
             }
             else { return false }
@@ -48,7 +48,7 @@ struct Single_Program_Tests {
     
     @Test("Single Dump Checksum Test")
     func singleDumpChecksum() async throws {
-        let isValid = await MiniworksSysExCodec.isValidChecksum(for: .programDumpMessage, bytes: programData)
+        let isValid = await MiniworksSysExCodec.isValidChecksum(for: .programDumpMessage(programData))
         
         #expect(isValid)
     }
@@ -59,7 +59,7 @@ struct Single_Program_Tests {
         var programData = self.programData
         programData[35] = 0xFF
         
-        let isValid = await MiniworksSysExCodec.isValidChecksum(for: .programDumpMessage, bytes: programData)
+        let isValid = await MiniworksSysExCodec.isValidChecksum(for: .programDumpMessage(programData))
         
         
         #expect(isValid == false)

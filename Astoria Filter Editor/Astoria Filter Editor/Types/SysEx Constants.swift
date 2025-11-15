@@ -15,9 +15,21 @@ enum SysExConstant {
     static let manufacturerID: UInt8 = 0x3E // [1]
     static let machineID: UInt8 = 0x04      // [2]
     
-    static var DEV: UInt8 { MiniWorksUserDefaults.shared.deviceID }
+    static var DEV: UInt8 {                 // [3]
+        MiniWorksUserDefaults.shared.deviceID
+    }
+
+    // Type of Response
+    static let programDumpMessage: UInt8 = 0x00    // [4]
+    static let programBulkDumpMessage: UInt8 = 0x01// [4]
+    static let allDumpMessage: UInt8 = 0x08        // [4]
+
+    // Type of Request
+    static let programDumpRequest: UInt8 = 0x40
+    static let programBulkDumpRequest: UInt8 = 0x41
+    static let allDumpRequest: UInt8 = 0x48
     
-    static let endOfMessage: UInt8 = 0xF7
+    static let endOfMessage: UInt8 = 0xF7   // [36 or 592]
     
     
     static let header : [UInt8] = [messageStart, manufacturerID, machineID, DEV]

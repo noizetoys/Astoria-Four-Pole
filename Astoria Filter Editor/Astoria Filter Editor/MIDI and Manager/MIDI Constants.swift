@@ -11,5 +11,4 @@ import Foundation
 final class MIDIConstants {
     static let sysExStartBit: UInt8 = 0xF0
     static let sysExEndBit: UInt8 = 0xF7
-
 }

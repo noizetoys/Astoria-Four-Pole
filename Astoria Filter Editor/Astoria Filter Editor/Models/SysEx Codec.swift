@@ -11,7 +11,7 @@ import Foundation
 enum MiniworksSysExCodec {
         /// Provides the type of (validated) message and the data
         /// - Object creation is done elsewhere
-    static func parseDataType(from bytes: [UInt8]) throws -> SysExDataType {
+    static func parseDataType(from bytes: [UInt8]) throws -> SysExMessageType {
             // Allows checking for each type of MiniWorks Error
         
             // Not just a header
@@ -21,19 +21,12 @@ enum MiniworksSysExCodec {
             // SysEx Data & Format are Valid
         try validate(sysEx: bytes)
         
-        guard
-            let messageType = SysExMessageType(rawValue: bytes[4])
-        else { throw SysExError.invalidCommand(byte: bytes[4]) }
+        let messageType = SysExMessageType.type(from: bytes[4], bytes: bytes)
         
             // Checksum is Valid
-        try validateChecksum(for: messageType, bytes: bytes)
+        try validateChecksum(for: messageType)
         
-        switch messageType {
-            case .programDumpMessage: return .programDump(bytes)
-            case .programBulkDumpMessage: return .programBulkDump(bytes)
-            case .allDumpMessage: return .allDump(bytes)
-        }
-        
+        return messageType
     }
     
         // MARK: - Data Validation
@@ -45,8 +38,9 @@ enum MiniworksSysExCodec {
         let manufacturerID = sysEx[1]
         let machineID = sysEx[2]
         let deviceID = sysEx[3]
+        let command = sysEx[4]
         let lastByte = sysEx.last
-
+        
         debugPrint(icon: "🔍", message: """
                    Validating SysEx Header:
                      start: \(String(describing: firstByte))
@@ -62,19 +56,36 @@ enum MiniworksSysExCodec {
         guard firstByte == SysExConstant.messageStart
         else { throw SysExError.sysExStartInvalid(byte: firstByte) }
         
-        guard lastByte == SysExConstant.endOfMessage
-        else { throw SysExError.sysExEndInvalid(byte: lastByte) }
-        
         guard manufacturerID == SysExConstant.manufacturerID
         else { throw SysExError.invalidManufacturerID(byte: manufacturerID) }
         
         guard machineID == SysExConstant.machineID
         else { throw SysExError.invalidMachineID(byte: machineID) }
         
-        guard deviceID == SysExConstant.DEV
+        guard (0...126).contains(deviceID)
         else { throw SysExError.invalidDeviceID(byte: deviceID) }
         
+        try validate(command: command)
+        
+        guard lastByte == SysExConstant.endOfMessage
+        else { throw SysExError.sysExEndInvalid(byte: lastByte) }
+        
         debugPrint(icon: "🔍", message: "SysEx Header Valid")
+    }
+    
+    
+    static func validate(command: UInt8) throws {
+        let isDump = command == SysExConstant.programDumpMessage
+        let isBulkDump = command == SysExConstant.programBulkDumpMessage
+        let isAllDump = command == SysExConstant.allDumpMessage
+        let isDumpRequest = command == SysExConstant.programDumpRequest
+        let isBulkRequest = command == SysExConstant.programBulkDumpRequest
+        let isAllRequest = command == SysExConstant.allDumpRequest
+        
+        
+        if !(isDump || isBulkDump || isAllDump || isDumpRequest || isBulkRequest || isAllRequest) {
+            throw SysExError.invalidCommand(byte: command)
+        }
     }
     
 
@@ -82,7 +93,17 @@ enum MiniworksSysExCodec {
     
         /// Determines validity of checksum by Message type
         /// - Convenience Method
-    static func validateChecksum(for type: SysExMessageType, bytes: [UInt8]) throws {
+//    static func validateChecksum(for type: SysExMessageType, bytes: [UInt8]) throws {
+    static func validateChecksum(for type: SysExMessageType) throws {
+        var bytes: [UInt8] = []
+        switch type {
+            case .allDumpMessage(let theBytes): bytes = theBytes
+            case .programBulkDumpMessage(let theBytes): bytes = theBytes
+            case .programDumpMessage(let theBytes): bytes = theBytes
+                
+            default: return
+        }
+        
         let expectedChecksum = bytes[type.checksumIndex]
         let calculatedChecksum = checksum(for: type, bytes: bytes)
         
@@ -93,9 +114,9 @@ enum MiniworksSysExCodec {
     
     
     // Used for testing
-    static func isValidChecksum(for type: SysExMessageType, bytes: [UInt8]) -> Bool {
+    static func isValidChecksum(for type: SysExMessageType) -> Bool {
         do {
-            try validateChecksum(for: type, bytes: bytes)
+            try validateChecksum(for: type)
             return true
         } catch {
             return false
@@ -134,7 +155,7 @@ enum MiniworksSysExCodec {
         let programChecksum: UInt8 = checksum(from: programData)
         
         return SysExConstant.header
-        + [SysExMessageType.programDumpMessage.rawValue]
+        + [SysExConstant.programDumpMessage]
         + programData
         + [programChecksum, SysExConstant.endOfMessage]
     }
@@ -164,7 +185,7 @@ enum MiniworksSysExCodec {
         let checksumData = checksum(from: configurationBytes)
         
         return SysExConstant.header
-        + [SysExMessageType.allDumpMessage.rawValue]
+        + [SysExConstant.allDumpMessage]
         + configurationBytes
         + [checksumData, SysExConstant.endOfMessage]
     }
