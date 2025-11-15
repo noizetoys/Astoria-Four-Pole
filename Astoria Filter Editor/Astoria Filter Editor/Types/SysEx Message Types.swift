@@ -58,8 +58,8 @@ enum SysExRequestMessageType: Codable {
 
 
 enum SysExDataType: Equatable {
-    case programDump(Data)
-    case programBulkDump(Data)
-    case allDump(Data)
+    case programDump([UInt8])
+    case programBulkDump([UInt8])
+    case allDump([UInt8])
 }
 

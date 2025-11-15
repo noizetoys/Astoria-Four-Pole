@@ -9,7 +9,7 @@ import Foundation
 
 
 /// Reflects the current state of the device including user programs and global settings
-class MachineConfiguration: Identifiable, Codable {
+class MachineConfiguration: Identifiable, Codable, Sendable {
     var id: Date
     
     // (20) User Programs (1...20)

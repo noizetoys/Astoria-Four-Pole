@@ -12,7 +12,7 @@ import Foundation
 
 
 struct All_Dump_Tests {
-    private(set) var dumpData: Data
+    private(set) var dumpData: [UInt8]
     
     
     init() async throws {
@@ -37,7 +37,7 @@ struct All_Dump_Tests {
     
     @Test("All Dump Parsing Test")
     func allDumpParsing() async throws {
-        let dataType = try await SysExMessage.parseType(data: dumpData)
+        let dataType = try await MiniworksSysExCodec.parseDataType(from: dumpData)
         
         #expect({
             if case .allDump = dataType {
@@ -50,7 +50,7 @@ struct All_Dump_Tests {
     
     @Test("All Dump Checksum Test")
     func allDumpChecksum() async throws {
-        let isValid = await SysExMessage.isValidChecksum(for: .allDumpMessage, data: dumpData)
+        let isValid = await MiniworksSysExCodec.isValidChecksum(for: .allDumpMessage, bytes: dumpData)
         
         #expect(isValid)
     }
@@ -61,7 +61,7 @@ struct All_Dump_Tests {
         var testData = dumpData
         testData[591] = 0xFF
         
-        let isValid = await SysExMessage.isValidChecksum(for: .allDumpMessage, data: testData)
+        let isValid = await MiniworksSysExCodec.isValidChecksum(for: .allDumpMessage, bytes: testData)
         
         #expect(!isValid)
     }
@@ -69,9 +69,9 @@ struct All_Dump_Tests {
     
     @Test("All Dump Parse and Encode Test")
     func allDumpParseAndEncode() async throws {
-        let allDump = try await SysExObjectCodec.decodeAllDump(data: dumpData)
+        let allDump = try await MiniworksSysExCodec.decodeAllDump(bytes: dumpData)
         
-        let encoded = await SysExObjectCodec.encodeSysEx(allDump: allDump)
+        let encoded = await MiniworksSysExCodec.encodeSysExMessage(allDump: allDump)
         
         #expect(allDumpSampleData.count == encoded.count)
     }
@@ -79,10 +79,10 @@ struct All_Dump_Tests {
     
     @Test("All Dump Encode and Parse Test")
     func allDumpEncodeAndParse() async throws {
-        let theDump = try? await SysExObjectCodec.decodeAllDump(data: dumpData)
+        let theDump = try? await MiniworksSysExCodec.decodeAllDump(bytes: dumpData)
         #expect(theDump != nil)
         
-        let encoded = await SysExObjectCodec.encodeSysEx(allDump: theDump!)
+        let encoded = await MiniworksSysExCodec.encodeSysExMessage(allDump: theDump!)
         
         #expect(dumpData.count == encoded.count)
     }
@@ -101,7 +101,7 @@ struct All_Dump_Tests {
     
     @Test("All Dump Program Count Test")
     func programCount() async throws {
-        let theConfig = try? await SysExObjectCodec.decodeAllDump(data: dumpData)
+        let theConfig = try? await MiniworksSysExCodec.decodeAllDump(bytes: dumpData)
 
         let programCount = await theConfig?.programs.count
         
@@ -110,7 +110,7 @@ struct All_Dump_Tests {
     
     
     @Test func incorrectProgramCount() async throws {
-        let theConfig = try? await SysExObjectCodec.decodeAllDump(data: dumpData)
+        let theConfig = try? await MiniworksSysExCodec.decodeAllDump(bytes: dumpData)
         
         let programCount = await theConfig?.programs.count
         
@@ -123,7 +123,7 @@ struct All_Dump_Tests {
     
     @Test("Globals Length Test")
     func globalsLength() async throws {
-        let theConfig = try? await SysExObjectCodec.decodeAllDump(data: dumpData)
+        let theConfig = try? await MiniworksSysExCodec.decodeAllDump(bytes: dumpData)
         
         let globals = await theConfig?.globalSetup
         let globalSysEx = await globals?.encodeToBytes()
@@ -134,7 +134,7 @@ struct All_Dump_Tests {
     
     @Test("Globals Properties Value Test")
     func globalsPropertiesValues() async throws {
-        let theConfig = try? await SysExObjectCodec.decodeAllDump(data: dumpData)
+        let theConfig = try? await MiniworksSysExCodec.decodeAllDump(bytes: dumpData)
         
         let globals = await theConfig?.globalSetup
         #expect(globals != nil)
@@ -168,7 +168,7 @@ struct All_Dump_Tests {
         let setNoteNumber: UInt8 = 127
         let setKnobMode = GlobalKnobMode.jump
         
-        let theConfig = try? await SysExObjectCodec.decodeAllDump(data: dumpData)
+        let theConfig = try? await MiniworksSysExCodec.decodeAllDump(bytes: dumpData)
         
         #expect(theConfig != nil)
 
@@ -182,7 +182,7 @@ struct All_Dump_Tests {
             theConfig?.knobMode = setKnobMode
         }
         
-        let encodedData = await SysExObjectCodec.encodeSysEx(allDump: theConfig!)
+        let encodedData = await MiniworksSysExCodec.encodeSysExMessage(allDump: theConfig!)
         let encodedBytes = [UInt8](encodedData)
         
         #expect(encodedBytes[585] == setMidiChannel)
@@ -196,7 +196,7 @@ struct All_Dump_Tests {
     
     @Test("Globals Decode Test")
     func globalsEncodeDecode() async throws {
-        let theConfig = try? await SysExObjectCodec.decodeAllDump(data: dumpData)
+        let theConfig = try? await MiniworksSysExCodec.decodeAllDump(bytes: dumpData)
         
         #expect(theConfig != nil)
 
@@ -217,3 +217,4 @@ struct All_Dump_Tests {
     }
 
 }
+

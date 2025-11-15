@@ -13,21 +13,42 @@ import Foundation
 typealias SysExDump = [UInt8]
 
 
-class ROMPrograms {
+    // MARK: - Helpers
+
+    /// Returns the *user-facing* program number (21–40) from a SysEx dump.
+    /// Internally the device encodes program index at byte 5 (0-based) as 0x14–0x27 (20–39).
+func programNumber(from data: SysExDump) -> Int? {
+    guard let index = programIndex(from: data)
+    else { return nil }
     
+    return Int(index) + 1
+}
+
+    /// If you ever need the raw device index (20–39) instead:
+func programIndex(from data: SysExDump) -> Int? {
+    guard data.count > 5 else { return nil }
+    return Int(data[5])
+}
+
+
+class MiniworksROMPrograms {
     private init() { }
     
-    static func ROMSysEx(for program: Int) -> Data? {
-        guard let program = ROMPrograms[program]
-        else { return nil }
-        
-        return Data(program)
+    static func sysEx(for program: Int) throws -> [UInt8] {
+        guard (21...40).contains(program)
+        else { throw SysExError.invalideProgramNumber(number: UInt8(program))}
+            
+        return ROMPrograms[program]!
     }
     
-    static func ROMSysEx(for program: Int) -> SysExDump? {
-        ROMPrograms[program]
+    
+    static func program(_ number: Int) throws -> MiniWorksProgram {
+        let sysEx: SysExDump = try sysEx(for: number)
+        return try MiniWorksProgram(bytes: sysEx)!
     }
-
+    
+    
+    
     // MARK: - Individual program dumps (user-facing 21–40)
     
     static private let program21: SysExDump = [
@@ -195,20 +216,5 @@ class ROMPrograms {
         39: program39,
         40: program40
     ]
-    
-    // MARK: - Helpers
-    
-    /// Returns the *user-facing* program number (21–40) from a SysEx dump.
-    /// Internally the device encodes program index at byte 5 (0-based) as 0x14–0x27 (20–39).
-    static func programNumber(from data: SysExDump) -> Int? {
-        guard data.count > 5 else { return nil }
-        return Int(data[5]) + 1   // map 20–39 → 21–40
-    }
-    
-    /// If you ever need the raw device index (20–39) instead:
-    static func rawDeviceProgramIndex(from data: SysExDump) -> Int? {
-        guard data.count > 5 else { return nil }
-        return Int(data[5])
-    }
     
 }

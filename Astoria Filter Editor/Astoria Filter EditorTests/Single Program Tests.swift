@@ -12,7 +12,7 @@ import Foundation
 
 
 struct Single_Program_Tests {
-    private(set) var programData: Data
+    private(set) var programData: [UInt8]
     
     init () async throws {
         programData = singleProgramSampleData
@@ -35,7 +35,7 @@ struct Single_Program_Tests {
     
     @Test("Single Dump Parsing Test")
     func singleDumpParsing() async throws {
-        let dataType = try await SysExMessage.parseType(data: programData)
+        let dataType = try await MiniworksSysExCodec.parseDataType(from: programData)
         
         #expect({
             if case .programDump = dataType {
@@ -48,7 +48,7 @@ struct Single_Program_Tests {
     
     @Test("Single Dump Checksum Test")
     func singleDumpChecksum() async throws {
-        let isValid = await SysExMessage.isValidChecksum(for: .programDumpMessage, data: programData)
+        let isValid = await MiniworksSysExCodec.isValidChecksum(for: .programDumpMessage, bytes: programData)
         
         #expect(isValid)
     }
@@ -59,7 +59,7 @@ struct Single_Program_Tests {
         var programData = self.programData
         programData[35] = 0xFF
         
-        let isValid = await SysExMessage.isValidChecksum(for: .programDumpMessage, data: programData)
+        let isValid = await MiniworksSysExCodec.isValidChecksum(for: .programDumpMessage, bytes: programData)
         
         
         #expect(isValid == false)
@@ -70,9 +70,9 @@ struct Single_Program_Tests {
     // Parse and Encode
     @Test("Single Dump Parse and Encode Test")
     func singleDumpParseAndEncode() async throws {
-        let program = try await SysExObjectCodec.decodeProgram(data: programData)
+        let program = try await MiniworksSysExCodec.decodeProgram(from: programData)
         
-        let encoded = await SysExObjectCodec.encodeToSysEx(program: program)
+        let encoded = await MiniworksSysExCodec.encodeToSysExMessage(program: program)
         
         #expect(programData.count == encoded.count)
     }
@@ -82,18 +82,24 @@ struct Single_Program_Tests {
     @Test("Single Dump Encode and Parse Test")
     func singleDumpEncodeAndParse() async throws {
         
-        let program = try? await MiniWorksProgram(data: programData)
+        let program = try? await MiniWorksProgram(bytes: programData)
         
         #expect(program != nil)
         
-        let encodedProgram = await SysExObjectCodec.encodeToSysEx(program: program!)
-        
-        let decodedProgramData = try? await SysExObjectCodec.decodeProgram(data: encodedProgram)
-        
-        #expect(decodedProgramData != nil)
-        
-        let reEncodedData = await SysExObjectCodec.encodeToSysEx(program: decodedProgramData!)
-        #expect(programData.count == reEncodedData.count)
+        if let program {
+            
+            let encodedProgram = await MiniworksSysExCodec.encodeToSysExMessage(program: program)
+            
+            let decodedProgramData = try? await MiniworksSysExCodec.decodeProgram(from: encodedProgram)
+            
+            #expect(decodedProgramData != nil)
+            
+            let reEncodedData = await MiniworksSysExCodec.encodeToSysExMessage(program: decodedProgramData!)
+            #expect(programData.count == reEncodedData.count)
+        }
+        else {
+            
+        }
     }
     
     

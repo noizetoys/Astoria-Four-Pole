@@ -9,18 +9,21 @@ import Foundation
 
 
 enum SysExError: Error, LocalizedError {
-    case invalidLength(expected: Int, actual: Int)
+    case invalidLength(length: Int)
     case invalidData([UInt8])
-    case sysExStartInvalid(expected: UInt8, actual: UInt8)
-    case sysExEndInvalid(expected: UInt8, actual: UInt8)
+    case sysExStartInvalid(byte: UInt8?)
+    case sysExEndInvalid(byte: UInt8?)
     
-    case invalidManufacturerID(expected: [UInt8], actual: [UInt8])
-    case invalidDevideID(expected: [UInt8], actual: [UInt8])
-    case invalidChecksum(expected: [UInt8], actual: [UInt8])
+    case invalidManufacturerID(byte: UInt8)
+    case invalidDeviceID(byte: UInt8)
+    case invalidMachineID(byte: UInt8)
+    case invalidChecksum(byte: UInt8)
     case invalidDataFormat(String)
     case encodingFailed(String)
     
-    case invalidCommand(expected: UInt8, actual: UInt8)
-    case invalidParameterCount(expected: Int, actual: Int)
-    case invalidParameterValue(expected: Int, actual: Int)
+    case invalidCommand(byte: UInt8)
+    case invalidParameterCount(count: Int8)
+    case invalidParameterValue(byte: UInt8)
+    
+    case invalideProgramNumber(number: UInt8)
 }

@@ -8,11 +8,11 @@
 import Foundation
 
 
-class MiniWorksProgram: Codable, Identifiable {
+struct MiniWorksProgram: Codable, Identifiable, Equatable, Sendable {
     var id: UUID = UUID()
     private(set) var isReadOnly: Bool = false
     
-    var programNumber: Int = 0
+    var programNumber: UInt8 = 0
     var programName: String = "No Name"
     
     var vcfEnvelopeAttack: UInt8 = 64
@@ -28,7 +28,7 @@ class MiniWorksProgram: Codable, Identifiable {
     var resonance: UInt8 = 64
     var resonanceModulationAmount: UInt8 = 64
     var resonanceModulationSource: ModulationSource = .off
-
+    
     var vcaEnvelopeAttack: UInt8 = 64
     var vcaEnvelopeDecay: UInt8 = 64
     var vcaEnvelopeSustain: UInt8 = 64
@@ -38,7 +38,7 @@ class MiniWorksProgram: Codable, Identifiable {
     var volume: UInt8 = 64
     var volumeModulationAmount: UInt8 = 64
     var volumeModulationSource: ModulationSource = .off
-
+    
     var lfoSpeed: UInt8 = 64
     var lfoSpeedModulationAmount: UInt8 = 64
     var lfoShape: LFOShape = .sine
@@ -51,33 +51,26 @@ class MiniWorksProgram: Codable, Identifiable {
     var gateTime: UInt8 = 64
     var triggerSource: TriggerSource = .audio
     var triggerMode: TriggerMode = .single
-
     
-    /// Creates 'Program' from raw dump
-    convenience init?(data: [UInt8]) throws {
-        let bytes = [UInt8](data)
+}
+
+
+extension MiniWorksProgram {
+    
+        /// Creates 'Program' from raw dump
+    init?(bytes: [UInt8]) throws {
+        try MiniworksSysExCodec.validate(sysEx: bytes)
         
-        do {
-            let isValid = try? SysExMessage.isValidHeader(data: data)
-            
-            if isValid == true {
-                let programData: [UInt8] = Array(bytes[6..<bytes.count])
-                
-                // Adjust the program number from 0 index
-                self.init(bytes: programData, number: Int(bytes[5]) + 1)
-            }
-            else { throw SysExError.invalidData(data) }
-        }
-        catch { throw error }
+        let programData: [UInt8] = Array(bytes[6..<bytes.count])
+        
+            // Adjust the program number from 0 index
+        self.init(bytes: programData, number: bytes[5])
     }
     
     
-    /// Creates 'Program' from  'Program' related bytes
-    /// - Used by 'All Dump'
-    convenience
-    init(bytes: [UInt8], number: Int) {
-        self.init()
-        
+        /// Creates 'Program' from  'Program' related bytes
+        /// - Used by 'All Dump'
+    init(bytes: [UInt8], number: UInt8) {
         programNumber = number
         
         vcfEnvelopeAttack = bytes[0]
@@ -119,8 +112,9 @@ class MiniWorksProgram: Codable, Identifiable {
     }
     
     
-    static func copyROM(_ data: Data) -> MiniWorksProgram {
-        if let program = try? MiniWorksProgram(data: data) {
+    
+    static func copyROM(_ data: [UInt8]) -> MiniWorksProgram {
+        if let program = try? MiniWorksProgram(bytes: data) {
             return program
         }
         else {
@@ -193,7 +187,7 @@ class MiniWorksProgram: Codable, Identifiable {
  
  programNumber = bytes[5]
  
- -> Add Dump <-
+ -> ??? Add Dump ??? <-
  -> Subtract 1 from index below <-
  
  vcfEnvelopeAttack = bytes[6]

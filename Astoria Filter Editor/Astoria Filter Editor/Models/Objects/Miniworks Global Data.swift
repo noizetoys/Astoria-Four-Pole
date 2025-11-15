@@ -20,7 +20,7 @@ import Foundation
  */
 
 
-class MiniWorksGlobalData: Codable {
+class MiniWorksGlobalData: Codable, Sendable {
     /// MIDI Channel for receiving and transmitting
     var midiChannel: UInt8 = 1 {
         didSet { MiniWorksUserDefaults.shared.midiChannel = midiChannel }
@@ -59,21 +59,17 @@ class MiniWorksGlobalData: Codable {
     // MARK: - Lifecycle
     
     // From raw data
-    convenience init(data: Data) {
-        self.init()
-        
-        let rawBytes = [UInt8](data)
-        
+    convenience init(fullMessage rawBytes: [UInt8]) {
         let bytes = Array(rawBytes[585...590])
         
-        self.init(bytes: bytes)
+        self.init(globalbytes: bytes)
     }
     
     
     // From 'Globals' bytes (585 -> 590)
-    convenience init(bytes: [UInt8]) {
+    convenience init(globalbytes bytes: [UInt8]) {
         self.init()
-
+        
         midiChannel = bytes[0]
         midiControl = GlobalMIDIControl(rawValue: bytes[1]) ?? .off
         
