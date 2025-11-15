@@ -54,7 +54,7 @@ class MiniWorksProgram: Codable, Identifiable {
 
     
     /// Creates 'Program' from raw dump
-    convenience init?(data: Data) throws {
+    convenience init?(data: [UInt8]) throws {
         let bytes = [UInt8](data)
         
         do {
@@ -66,7 +66,7 @@ class MiniWorksProgram: Codable, Identifiable {
                 // Adjust the program number from 0 index
                 self.init(bytes: programData, number: Int(bytes[5]) + 1)
             }
-            else { throw MiniWorksError.malformedMessage(data) }
+            else { throw SysExError.invalidData(data) }
         }
         catch { throw error }
     }

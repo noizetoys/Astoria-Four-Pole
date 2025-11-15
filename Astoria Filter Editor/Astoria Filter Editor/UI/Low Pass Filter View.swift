@@ -77,10 +77,9 @@ struct FilterResponseShape: Shape {
         
         let minFreq = 20.0
         let maxFreq = 20000.0
-        let nyquist = maxFreq
         
         // Convert frequency to logarithmic position
-        let cutoffPosition = logPosition(freq: frequency, minFreq: minFreq, maxFreq: maxFreq, width: rect.width)
+//        let cutoffPosition = logPosition(freq: frequency, minFreq: minFreq, maxFreq: maxFreq, width: rect.width)
         
         let points = 500
         

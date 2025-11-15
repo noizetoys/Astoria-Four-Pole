@@ -8,17 +8,17 @@
 import Foundation
 
 
-enum MiniWorksError: Error, Equatable {
-    case malformedMessage(Data)
-    case incompleteMessage(Data)
-    
-    case wrongManufacturerID(UInt8)
-    case wrongMachineID(UInt8)
-    case wrongDeviceID(UInt8)
-    
-    case unknownCommandByte(UInt8)
-
-    case invalidProgramNumber(UInt8)
-
-    case invalidChecksum(UInt8)
-}
+//enum MiniWorksError: Error, Equatable {
+//    case malformedMessage(Data)
+//    case incompleteMessage(Data)
+//    
+//    case wrongManufacturerID(UInt8)
+//    case wrongMachineID(UInt8)
+//    case wrongDeviceID(UInt8)
+//    
+//    case unknownCommandByte(UInt8)
+//
+//    case invalidProgramNumber(UInt8)
+//
+//    case invalidChecksum(UInt8)
+//}

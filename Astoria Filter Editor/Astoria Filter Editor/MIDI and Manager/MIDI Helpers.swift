@@ -63,3 +63,56 @@ func MIDIEventListForEach(_ list: UnsafePointer<MIDIEventList>, _ block: MIDIFor
     
 }
 
+extension OSStatus {
+    var text: String {
+        switch self {
+            case noErr: "Success (noErr)"
+            case kMIDIInvalidClient: "Invalid MIDI Client (kMIDIInvalidClient)"
+            case kMIDIInvalidPort: "Invalid MIDI Port (kMIDIInvalidPort)"
+            case kMIDIWrongEndpointType: "Wrong Endpoint Type (kMIDIWrongEndpointType)"
+            case kMIDINoConnection: "No Connection (kMIDINoConnection)"
+            case kMIDIUnknownEndpoint: "Unknown Endpoint (kMIDIUnknownEndpoint)"
+            case kMIDIUnknownProperty: "Unknown Property (kMIDIUnknownProperty)"
+            case kMIDIWrongPropertyType: "Wrong Property Type (kMIDIWrongPropertyType)"
+            case kMIDINoCurrentSetup: "No Current Setup (kMIDINoCurrentSetup)"
+            case kMIDIMessageSendErr: "Message Send Error (kMIDIMessageSendErr)"
+            case kMIDIServerStartErr: "Server Start Error (kMIDIServerStartErr)"
+            case kMIDISetupFormatErr: "Setup Format Error (kMIDISetupFormatErr)"
+            case kMIDIWrongThread: "Wrong Thread (kMIDIWrongThread)"
+            case kMIDIObjectNotFound: "Object Not Found (kMIDIObjectNotFound)"
+            case kMIDIIDNotUnique: "ID Not Unique (kMIDIIDNotUnique)"
+            case kMIDINotPermitted: "Not Permitted (kMIDINotPermitted)"
+            case kMIDIUnknownError: "Unknown Error (kMIDIUnknownError)"
+            default: "Unknown OSStatus: \(self)"
+        }
+    }
+}
+
+
+extension Notification.Name {
+    static let midiSetupChanged = Notification.Name("MIDI.SetupChanged")
+    static let midiObjectAdded = Notification.Name("MIDI.ObjectAdded")
+    static let midiObjectRemoved = Notification.Name("MIDI.ObjectRemoved")
+    static let midiPropertyChanged = Notification.Name("MIDI.PropertyChanged")
+    static let midiThruConnectionsChanged = Notification.Name("MIDI.ThruConnectionsChanged")
+    static let midiSerialPortOwnerChanged = Notification.Name("MIDI.SerialPortOwnerChanged")
+    static let midiIOError = Notification.Name("MIDI.IOError")
+}
+
+
+nonisolated
+extension [UInt8] {
+    var hexString: String {
+        self.map { String(format: "%02X", $0) }.joined(separator: " ")
+    }
+}
+
+
+nonisolated
+extension UInt8 {
+    var hexString: String {
+        let hex = String(format: "%02x", self)
+        return "\(Int(self)) or (hex) \(hex)"
+    }
+}
+

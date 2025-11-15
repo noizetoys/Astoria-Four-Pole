@@ -8,6 +8,7 @@
 import Foundation
 
 
+nonisolated
 func debugPrint(_ file: StaticString = #file,
                 _ function: StaticString = #function,
                 _ line: Int = #line,

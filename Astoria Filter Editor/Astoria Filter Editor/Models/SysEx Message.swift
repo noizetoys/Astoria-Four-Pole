@@ -16,13 +16,13 @@ enum SysExMessage {
         
         // Not just a header
         guard data.count > 6
-        else { throw MiniWorksError.incompleteMessage(data) }
+        else { throw SysExError.invalidLength(expected: 0, actual: data.count) }
             
         // Header is Valid
         guard
             try isValidHeader(data: data) == true
         else {
-            throw MiniWorksError.malformedMessage(data)
+//            throw SysExError.sysExStartInvalid(expected: 0xF0, actual: <#T##UInt8#>)
         }
         
         guard

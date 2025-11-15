@@ -17,14 +17,14 @@ enum SysExObjectCodec {
     /// Produce Byte stream of all properties of a Program or Dump Sys Ex message
     /// - Provides complete message
     /// - Containing header, data, checksum, EOD
-    static func encodeToSysEx(program: MiniWorksProgram) -> Data {
-        let programData = program.encodeToBytes()
-        let programChecksum = SysExMessage.checksum(from: programData)
+    static func encodeToSysEx(program: MiniWorksProgram) -> [UInt8] {
+        let programData: [UInt8] = program.encodeToBytes()
+        let programChecksum: UInt8 = SysExMessage.checksum(from: programData)
         
-        return Data(SysExConstant.header
-                    + [SysExMessageType.programDumpMessage.rawValue]
-                    + programData
-                    + [programChecksum, SysExConstant.endOfMessage])
+        return SysExConstant.header
+        + [SysExMessageType.programDumpMessage.rawValue]
+        + programData
+        + [programChecksum, SysExConstant.endOfMessage]
     }
     
     
@@ -47,15 +47,14 @@ enum SysExObjectCodec {
     /// Produce Byte stream of all programs and global data for All Dump Sys Ex Message
     /// - Provides complete message
     /// - Containing header, data, checksum, EOD
-    static func encodeSysEx(allDump configuration: MachineConfiguration) -> Data {
+    static func encodeSysEx(allDump configuration: MachineConfiguration) -> [UInt8] {
         let configurationBytes = configuration.encodeToBytes()
         let checksumData = SysExMessage.checksum(from: configurationBytes)
         
-        return Data(SysExConstant.header
-                    + [SysExMessageType.allDumpMessage.rawValue]
-                    + configurationBytes
-                    + [checksumData, SysExConstant.endOfMessage]
-        )
+        return SysExConstant.header
+        + [SysExMessageType.allDumpMessage.rawValue]
+        + configurationBytes
+        + [checksumData, SysExConstant.endOfMessage]
     }
     
     
@@ -96,4 +95,11 @@ enum SysExObjectCodec {
         return MachineConfiguration(programs: programs, globals: globals)
     }
     
+    
+    // MARK: - Validation
+    
+    private func validateSysEx(_ data: [UInt8]) throws {
+        guard !data.isEmpty
+        else { throw MiniWorksError.malformedMessage(Data()) }
+    }
 }
