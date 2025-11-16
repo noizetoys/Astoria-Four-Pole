@@ -122,12 +122,9 @@ final actor MIDIService {
         debugPrint(icon: "⬅️", message: "Output Port Created")
     }
     
-}
-
 
 // MARK: - Connecting/Disconnecting Devices
 
-extension MIDIService {
     func availableSources() -> [MIDIDevice] {
         var devices: [MIDIDevice] = []
         
@@ -208,10 +205,7 @@ extension MIDIService {
         debugPrint(icon: "🔌", message: "All devices now Disconnected")
     }
     
-}
 
-
-extension MIDIService {
     private func handleIncomingPacketData(_ packets: [[UInt8]]) {
         debugPrint(icon: "🔄", message: "Enumerating MIDI devices...")
         
@@ -327,12 +321,9 @@ extension MIDIService {
         
     }
     
-}
-    
 
 // MARK: - Sending MIDI
 
-extension MIDIService {
     func send(_ message: MIDIMessageType, to destination: MIDIDevice) throws {
         let bytes = try encodeMessage(message)
         
@@ -448,13 +439,10 @@ extension MIDIService {
         
         return status
     }
-}
 
 
     // MARK: - Receiving MIDI Streams
 
-extension MIDIService {
-    
         /// Create and hold on to the AsyncStream for receiveing SysEx data
     func sysexStream(from source: MIDIDevice) -> AsyncStream<[UInt8]> {
         AsyncStream(bufferingPolicy: .bufferingOldest(5)) { continuation in

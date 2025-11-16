@@ -8,7 +8,7 @@
 import Foundation
 
 /// Used to encode and decode Sys Ex to Programs or Cofigurations
-enum MiniworksSysExCodec {
+final class MiniworksSysExCodec {
     
     static private var currentDeviceID: UInt8 {
         UInt8(UserDefaults.standard.integer(forKey: "deviceID"))
@@ -192,7 +192,7 @@ enum MiniworksSysExCodec {
     /// Produce Byte stream of all programs and global data for All Dump Sys Ex Message
     /// - Provides complete message
     /// - Containing header, data, checksum, EOD
-    static func encodeSysExMessage(allDump configuration: MachineConfiguration) -> [UInt8] {
+    static func encodeSysExMessage(allDump configuration: MiniworksDeviceProfile) -> [UInt8] {
         let configurationBytes = configuration.encodeToBytes()
         let checksumData = checksum(from: configurationBytes)
         
@@ -206,7 +206,7 @@ enum MiniworksSysExCodec {
     // MARK: Decode
     
     /// Takes complete 'All Dump' byte stream
-    static func decodeAllDump(bytes: [UInt8]) throws -> MachineConfiguration {
+    static func decodeAllDump(bytes: [UInt8]) throws -> MiniworksDeviceProfile {
         // Parse (20) Individual Programs (0-19)
         var programs: [MiniWorksProgram] = []
         
@@ -226,7 +226,7 @@ enum MiniworksSysExCodec {
         let glodalBytes: [UInt8] = Array(bytes[585...590])
         let globals = MiniWorksGlobalData(globalbytes: glodalBytes)
         
-        return MachineConfiguration(programs: programs, globals: globals)
+        return MiniworksDeviceProfile(programs: programs, globals: globals)
     }
     
 }

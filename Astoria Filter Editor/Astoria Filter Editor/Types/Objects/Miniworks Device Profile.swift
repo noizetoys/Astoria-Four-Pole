@@ -1,6 +1,5 @@
 //
-//  Machine Configuration.swift
-//  4 Pole for the Win
+//  Miniworks Device Profile.swift
 //
 //  Created by James B. Majors on 11/7/25.
 //
@@ -9,7 +8,7 @@ import Foundation
 
 
 /// Reflects the current state of the device including user programs and global settings
-class MachineConfiguration: Identifiable, Codable, Sendable {
+class MiniworksDeviceProfile: Identifiable, Codable, Sendable {
     var id: Date
     
     // (20) User Programs (1...20)
@@ -67,7 +66,7 @@ class MachineConfiguration: Identifiable, Codable, Sendable {
     /// Used to create a 'new' machine based
     /// - Gloabals use User Defaults
     /// - Programs are copy of ROM programs (21-40)
-    static func newMachineConfiguration() -> MachineConfiguration {
+    static func newMachineConfiguration() -> MiniworksDeviceProfile {
         .init(programs: MiniworksROMPrograms.programs(), globals: MiniWorksGlobalData())
     }
     
