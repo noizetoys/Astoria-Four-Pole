@@ -8,7 +8,8 @@
 import Foundation
 
 
-struct MiniWorksProgram: Identifiable, Sendable {
+@Observable
+class MiniWorksProgram: Identifiable, Sendable {
     var id: UUID = UUID()
     private(set) var isReadOnly: Bool = false
     
@@ -73,13 +74,27 @@ struct MiniWorksProgram: Identifiable, Sendable {
             gateTime, triggerSource, triggerMode
         ]
     }
+    
+    
+    func updateFromCC(_ cc: UInt8, value: UInt8, onChannel: UInt8) {
+        debugPrint(icon: "🎛️", message: "Update from CC: \(cc), Value: \(value)")
+        // TODO: Needs to check channel against device's channel
+        
+        if let parameter = properties.first(where: { $0.ccValue == cc}) {
+            parameter.setValue(value)
+        }
+        else {
+            debugPrint(icon: "❌", message: "No parameter found for CC: \(cc)")
+        }
+    }
+    
 }
 
 
 extension MiniWorksProgram {
     
         /// Creates 'Program' from raw dump
-    init?(bytes: [UInt8]) throws {
+    convenience init?(bytes: [UInt8]) throws {
         try MiniworksSysExCodec.validate(sysEx: bytes)
         
         let programData: [UInt8] = Array(bytes[6..<bytes.count])
@@ -91,7 +106,7 @@ extension MiniWorksProgram {
     
         /// Creates 'Program' from  'Program' related bytes
         /// - Used by 'All Dump'
-    init(bytes: [UInt8], number: UInt8) {
+    convenience init(bytes: [UInt8], number: UInt8) {
         self.init()
         
         programNumber = number

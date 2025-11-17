@@ -8,6 +8,7 @@
 import Foundation
 
 
+@Observable
 final class ProgramParameter: Identifiable {
     let id: UUID = UUID()
     
@@ -17,10 +18,6 @@ final class ProgramParameter: Identifiable {
     
     var modulationSource: ModulationSource?
     var containedParameter: ContainedParameter?
-    
-        // Note: Modulation Amount parameters (.LFOSpeedModulationAmount, etc.)
-        // are treated as standard value: UInt8 properties (0-127) as they don't
-        // select from a separate enum.
     
     var name: String { type.rawValue }
     var ccValue: UInt8 { type.ccValue }

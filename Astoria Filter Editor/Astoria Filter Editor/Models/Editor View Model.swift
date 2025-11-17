@@ -150,7 +150,7 @@ final class EditorViewModel {
     
     
     private func handleIncomingCC(channel: UInt8, cc: UInt8, value: UInt8) {
-//        patch.updateFromCC(cc, value: value, onChannel: channel))
+        program.updateFromCC(cc, value: value, onChannel: channel)
     }
     
 }

@@ -138,13 +138,13 @@ enum MiniWorksParameter: String, Codable {
     
     var valueRange: ClosedRange<UInt8> {
         switch self {
-            case .LFOShape: 1...4
+            case .LFOShape: 0...4
                 
             case .LFOSpeedModulationSource,
                     .cutoffModulationSource,
                     .resonanceModulationSource,
                     .volumeModulationSource,
-                    .panningModulationSource: 1...15
+                    .panningModulationSource: 0...15
                 
             case .triggerSource: 0...2  // 0: Audio, 1: MIDI, 2: All
             case .triggerMode: 0...1    // 0: Multi, 1: Single
