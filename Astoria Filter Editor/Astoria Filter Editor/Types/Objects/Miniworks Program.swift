@@ -88,6 +88,13 @@ class MiniWorksProgram: Identifiable, Sendable {
         }
     }
     
+    
+//    func sendCCUpdate(for parameter: ProgramParameter) {
+//        debugPrint(icon: "🎛️", message: "Update \(parameter.name) from CC: \(parameter.ccValue), Value: \(parameter.value)")
+//        
+//        MIDIService.shared.send(cc: parameter.ccValue, value: UInt8(parameter.value), to: .miniWorks)
+//    }
+    
 }
 
 
@@ -96,17 +103,19 @@ extension MiniWorksProgram {
         /// Creates 'Program' from raw dump
     convenience init?(bytes: [UInt8]) throws {
         try MiniworksSysExCodec.validate(sysEx: bytes)
+        debugPrint(message: "byte count: \(bytes.count), \(bytes.hexString)")
         
-        let programData: [UInt8] = Array(bytes[6..<bytes.count])
+//        let programData: [UInt8] = Array(bytes[6..<bytes.count])
         
             // Adjust the program number from 0 index
-        self.init(bytes: programData, number: bytes[5])
+        self.init(bytes: bytes, number: bytes[5])
     }
     
     
         /// Creates 'Program' from  'Program' related bytes
         /// - Used by 'All Dump'
     convenience init(bytes: [UInt8], number: UInt8) {
+        debugPrint(message: "program #\(number + 1), byte count: \(bytes.count), \(bytes.hexString)")
         self.init()
         
         programNumber = number

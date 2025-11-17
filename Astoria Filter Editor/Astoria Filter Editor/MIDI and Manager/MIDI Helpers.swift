@@ -63,6 +63,8 @@ func MIDIEventListForEach(_ list: UnsafePointer<MIDIEventList>, _ block: MIDIFor
     
 }
 
+
+nonisolated
 extension OSStatus {
     var text: String {
         switch self {
@@ -111,8 +113,8 @@ extension [UInt8] {
 nonisolated
 extension UInt8 {
     var hexString: String {
-        let hex = String(format: "%02x", self)
-        return "\(Int(self)) or (hex) \(hex)"
+        let hex = String(format: "%02X", self)
+        return "\(Int(self)) or \(hex) (hex)"
     }
 }
 

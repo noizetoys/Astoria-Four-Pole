@@ -108,7 +108,7 @@ final class EditorViewModel {
             
             /*
              'await sysData' -> "Wait for the data from the Stream"
-             'await ...sysexStream(from: device) ->
+             'await midiService.sysexStream(from: device) ->
              */
             for await sysexData in await self.midiService.sysexStream(from: source) {
                 self.handleIncomingSysEx(sysexData)
@@ -137,20 +137,48 @@ final class EditorViewModel {
     
     
     private func handleIncomingSysEx(_ sysexData: [UInt8]) {
-//        do {
-//            let receivedPatch = try codec.decoce
-//            self.patch = receivedPatch
-            
-//            statusMessage = "Received patch: \(receivedPatch.name)"
-//        }
-//        catch {
-//            statusMessage = "Failed to decode SysEx: \(error.localizedDescription)"
-//        }
+        debugPrint(icon: "📡", message: "Attempting to decode SysEx:  size: \(sysexData.count) \n\(sysexData.hexString)")
+        
+        do {
+            if sysexData.count > 40 {
+                let receivedConfig = try MiniworksSysExCodec.decodeAllDump(bytes: sysexData)
+                configuration = receivedConfig
+                debugPrint(icon: "📡", message: "Config (All Dump) SysEx Decoded!!!!")
+            }
+            else {
+                let receivedProgram = try MiniworksSysExCodec.decodeProgram(from: sysexData)
+                program = receivedProgram
+                debugPrint(icon: "📡", message: "Program SysEx Decoded!!!!")
+            }
+        }
+        catch {
+            debugPrint(icon: "📡", message: "Failed to decode SysEx: \n\(error.localizedDescription)")
+        }
     }
     
     
     private func handleIncomingCC(channel: UInt8, cc: UInt8, value: UInt8) {
         program.updateFromCC(cc, value: value, onChannel: channel)
+    }
+    
+    
+    // MARK: - Updates from UI
+    
+    func updateCC(from parameter: ProgramParameter) {
+        debugPrint(icon: "🎛️", message: "Update \(parameter.type.rawValue), CC: \(parameter.ccValue), Value: \(parameter.value)")
+
+        Task {
+            try await midiService.send(.controlChange(channel: 1, cc: parameter.ccValue, value: parameter.value), to: selectedDestination)
+        }
+    }
+    
+    
+    func selectProgram(_ program: Int) {
+        debugPrint(icon: "🎛️", message: "Selecting program: \(program)")
+        
+        Task {
+            try await midiService.send(.programChange(program: UInt8(program)), to: selectedDestination)
+        }
     }
     
 }

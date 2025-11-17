@@ -9,11 +9,19 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var viewModel = EditorViewModel()
+    @State private var program: Int = 0
     
     
     var body: some View {
         ScrollView {
             connectionBox
+            
+            HStack {
+                slider(for: viewModel.program.vcfEnvelopeAttack)
+                programChangeStepper
+            }
+            
+            
             
             Text(viewModel.program.description)
                 .multilineTextAlignment(.leading)
@@ -22,6 +30,24 @@ struct ContentView: View {
                 .fontDesign(.monospaced)
         }
         .padding()
+    }
+    
+    
+    func slider(for parameter: ProgramParameter) -> some View {
+        Slider(value: parameter.doubleBinding, in: parameter.doubleRange, step: 1) {
+            Text("Current Value: \(parameter.value)")
+        } onEditingChanged: { isEditing in
+            viewModel.updateCC(from: parameter)
+        }
+    }
+    
+    
+    var programChangeStepper: some View {
+        Stepper(value: $program, in: 0...39, step: 1) {
+            Text("Current Value: \(program + 1)")
+        } onEditingChanged: { isEditing in
+            viewModel.selectProgram(program)
+        }
     }
     
     

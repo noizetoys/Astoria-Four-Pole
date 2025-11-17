@@ -29,9 +29,33 @@
 		2EC3F4E32EBFEE8800D70CC0 /* Astoria Filter EditorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Astoria Filter EditorUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		85BD425B2ECAB2A3006875F3 /* Exceptions for "Astoria Filter Editor" folder in "Astoria Filter Editor" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				UI/ADSRRRR.swift,
+				"UI/Claude Log.swift",
+				"UI/envelope_model-3.swift",
+				"UI/Keyboard View.swift",
+				UI/Knob.swift,
+				"UI/LFO View.swift",
+				UI/LFOTracerView.swift,
+				UI/LogScaleView.swift,
+				"UI/Midi Monitoring.swift",
+				UI/MIDITimeMappingVisualizer.swift,
+				"UI/Pan Indicator.swift",
+				"UI/Useful Knob.swift",
+			);
+			target = 2EC3F4CB2EBFEE8700D70CC0 /* Astoria Filter Editor */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2EC3F4CE2EBFEE8700D70CC0 /* Astoria Filter Editor */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				85BD425B2ECAB2A3006875F3 /* Exceptions for "Astoria Filter Editor" folder in "Astoria Filter Editor" target */,
+			);
 			path = "Astoria Filter Editor";
 			sourceTree = "<group>";
 		};

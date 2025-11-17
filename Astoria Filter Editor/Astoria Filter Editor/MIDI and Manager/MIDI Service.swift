@@ -353,7 +353,13 @@ final actor MIDIService {
 
 // MARK: - Sending MIDI
     
-    func send(_ message: MIDIMessageType, to destination: MIDIDevice) throws {
+    func send(_ message: MIDIMessageType, to destination: MIDIDevice?) throws {
+        guard
+            let destination
+        else {
+            throw MIDIError.sendFailed("Invalid Destination")
+        }
+        
         let bytes = try encodeMessage(message)
         
         debugPrint(icon: "📤", message: "Sending \(bytes.count) to \(destination.name): \(bytes.hexString)")
@@ -366,7 +372,7 @@ final actor MIDIService {
         }
         catch {
             debugPrint(icon: "❌", message: "Status Error: \(status.description)")
-            throw MIDIError.sendFailed(status)
+            throw MIDIError.sendFailed(status.text)
         }
     }
     
@@ -551,7 +557,7 @@ final actor MIDIService {
     }
     
     
-    // MARK: Stream Cleanup
+    // MARK: - Stream Cleanup
 
     private func removeSysExContinuation(for deviceID: MIDIUniqueID) {
         connections[deviceID]?.sysexContinuation = nil

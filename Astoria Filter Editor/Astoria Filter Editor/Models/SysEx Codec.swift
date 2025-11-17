@@ -45,20 +45,27 @@ final class MiniworksSysExCodec {
     
         /// Check beginning, end, manufacturer ID, and Device ID
     static func validate(sysEx: [UInt8]) throws {
-        let firstByte = sysEx.first
+        let firstByte = sysEx.first ?? 0xFF
         let manufacturerID = sysEx[1]
         let machineID = sysEx[2]
         let deviceID = sysEx[3]
         let command = sysEx[4]
-        let lastByte = sysEx.last
+        let lastByte = sysEx.last ?? 0xFF
         
+        let messageStartConst = SysExConstant.messageStart.hexString
+        let manufacturerIDConst = SysExConstant.manufacturerID.hexString
+        let machineIDConst = SysExConstant.machineID.hexString
+
+        let messageEndConst = SysExConstant.endOfMessage.hexString
+
         debugPrint(icon: "🔍", message: """
                    Validating SysEx Header:
-                     start: \(String(describing: firstByte))
-                     end: \(String(describing: lastByte))
-                     manufacturerID: \(manufacturerID)
-                     machineID: \(machineID)
-                     deviceID: \(deviceID)
+                     start: \(firstByte.hexString) --> \(messageEndConst)
+                     manufacturerID: \(manufacturerID.hexString) --> \(manufacturerIDConst)
+                     machineID: \(machineID.hexString) --> \(machineIDConst)
+                     deviceID: \(deviceID.hexString)
+                     ......
+                     end: \(lastByte.hexString) --> \(messageEndConst)
                    
                    
                    """)
@@ -66,21 +73,27 @@ final class MiniworksSysExCodec {
             // Errors broken out to help identify issue
         guard firstByte == SysExConstant.messageStart
         else { throw SysExError.sysExStartInvalid(byte: firstByte) }
+        print("✅ Message Start Valid")
         
         guard manufacturerID == SysExConstant.manufacturerID
         else { throw SysExError.invalidManufacturerID(byte: manufacturerID) }
-        
+        print("✅ Manufacturer ID Valid")
+
         guard machineID == SysExConstant.machineID
         else { throw SysExError.invalidMachineID(byte: machineID) }
-        
+        print("✅ Machine ID Valid")
+
         guard (0...126).contains(deviceID)
         else { throw SysExError.invalidDeviceID(byte: deviceID) }
-        
+        print("✅ Device ID Valid (0-126)")
+
         try validate(command: command)
-        
+        print("✅ Command Valid")
+
         guard lastByte == SysExConstant.endOfMessage
         else { throw SysExError.sysExEndInvalid(byte: lastByte) }
-        
+        print("✅ End of Message Valid")
+
         debugPrint(icon: "🔍", message: "SysEx Header Valid")
     }
     
@@ -156,6 +169,7 @@ final class MiniworksSysExCodec {
 
 
     // MARK: - Program (Patch)
+    
     // MARK: Encode
     
     /// Produce Byte stream of all properties of a Program or Dump Sys Ex message
@@ -174,8 +188,11 @@ final class MiniworksSysExCodec {
     
     
     // MARK: Decode
+    
     /// Takes Program/Bulk Dump
     static func decodeProgram(from data: [UInt8]) throws -> MiniWorksProgram {
+        debugPrint(message: "Size of Data: \(data.count)\ndata: \(data.hexString)")
+        
         if let program = try? MiniWorksProgram(bytes: data) {
             return program
         }
@@ -206,15 +223,17 @@ final class MiniworksSysExCodec {
     // MARK: Decode
     
     /// Takes complete 'All Dump' byte stream
+    /// - Header and program # inserted into program to use existng initializers
     static func decodeAllDump(bytes: [UInt8]) throws -> MiniworksDeviceProfile {
         // Parse (20) Individual Programs (0-19)
         var programs: [MiniWorksProgram] = []
+        let header = Array(bytes[0..<5])
         
         var startingIndex: Int = 5
         
         for programNumber in 0..<20 {
             let parameters = Array(bytes[startingIndex..<(startingIndex + 29)])
-            let program = MiniWorksProgram(bytes: parameters,
+            let program = MiniWorksProgram(bytes: header + [UInt8(programNumber)] + parameters,
                                            number: UInt8(programNumber))
             
             programs.append(program)

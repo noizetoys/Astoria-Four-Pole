@@ -15,7 +15,8 @@ enum MIDIError: Error, LocalizedError {
     case deviceNotAvailable
     case connectionFailed(OSStatus)
     
-    case sendFailed(OSStatus)
+//    case sendFailed(OSStatus)
+    case sendFailed(String)
     
     case invalidSysEx(String)
     case invalidMIDIMessage(String)
@@ -29,7 +30,7 @@ enum MIDIError: Error, LocalizedError {
             case .deviceNotAvailable: debugPrint(message: "MIDI device not available")
             case .connectionFailed(let status): debugPrint(message: "Failed to connect MIDI port with status \(status)")
                 
-            case .sendFailed(let status): debugPrint(message: "Failed to send MIDI message with status \(status)")
+            case .sendFailed(let message): debugPrint(message: "Failed to send MIDI message: \(message)")
                 
             case .invalidSysEx(let string): debugPrint(message: "Invalid Sys Ex Message: \(string)")
             case .invalidMIDIMessage(let string): debugPrint(message: "Invalid MIDI Message: \(string)")

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 
 @Observable
@@ -14,7 +15,13 @@ final class ProgramParameter: Identifiable {
     
     let type: MiniWorksParameter
     
-    private var _value: UInt8
+    var _value: UInt8
+    var doubleBinding: Binding<Double> {
+        Binding<Double>(
+            get: { Double(self._value) },
+            set: { self._value = UInt8($0) }
+        )
+    }
     
     var modulationSource: ModulationSource?
     var containedParameter: ContainedParameter?
@@ -23,6 +30,12 @@ final class ProgramParameter: Identifiable {
     var ccValue: UInt8 { type.ccValue }
     var bitPosition: Int { type.bitPosition }
     var valueRange: ClosedRange<UInt8> { type.valueRange }
+    var doubleRange: ClosedRange<Double> {
+        let min: Double = Double(valueRange.lowerBound)
+        let max: Double = Double(valueRange.upperBound)
+        
+        return min...max
+    }
     
     var isModSource: Bool { type.isModulationSourceSelector }
     var isModAmount: Bool { type.isModulationAmount }
@@ -97,8 +110,25 @@ final class ProgramParameter: Identifiable {
         self._value = rawValue
     }
     
+    
     func use(bytes: [UInt8]) {
+//        debugPrint(message: "bit Position: \(bitPosition), byte count: \(bytes.count)")
         _value = bytes[bitPosition]
+//        debugPrint(message: "bit Position: \(bitPosition), byte count: \(bytes.count), value: \(_value)")
+    }
+    
+}
+
+
+extension ClosedRange<UInt8> { // where Bound == UInt8 {
+    // Convert to an integer range
+    func convert<T: BinaryInteger>(to type: T.Type) -> ClosedRange<T> {
+        T(self.lowerBound)...T(self.upperBound)
+    }
+
+    // Convert to a floating-point range
+    func convert<T: BinaryFloatingPoint>(to type: T.Type) -> ClosedRange<T> {
+        T(self.lowerBound)...T(self.upperBound)
     }
 }
 
