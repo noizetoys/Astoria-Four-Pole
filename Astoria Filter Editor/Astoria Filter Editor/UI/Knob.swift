@@ -7,7 +7,7 @@ struct CircularFader: View {
     var size: CGFloat = 200
     var ringWidth: CGFloat = 16                  // internal decorative ring width (optional)
     var dotDiameter: CGFloat = 14
-    var dotInsetInside: CGFloat = 10             // dot inside the knob rim
+    var dotInsetInside: CGFloat = 20             // dot inside the knob rim
     
     // Outside line (the tracking indicator line)
     var outsideLineWidth: CGFloat = 12
@@ -79,7 +79,8 @@ struct CircularFader: View {
             IndicatorDotInside(
                 angleCW: angleForValue(value.clamped01()),
                 diameter: dotDiameter,
-                insetFromOuterEdge: dotInsetInside
+                insetFromOuterEdge: 20
+//                insetFromOuterEdge: dotInsetInside
             )
             .frame(width: diameter, height: diameter)
         }
@@ -201,7 +202,8 @@ struct IndicatorDotInside: View {
             let c = CGPoint(x: w/2, y: h/2)
             let rOuter = min(w, h) / 2
             let r = rOuter - insetFromOuterEdge
-            
+//            let r = rOuter - 20
+
             let θ = angleCW * .pi / 180
             let x = c.x + CGFloat(cos(θ)) * r
             let y = c.y + CGFloat(sin(θ)) * r   // +sin for CW

@@ -88,13 +88,6 @@ class MiniWorksProgram: Identifiable, Sendable {
         }
     }
     
-    
-//    func sendCCUpdate(for parameter: ProgramParameter) {
-//        debugPrint(icon: "🎛️", message: "Update \(parameter.name) from CC: \(parameter.ccValue), Value: \(parameter.value)")
-//        
-//        MIDIService.shared.send(cc: parameter.ccValue, value: UInt8(parameter.value), to: .miniWorks)
-//    }
-    
 }
 
 
@@ -138,7 +131,7 @@ extension MiniWorksProgram {
     func encodeToBytes(forAllDump: Bool = false) -> [UInt8] {
         var bytes = properties.map { $0.value }
         
-        // Single programs use Program Number at [0]
+        // Single programs use Program Number at [5]
         // All Dump does not
         if !forAllDump {
             bytes.insert(UInt8(programNumber), at: 0)

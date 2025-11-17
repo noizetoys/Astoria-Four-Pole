@@ -82,17 +82,17 @@ struct ADSREditorView: View {
             }
             .padding(.horizontal)
             
-            VStack {
-               lfoSlider
-                
-                gateTimeSlider
-            }
-            
-            // Preset buttons
-            presetButtons
-                .padding(.top, 8)
-            
-            Spacer()
+//            VStack {
+//               lfoSlider
+//                
+//                gateTimeSlider
+//            }
+//            
+//            // Preset buttons
+//            presetButtons
+//                .padding(.top, 8)
+//            
+//            Spacer()
         }
         .padding()
     }
@@ -318,6 +318,21 @@ struct EnvelopeShape: Shape {
     var release: Double
     
     /// Enable smooth animations when parameters change
+//    var animatableData: AnimatablePair<Double, AnimatablePair<Double, AnimatablePair<Double, Double>>> {
+//        get {
+//            // Normalize attack time for animation (use log scale)
+//            let normalizedAttack = log(attackTimeMs / 2.0) / log(30000.0)
+//            return AnimatablePair(normalizedAttack, AnimatablePair(decay, AnimatablePair(sustain, release)))
+//        }
+//        set {
+//            // Convert back from normalized to ms
+//            let normalizedAttack = max(0, min(1, newValue.first))
+//            attackTimeMs = 2.0 * exp(normalizedAttack * log(30000.0))
+//            decay = newValue.second.first
+//            sustain = newValue.second.second.first
+//            release = newValue.second.second.second
+//        }
+//    }
     var animatableData: AnimatablePair<Double, AnimatablePair<Double, AnimatablePair<Double, Double>>> {
         get {
             // Normalize attack time for animation (use log scale)
@@ -333,9 +348,18 @@ struct EnvelopeShape: Shape {
             release = newValue.second.second.second
         }
     }
+
+        // Normalize each stage to its slot independently.
+    func stageWidth(for value: Double, slotWidth: CGFloat) -> CGFloat {
+        let clamped = max(1.0, min(value, 127))
+        let t = clamped / 127          // 1.0 -> small, 63.0 -> full slot
+        return slotWidth * t
+    }
+
     
     func path(in rect: CGRect) -> Path {
         var path = Path()
+        
         let w = rect.width
         let h = rect.height
         
@@ -361,7 +385,7 @@ struct EnvelopeShape: Shape {
         path.addLine(to: CGPoint(x: attackX, y: 0))                  // Attack to peak
         path.addLine(to: CGPoint(x: decayX, y: sustainY))           // Decay to sustain level
         path.addLine(to: CGPoint(x: releaseStartX, y: sustainY))    // Sustain hold
-        path.addLine(to: CGPoint(x: releaseX, y: h))                // Release to bottom
+        path.addLine(to: CGPoint(x: releaseX, y: rect.maxY))                // Release to bottom
         
         return path
     }

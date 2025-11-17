@@ -30,8 +30,8 @@
             filePath = "Astoria Filter Editor/Types/Objects/Miniworks Program.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "122"
-            endingLineNumber = "122"
+            startingLineNumber = "115"
+            endingLineNumber = "115"
             landmarkName = "init(bytes:number:)"
             landmarkType = "7">
          </BreakpointContent>

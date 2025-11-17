@@ -1,5 +1,5 @@
 //
-//  Patch Parameter.swift
+//  Program Parameter.swift
 //  Astoria Filter Editor
 //
 //  Created by James B. Majors on 11/15/25.
@@ -112,9 +112,7 @@ final class ProgramParameter: Identifiable {
     
     
     func use(bytes: [UInt8]) {
-//        debugPrint(message: "bit Position: \(bitPosition), byte count: \(bytes.count)")
         _value = bytes[bitPosition]
-//        debugPrint(message: "bit Position: \(bitPosition), byte count: \(bytes.count), value: \(_value)")
     }
     
 }
@@ -137,6 +135,7 @@ extension ProgramParameter: CustomStringConvertible {
     var description: String {
         var options: String = ""
         
+        // For Testing
 //        if modulationSource != nil || containedParameter != nil {
 //            options = availableOptions.map({
 //                switch $0 {
