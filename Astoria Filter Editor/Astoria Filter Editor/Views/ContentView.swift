@@ -7,27 +7,48 @@
 
 import SwiftUI
 
+
+// Settings
+// File manager
+// Program editor
+// Device Profile (Programs & Globals)
+//
+
+
+
+
 struct ContentView: View {
     @State private var viewModel = EditorViewModel()
     @State private var program: Int = 0
     
     
     var body: some View {
-        ScrollView {
-            connectionBox
-            
-            HStack {
-                slider(for: viewModel.program.vcfEnvelopeAttack)
-                programChangeStepper
+        TabView {
+            Tab("Editor", systemImage: "slider.horizontal.3") {
+                Text("The Editor")
+            }
+            Tab("Library", systemImage: "book.and.wrench") {
+                Text("The Library")
+            }
+            Tab("Settings", systemImage: "gear") {
+                Text("Settings go Here")
             }
             
             
+//            connectionBox
             
-            Text(viewModel.program.description)
-                .multilineTextAlignment(.leading)
-                .frame(maxHeight: .infinity)
-                .font(.title3)
-                .fontDesign(.monospaced)
+//            HStack {
+//                slider(for: viewModel.program.vcfEnvelopeAttack)
+//                programChangeStepper
+//            }
+            
+            
+            
+//            Text(viewModel.program.description)
+//                .multilineTextAlignment(.leading)
+//                .frame(maxHeight: .infinity)
+//                .font(.title3)
+//                .fontDesign(.monospaced)
         }
         .padding()
     }
@@ -115,6 +136,7 @@ struct ContentView: View {
             }
         }
     }
+    
 }
 
 

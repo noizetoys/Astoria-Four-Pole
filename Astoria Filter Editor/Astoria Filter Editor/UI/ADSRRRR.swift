@@ -25,7 +25,7 @@ struct ADSREnvelopeEditor: View {
     @Binding var sustain: Int   // 1...63
     @Binding var release: Int   // 1...63
     
-    private let knobRange = 1...63
+    private let knobRange = 1...127
     
     // MIDI-mapped values (0...127)
     var midiAttack: Int  { ADSRValueMapping.uiToMidi(attack) }
@@ -107,7 +107,7 @@ struct ADSREnvelopeShape: Shape {
     var sustain: Double
     var release: Double
     
-    var maxStageValue: Double = 63.0
+    var maxStageValue: Double = 127.0
     
     func path(in rect: CGRect) -> Path {
         var path = Path()
@@ -134,11 +134,16 @@ struct ADSREnvelopeShape: Shape {
         let sustainWidth = stageWidth(for: sustain)
         let releaseWidth = stageWidth(for: release)
         
-        let p0 = CGPoint(x: rect.minX,                    y: baseY)
-        let p1 = CGPoint(x: p0.x + attackWidth,           y: peakY)
-        let p2 = CGPoint(x: p1.x + decayWidth,            y: sustainY)
-        let p3 = CGPoint(x: p2.x + sustainWidth,          y: sustainY)
-        let p4 = CGPoint(x: p3.x + releaseWidth,          y: baseY)
+        // Lower left
+        let p0 = CGPoint(x: rect.minX, y: baseY)
+        // X:  Lower left + section width (width/4)
+        // Y: Just below the top
+        let p1 = CGPoint(x: p0.x + attackWidth, y: peakY)
+        // X: start of the next section
+        // 
+        let p2 = CGPoint(x: p1.x + decayWidth, y: sustainY)
+        let p3 = CGPoint(x: p2.x + sustainWidth, y: sustainY)
+        let p4 = CGPoint(x: p3.x + releaseWidth, y: baseY)
         
         path.move(to: p0)
         path.addLine(to: p1)
@@ -246,10 +251,10 @@ struct ADSRKnob: View {
 
 struct ADSREnvelopeEditor_Previews: PreviewProvider {
     struct DemoContainer: View {
-        @State private var attack = 32
-        @State private var decay = 32
-        @State private var sustain = 32
-        @State private var release = 32
+        @State private var attack = 64
+        @State private var decay = 64
+        @State private var sustain = 64
+        @State private var release = 64
         
         var body: some View {
             VStack {
