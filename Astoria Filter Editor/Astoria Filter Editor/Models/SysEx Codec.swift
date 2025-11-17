@@ -60,7 +60,7 @@ final class MiniworksSysExCodec {
 
         debugPrint(icon: "🔍", message: """
                    Validating SysEx Header:
-                     start: \(firstByte.hexString) --> \(messageEndConst)
+                     start: \(firstByte.hexString) --> \(messageStartConst)
                      manufacturerID: \(manufacturerID.hexString) --> \(manufacturerIDConst)
                      machineID: \(machineID.hexString) --> \(machineIDConst)
                      deviceID: \(deviceID.hexString)
@@ -179,11 +179,14 @@ final class MiniworksSysExCodec {
         let programData: [UInt8] = program.encodeToBytes()
         let programChecksum: UInt8 = checksum(from: programData)
         
-        return SysExConstant.header
+        let message = SysExConstant.header
 //        + [MiniWorksUserDefaults.shared.deviceID, SysExConstant.programDumpMessage]
         + [currentDeviceIDSnapshot(), SysExConstant.programDumpMessage]
         + programData
         + [programChecksum, SysExConstant.endOfMessage]
+        
+        print("message length: \(message.count)\n\(message.hexString)")
+        return message
     }
     
     

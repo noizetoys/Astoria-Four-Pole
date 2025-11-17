@@ -138,8 +138,10 @@ extension MiniWorksProgram {
     func encodeToBytes(forAllDump: Bool = false) -> [UInt8] {
         var bytes = properties.map { $0.value }
         
-        if forAllDump {
-            bytes.removeFirst(1)
+        // Single programs use Program Number at [0]
+        // All Dump does not
+        if !forAllDump {
+            bytes.insert(UInt8(programNumber), at: 0)
         }
         
         return bytes
