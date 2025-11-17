@@ -35,6 +35,7 @@
 			membershipExceptions = (
 				UI/ADSRRRR.swift,
 				"UI/Claude Log.swift",
+				UI/complete_project.swift,
 				"UI/envelope_model-3.swift",
 				"UI/Keyboard View.swift",
 				UI/Knob.swift,
@@ -44,6 +45,7 @@
 				"UI/Midi Monitoring.swift",
 				UI/MIDITimeMappingVisualizer.swift,
 				"UI/Pan Indicator.swift",
+				UI/swiftui_piano_keyboard.swift,
 				"UI/Useful Knob.swift",
 			);
 			target = 2EC3F4CB2EBFEE8700D70CC0 /* Astoria Filter Editor */;
