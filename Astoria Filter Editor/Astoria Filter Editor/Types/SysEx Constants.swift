@@ -37,4 +37,11 @@ enum SysExConstant {
     static let startUpProgramIDKey = "START_UP_PROGRAM_ID"
     static let noteNumberKey = "NOTE_NUMBER"
     static let knobModeKey = "KNOB_MODE"
+    
+    static let modulationWheel = 0x01             // CC#1
+    static let breathControl = 0x02               // CC#2 - Used for Envelope Display
+    static let sustainSwitch = 0x40               // CC#64
+    static let resetAllControllers = 0x79         // CC#121
+    static let allnotesOff = 0x7B                 // CC#123
+
 }

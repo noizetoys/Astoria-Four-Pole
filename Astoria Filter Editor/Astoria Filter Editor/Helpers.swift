@@ -15,8 +15,9 @@ func debugPrint(_ file: StaticString = #file,
                 icon: String = "‼️",
                 message: String) {
 #if DEBUG
+    let fileName = file.description.components(separatedBy: "/").last ?? "Unknown"
     print("\n\(String(repeating: icon, count: 10))")
-    print("[\(file)] \(function):\(line)\n - \(message)")
+    print("[\(fileName)] --->  \(function):\(line)\n - \(message)")
     print("\(String(repeating: icon, count: 10))\n")
 #endif
 }

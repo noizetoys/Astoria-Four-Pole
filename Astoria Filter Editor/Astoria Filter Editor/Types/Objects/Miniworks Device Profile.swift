@@ -8,7 +8,7 @@ import Foundation
 
 
 /// Reflects the current state of the device including user programs and global settings
-class MiniworksDeviceProfile: Identifiable, Codable, Sendable {
+class MiniworksDeviceProfile: Identifiable, Sendable {
     var id: Date
     
     // (20) User Programs (1...20)

@@ -12,8 +12,8 @@ import Foundation
 @Observable
 final class EditorViewModel {
     
-    var availableSource: [MIDIDevice] = []
-    var availableDestination: [MIDIDevice] = []
+    var availableSources: [MIDIDevice] = []
+    var availableDestinations: [MIDIDevice] = []
     
     var selectedSource: MIDIDevice?
     var selectedDestination: MIDIDevice?
@@ -46,18 +46,18 @@ final class EditorViewModel {
     // MARK: - Device Discovery
     
     func refreshDevices() async {
-        availableSource = await midiService.availableSources()
-        availableDestination = await midiService.availableDestinations()
+        availableSources = await midiService.availableSources()
+        availableDestinations = await midiService.availableDestinations()
         
-        if !availableSource.isEmpty {
-            selectedSource = availableSource.first
+        if !availableSources.isEmpty {
+            selectedSource = availableSources.first
         }
         
-        if !availableDestination.isEmpty {
-            selectedDestination = availableDestination.first
+        if !availableDestinations.isEmpty {
+            selectedDestination = availableDestinations.first
         }
         
-        statusMessage = "Found \(availableSource.count) source(s) and \(availableDestination.count) destination(s)."
+        statusMessage = "Found \(availableSources.count) source(s) and \(availableDestinations.count) destination(s)."
     }
     
     
@@ -81,6 +81,7 @@ final class EditorViewModel {
         }
         catch {
             statusMessage = "Failed to connect: \(error.localizedDescription)"
+            debugPrint(icon: "❌", message: "Error: \(error)")
             isConnected = false
         }
     }

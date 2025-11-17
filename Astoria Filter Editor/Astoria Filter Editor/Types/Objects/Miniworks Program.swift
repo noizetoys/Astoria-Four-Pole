@@ -8,49 +8,71 @@
 import Foundation
 
 
-struct MiniWorksProgram: Codable, Identifiable, Equatable, Sendable {
+struct MiniWorksProgram: Identifiable, Sendable {
     var id: UUID = UUID()
     private(set) var isReadOnly: Bool = false
     
     var programNumber: UInt8 = 0
     var programName: String = "No Name"
     
-    var vcfEnvelopeAttack: UInt8 = 64
-    var vcfEnvelopeDecay: UInt8 = 64
-    var vcfEnvelopeSustain: UInt8 = 64
-    var vcfEnvelopeRelease: UInt8 = 64
-    var vcfEnvelopeCutoffAmount: UInt8 = 64
+    var vcfEnvelopeAttack = ProgramParameter(type: .VCFEnvelopeAttack)
+    var vcfEnvelopeDecay = ProgramParameter(type: .VCFEnvelopeDecay)
+    var vcfEnvelopeSustain = ProgramParameter(type: .VCFEnvelopeSustain)
+    var vcfEnvelopeRelease = ProgramParameter(type: .VCFEnvelopeRelease)
+    var vcfEnvelopeCutoffAmount = ProgramParameter(type: .VCFEnvelopeCutoffAmount)
     
-    var cutoff: UInt8 = 64
-    var cutoffModulationAmount: UInt8 = 64
-    var cutoffModulationSource: ModulationSource = .off
+    var cutoff = ProgramParameter(type: .cutoff)
+    var cutoffModulationAmount = ProgramParameter(type: .cutoffModulationAmount)
+    var cutoffModulationSource = ProgramParameter(type: .cutoffModulationSource)
     
-    var resonance: UInt8 = 64
-    var resonanceModulationAmount: UInt8 = 64
-    var resonanceModulationSource: ModulationSource = .off
+    var resonance = ProgramParameter(type: .resonance)
+    var resonanceModulationAmount = ProgramParameter(type: .resonanceModulationAmount)
+    var resonanceModulationSource = ProgramParameter(type: .resonanceModulationSource)
     
-    var vcaEnvelopeAttack: UInt8 = 64
-    var vcaEnvelopeDecay: UInt8 = 64
-    var vcaEnvelopeSustain: UInt8 = 64
-    var vcaEnvelopeRelease: UInt8 = 64
-    var vcaEnvelopeVolumeAmount: UInt8 = 64
+    var vcaEnvelopeAttack = ProgramParameter(type: .VCAEnvelopeAttack)
+    var vcaEnvelopeDecay = ProgramParameter(type: .VCAEnvelopeDecay)
+    var vcaEnvelopeSustain = ProgramParameter(type: .VCAEnvelopeSustain)
+    var vcaEnvelopeRelease = ProgramParameter(type: .VCAEnvelopeRelease)
+    var vcaEnvelopeVolumeAmount = ProgramParameter(type: .VCAEnvelopeVolumeAmount)
     
-    var volume: UInt8 = 64
-    var volumeModulationAmount: UInt8 = 64
-    var volumeModulationSource: ModulationSource = .off
+    var volume = ProgramParameter(type: .volume)
+    var volumeModulationAmount = ProgramParameter(type: .volumeModulationAmount)
+    var volumeModulationSource = ProgramParameter(type: .volumeModulationSource)
     
-    var lfoSpeed: UInt8 = 64
-    var lfoSpeedModulationAmount: UInt8 = 64
-    var lfoShape: LFOShape = .sine
-    var lfoSpeedModulationSource: ModulationSource = .off
+    var lfoSpeed = ProgramParameter(type: .LFOSpeed)
+    var lfoSpeedModulationAmount = ProgramParameter(type: .LFOSpeedModulationAmount)
     
-    var panning: UInt8 = 64
-    var panningModulationAmount: UInt8 = 64
-    var panningModulationSource: ModulationSource = .off
+    var lfoShape = ProgramParameter(type: .LFOShape)
+    var lfoSpeedModulationSource = ProgramParameter(type: .LFOSpeedModulationSource)
     
-    var gateTime: UInt8 = 64
-    var triggerSource: TriggerSource = .audio
-    var triggerMode: TriggerMode = .single
+    var panning = ProgramParameter(type: .panning)
+    var panningModulationAmount = ProgramParameter(type: .panningModulationAmount)
+    var panningModulationSource = ProgramParameter(type: .panningModulationSource)
+    
+    var gateTime = ProgramParameter(type: .gateTime)
+    var triggerSource = ProgramParameter(type: .triggerSource)
+    var triggerMode = ProgramParameter(type: .triggerMode)
+    
+    
+    private var properties: [ProgramParameter] {
+        [
+            vcfEnvelopeAttack, vcfEnvelopeDecay, vcfEnvelopeSustain, vcfEnvelopeRelease,
+            vcaEnvelopeAttack, vcaEnvelopeDecay, vcaEnvelopeSustain, vcaEnvelopeRelease,
+            
+            vcfEnvelopeCutoffAmount, vcaEnvelopeVolumeAmount,
+            
+            lfoSpeed, lfoSpeedModulationAmount, lfoShape, lfoSpeedModulationSource,
+            
+            cutoffModulationAmount, resonanceModulationAmount,
+            volumeModulationAmount, panningModulationAmount,
+            
+            cutoffModulationSource, resonanceModulationSource,
+            volumeModulationSource, panningModulationSource,
+            
+            cutoff, resonance, volume, panning,
+            gateTime, triggerSource, triggerMode
+        ]
+    }
 }
 
 
@@ -70,44 +92,11 @@ extension MiniWorksProgram {
         /// Creates 'Program' from  'Program' related bytes
         /// - Used by 'All Dump'
     init(bytes: [UInt8], number: UInt8) {
+        self.init()
+        
         programNumber = number
         
-        vcfEnvelopeAttack = bytes[0]
-        vcfEnvelopeDecay = bytes[1]
-        vcfEnvelopeSustain = bytes[2]
-        vcfEnvelopeRelease = bytes[3]
-        
-        vcaEnvelopeAttack = bytes[4]
-        vcaEnvelopeDecay = bytes[5]
-        vcaEnvelopeSustain = bytes[6]
-        vcaEnvelopeRelease = bytes[7]
-        
-        vcfEnvelopeCutoffAmount = bytes[8]
-        vcaEnvelopeVolumeAmount = bytes[9]
-        
-        lfoSpeed = bytes[10]
-        lfoSpeedModulationAmount = bytes[11]
-        lfoShape = LFOShape(rawValue: bytes[12]) ?? .sine
-        lfoSpeedModulationSource = ModulationSource(rawValue: bytes[13]) ?? .off
-        
-        cutoffModulationAmount = bytes[14]
-        resonanceModulationAmount = bytes[15]
-        volumeModulationAmount = bytes[16]
-        panningModulationAmount = bytes[17]
-        
-        cutoffModulationSource = ModulationSource(rawValue: bytes[18]) ?? .off
-        resonanceModulationSource = ModulationSource(rawValue: bytes[19]) ?? .off
-        volumeModulationSource = ModulationSource(rawValue: bytes[20]) ?? .off
-        panningModulationSource = ModulationSource(rawValue: bytes[21]) ?? .off
-        
-        cutoff = bytes[22]
-        resonance = bytes[23]
-        volume = bytes[24]
-        panning = bytes[25]
-        
-        gateTime = bytes[26]
-        triggerSource = TriggerSource(rawValue: bytes[27]) ?? .audio
-        triggerMode = TriggerMode(rawValue: bytes[28]) ?? .single
+        properties.forEach { $0.use(bytes: bytes) }
     }
     
     
@@ -123,46 +112,7 @@ extension MiniWorksProgram {
     
     
     func encodeToBytes(forAllDump: Bool = false) -> [UInt8] {
-        var bytes: [UInt8] = [
-            UInt8(programNumber),
-            
-            vcfEnvelopeAttack,
-            vcfEnvelopeDecay,
-            vcfEnvelopeSustain,
-            vcfEnvelopeRelease,
-            
-            vcaEnvelopeAttack,
-            vcaEnvelopeDecay,
-            vcaEnvelopeSustain,
-            vcaEnvelopeRelease,
-            
-            vcfEnvelopeCutoffAmount,
-            vcaEnvelopeVolumeAmount,
-            
-            lfoSpeed,
-            lfoSpeedModulationAmount,
-            UInt8(lfoShape.rawValue),
-            UInt8(lfoSpeedModulationSource.rawValue),
-            
-            cutoffModulationAmount,
-            resonanceModulationAmount,
-            volumeModulationAmount,
-            panningModulationAmount,
-            
-            UInt8(cutoffModulationSource.rawValue),
-            UInt8(resonanceModulationSource.rawValue),
-            UInt8(volumeModulationSource.rawValue),
-            UInt8(panningModulationSource.rawValue),
-            
-            cutoff,
-            resonance,
-            volume,
-            panning,
-            
-            gateTime,
-            UInt8(triggerSource.rawValue),
-            UInt8(triggerMode.rawValue)
-        ]
+        var bytes = properties.map { $0.value }
         
         if forAllDump {
             bytes.removeFirst(1)
@@ -172,6 +122,17 @@ extension MiniWorksProgram {
     }
     
 }
+
+
+extension MiniWorksProgram: CustomStringConvertible {
+    var description: String {
+        let num = "\(programNumber)"
+        let props = "\(properties.map(\.description).joined(separator: "\n"))"
+        
+        return "\nMiniWorksProgram #\(num)\n\n\(props)"
+    }
+}
+
 
 /*
  Byte order in Program and Bulk Dump
