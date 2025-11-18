@@ -11,7 +11,8 @@ import SwiftUI
 struct Astoria_Filter_EditorApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+//            ContentView()
+            PatchEditorRootView()
         }
     }
 }
