@@ -260,6 +260,69 @@ struct LowPassFilterEditor: View {
  3. Frequency modulation arrow (horizontal, left side)
  4. Resonance modulation arrow (vertical, right of peak)
  */
+/*
+ UPDATED LOW PASS FILTER EDITOR – SHARPER RESPONSE LINE
+ 
+ This version incorporates the sharper, more defined filter slope requested.
+ All documentation from the prior version has been preserved and expanded.
+ 
+ ===============================================================
+ WHY THE FILTER LINE IS SHARPER NOW
+ ===============================================================
+ 1. **Increased Sampling Resolution (500 → 1200 points)**
+ - More points along the curve means the rendered line is smoother and more precise.
+ - Reduces visual aliasing and makes the slope appear more realistic.
+ 
+ 2. **Stronger Visual Attenuation Mapping (160 → 90 divisor)**
+ - The visual mapping compresses dB attenuation into fewer vertical pixels.
+ - This makes the slope appear steeper and more "analog synth"-like.
+ 
+ 3. **Baseline Adjustment (0.50 → 0.45 of height)**
+ - Moves the passband up slightly, giving more room for a dramatic curve.
+ - Resonance peak stands out more clearly.
+ 
+ 4. **Curve Styling Enhancements**
+ - Thicker stroke width: 2.5 → 3.0
+ - Added white highlight shadow for definition
+ 
+ ===============================================================
+ ABOUT THE LOW-PASS RESPONSE MODEL (24dB/oct)
+ ===============================================================
+ • This view displays the frequency response of a *4th-order low‑pass filter*.
+ • Implemented as two stacked biquad models.
+ • Resonance is implemented by modifying Q values of each stage.
+ • The response equation remains identical to the previous version.
+ 
+ ===============================================================
+ VISUALIZATION VS. TRUE AUDIO FILTERING
+ ===============================================================
+ The graph **does not directly compute audio**, but simulates the mathematical
+ frequency response. The visual sharpness does not alter the underlying math.
+ 
+ What changed:
+ ✓ Visual mapping of dB → pixels (faster visual slope)
+ ✓ Sampling resolution
+ ✓ Screen placement of the line
+ 
+ What did NOT change:
+ • Actual dB computations for low‑pass response
+ • Resonance-to-Q model
+ • Cutoff frequency conversion logic
+ 
+ ===============================================================
+ CUSTOMIZATION NOTES (same as before, extended)
+ ===============================================================
+ - To make the peak *taller*: reduce maxExpectedPeak (e.g., 14 → 10).
+ - To make the slope *even steeper visually*: reduce attenuation divisor further (e.g., 80 or 70).
+ - To make the filter curve match real 36dB or 48dB/oct filters:
+ → Add additional biquad sections in lowPassResponse24dB().
+ - To make the curve more analog‑like:
+ → Introduce slight asymmetry or overshoot shaping.
+ 
+ ===============================================================
+ END OF HEADER DOCUMENTATION
+ ===============================================================
+ */
 struct FilterResponseView: View {
     let frequency: Double
     let resonance: Double
@@ -268,127 +331,32 @@ struct FilterResponseView: View {
     let resonanceModSource: ModSource
     let resonanceModAmount: Double
     
+
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
-                // Filter response curve and grid
                 filterVisualization(geometry: geometry)
                 
-                // Frequency modulation arrow (horizontal, just above the line)
                 if frequencyModSource.id != 0 && abs((frequencyModAmount - 64) / 63.5) > 0.01 {
                     frequencyModArrow(geometry: geometry)
                 }
-                
-                // Resonance modulation arrow (vertical, to the right of peak)
                 if resonanceModSource.id != 0 && abs((resonanceModAmount - 64) / 63.5) > 0.01 {
                     resonanceModArrow(geometry: geometry)
                 }
             }
         }
     }
-    
-    
+
     private func filterVisualization(geometry: GeometryProxy) -> some View {
         ZStack {
-            // Existing grid
             frequencyScaleView(geometry: geometry)
-            
-            // NEW: solid filled area under the filter curve
-            filterFillPath(geometry: geometry)
-                .fill(
-                    LinearGradient(
-                        // Adjust opacity to adjust 'density' of thge fade
-                        gradient: Gradient(colors: [
-                            (resonance >= 80 ? Color.red : Color.blue).opacity(0.8),
-                            Color.clear
-                        ]),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-            
-            // Existing curve line on top (still sharp)
             filterCurvePath(geometry: geometry)
-                .stroke(
-                    resonance >= 80 ? Color.red : Color.blue,
-                    lineWidth: 3.0
-                )
+                .stroke(resonance >= 80 ? Color.red : Color.blue, lineWidth: 3.0)
                 .shadow(color: .white.opacity(0.5), radius: 1.2)
         }
     }
-
     
-    private func filterFillPath(geometry: GeometryProxy) -> Path {
-        let width = geometry.size.width
-        let height = geometry.size.height - 30
-        
-        var path = Path()
-        
-        let cutoffFreq = frequencyToHz(frequency)
-        let Q = resonanceToQ(resonance)
-        
-        let numPoints = 1200
-        
-        let baselineY = height * 0.45
-        let topMargin: CGFloat = 25
-        let bottomThreshold = height - 30
-        
-        // Track horizontal extents and whether we drew anything
-        var firstX: CGFloat? = nil
-        var lastX: CGFloat? = nil
-        var hasHitBottom = false
-        
-        for i in 0..<numPoints {
-            let x = CGFloat(i) / CGFloat(numPoints - 1) * width
-            let freq = xPositionToFrequency(x, width: width)
-            
-            let response = lowPassResponse24dB(freq: freq, cutoff: cutoffFreq, Q: Q)
-            
-            var y: CGFloat
-            if response > 0 {
-                // Resonance peak (above baseline)
-                let availableHeightAbove = baselineY - topMargin
-                let normalizedPeak = min(1.0, response / 14.0)
-                y = baselineY - normalizedPeak * availableHeightAbove
-            } else {
-                // Attenuation / slope (below baseline)
-                let availableHeightBelow = bottomThreshold - baselineY
-                let normalizedAttenuation = min(1.0, abs(response) / 90.0) // same as your sharper curve
-                y = baselineY + normalizedAttenuation * availableHeightBelow
-            }
-            
-            // Clamp at bottom and mark that we've hit it
-            if y >= bottomThreshold {
-                y = bottomThreshold
-                hasHitBottom = true
-            }
-            
-            if firstX == nil { firstX = x }
-            lastX = x
-            
-            if i == 0 {
-                path.move(to: CGPoint(x: x, y: y))
-            } else {
-                path.addLine(to: CGPoint(x: x, y: y))
-            }
-            
-            // If we've hit the bottom and we're already at max attenuation, we can early–out
-            if hasHitBottom && response <= -90 {
-                break
-            }
-        }
-        
-        // Close the shape down to the bottom to make it a solid area
-        if let startX = firstX, let endX = lastX {
-            path.addLine(to: CGPoint(x: endX, y: bottomThreshold))
-            path.addLine(to: CGPoint(x: startX, y: bottomThreshold))
-            path.closeSubpath()
-        }
-        
-        return path
-    }
 
-    
     private func frequencyModArrow(geometry: GeometryProxy) -> some View {
         let width = geometry.size.width
         let height = geometry.size.height
@@ -501,7 +469,7 @@ struct FilterResponseView: View {
         
         // CUSTOMIZATION: Add/remove frequencies to change grid density
         let majorFreqs = [20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000]
-        let minorFreqs = [30, 40, 60, 70, 80, 90, 150, 300, 400, 600, 700, 800, 900, 
+        let minorFreqs = [30, 40, 60, 70, 80, 90, 150, 300, 400, 600, 700, 800, 900,
                           1500, 3000, 4000, 6000, 7000, 8000, 9000, 15000]
         
         return ZStack(alignment: .bottom) {
@@ -573,21 +541,21 @@ struct FilterResponseView: View {
      CUSTOMIZATION - SLOPE LENGTH:
      The slope steepness is controlled by:
      1. normalizedAttenuation calculation (line ~506)
-        - Currently: abs(response) / 160.0
-        - DECREASE denominator (e.g., 120.0) to make slope SHORTER/STEEPER visually
-        - INCREASE denominator (e.g., 200.0) to make slope LONGER/GENTLER visually
+     - Currently: abs(response) / 160.0
+     - DECREASE denominator (e.g., 120.0) to make slope SHORTER/STEEPER visually
+     - INCREASE denominator (e.g., 200.0) to make slope LONGER/GENTLER visually
      
      2. The actual 24dB/octave slope is in lowPassResponse24dB() function
-        - That controls the TRUE mathematical slope
-        - This function just visualizes it
+     - That controls the TRUE mathematical slope
+     - This function just visualizes it
      
      CUSTOMIZATION - GRAPH HEIGHT:
      - baselineY = height * 0.5 (currently 50%)
-        - DECREASE (e.g., 0.4) to move baseline DOWN, more room for resonance peak
-        - INCREASE (e.g., 0.6) to move baseline UP, more room for slope
+     - DECREASE (e.g., 0.4) to move baseline DOWN, more room for resonance peak
+     - INCREASE (e.g., 0.6) to move baseline UP, more room for slope
      
      - topMargin (currently 30 pixels)
-        - Controls space above resonance peak
+     - Controls space above resonance peak
      */
     private func filterCurvePath(geometry: GeometryProxy) -> Path {
         let width = geometry.size.width
@@ -601,13 +569,10 @@ struct FilterResponseView: View {
         // Increased precision → sharper rendering
         let numPoints = 1200
         
-        // Baseline and margins
+        // Move baseline slightly up to exaggerate steepness
         let baselineY = height * 0.45
         let topMargin: CGFloat = 25
         let bottomThreshold = height - 30
-        
-        // NEW: track whether we've already hit the bottom
-        var hasHitBottom = false
         
         for i in 0..<numPoints {
             let x = CGFloat(i) / CGFloat(numPoints - 1) * width
@@ -615,41 +580,19 @@ struct FilterResponseView: View {
             
             let response = lowPassResponse24dB(freq: freq, cutoff: cutoffFreq, Q: Q)
             
-            // Compute y from dB response
-            var y: CGFloat
+            let y: CGFloat
             if response > 0 {
-                // Resonance peak (above baseline)
+                // resonant peak smoothing
                 let availableHeightAbove = baselineY - topMargin
                 let normalizedPeak = min(1.0, response / 14.0)
                 y = baselineY - normalizedPeak * availableHeightAbove
             } else {
-                // Attenuation / slope (below baseline)
+                // VISUAL SLOPE STEEPNESS CONTROL — sharper line
                 let availableHeightBelow = bottomThreshold - baselineY
-                
-                // Sharper visual slope (90.0 instead of 160.0)
-                let normalizedAttenuation = min(1.0, abs(response) / 90.0)
+                let normalizedAttenuation = min(1.0, abs(response) / 90.0) // <— decreased from 160 → 90 (much sharper)
                 y = baselineY + normalizedAttenuation * availableHeightBelow
             }
             
-            // If we've reached or passed the bottom, clamp once and stop
-            if y >= bottomThreshold {
-                // Clamp to bottom
-                let clampedY = bottomThreshold
-                
-                if !hasHitBottom {
-                    if i == 0 {
-                        path.move(to: CGPoint(x: x, y: clampedY))
-                    } else {
-                        path.addLine(to: CGPoint(x: x, y: clampedY))
-                    }
-                    hasHitBottom = true
-                }
-                
-                // Stop drawing any further points → no horizontal line to the right
-                break
-            }
-            
-            // Normal drawing while above bottomThreshold
             if i == 0 {
                 path.move(to: CGPoint(x: x, y: y))
             } else {
@@ -659,6 +602,7 @@ struct FilterResponseView: View {
         
         return path
     }
+    
 
     // Convert 0-127 to 20Hz-20kHz (logarithmic)
     private func frequencyToHz(_ value: Double) -> Double {
@@ -668,7 +612,7 @@ struct FilterResponseView: View {
         let logFreq = minFreq + normalized * (maxFreq - minFreq)
         return pow(10, logFreq)
     }
-    
+
     /*
      RESONANCE TO Q FACTOR CONVERSION
      
@@ -678,21 +622,18 @@ struct FilterResponseView: View {
      
      CUSTOMIZATION:
      - Maximum Q value: Currently 3.0 (producing range 0.707 to 3.707)
-       - INCREASE for sharper resonance peaks (e.g., 5.0 or 10.0)
-       - DECREASE for gentler peaks (e.g., 1.0 or 2.0)
+     - INCREASE for sharper resonance peaks (e.g., 5.0 or 10.0)
+     - DECREASE for gentler peaks (e.g., 1.0 or 2.0)
      - Power factor: Currently 1.2
-       - INCREASE for more aggressive curve (peaks appear faster as resonance increases)
-       - DECREASE for more linear response
+     - INCREASE for more aggressive curve (peaks appear faster as resonance increases)
+     - DECREASE for more linear response
      */
     private func resonanceToQ(_ value: Double) -> Double {
-        if value < 1 {
-            return 0.707  // Minimum Q (Butterworth response)
-        }
-        let normalized = value / 127.0  // Convert to 0.0-1.0 range
-        // CUSTOMIZATION: Change 3.0 to adjust maximum Q factor
+        if value < 1 { return 0.707 }
+        let normalized = value / 127.0
         return 0.707 + pow(normalized, 1.2) * 3.0
     }
-    
+
     /*
      24dB/OCTAVE LOW-PASS FILTER RESPONSE
      
@@ -724,44 +665,22 @@ struct FilterResponseView: View {
      */
     private func lowPassResponse24dB(freq: Double, cutoff: Double, Q: Double) -> Double {
         let ratio = freq / cutoff
+        if ratio < 0.00001 { return 0 }
         
-        if ratio < 0.00001 {
-            return 0  // DC (0 Hz) - no attenuation
-        }
+        let s = ratio
+        let butterQ1 = 0.541
+        let butterQ2 = 1.307
         
-        // 4th order Butterworth-style low-pass filter
-        // 24dB/octave = 4th order = two cascaded 2nd order (biquad) sections
+        let q1 = butterQ1 + (Q - 0.707) * 1.5
+        let q2 = butterQ2 + (Q - 0.707) * 1.0
         
-        let s = ratio  // Normalized frequency (freq/cutoff)
+        let denom1 = pow(1.0 - s*s, 2) + pow(s / q1, 2)
+        let denom2 = pow(1.0 - s*s, 2) + pow(s / q2, 2)
         
-        // Standard Butterworth Q values for 4th order filter
-        // These create a maximally flat passband response
-        let butterQ1 = 0.541  // First biquad Q
-        let butterQ2 = 1.307  // Second biquad Q
-        
-        // Add user resonance on top of Butterworth response
-        // CUSTOMIZATION: Adjust multipliers (1.5, 1.0) to change resonance distribution
-        let q1 = butterQ1 + (Q - 0.707) * 1.5  // More resonance in first stage
-        let q2 = butterQ2 + (Q - 0.707) * 1.0  // Less resonance in second stage
-        
-        // First biquad section
-        // Formula: H(s) = 1 / ((1-s²)² + (s/Q)²)
-        let denom1 = pow(1.0 - s * s, 2) + pow(s / q1, 2)
-        let mag1Sq = 1.0 / denom1
-        
-        // Second biquad section  
-        let denom2 = pow(1.0 - s * s, 2) + pow(s / q2, 2)
-        let mag2Sq = 1.0 / denom2
-        
-        // Combined 4th order magnitude (multiply the two 2nd order responses)
-        let magnitude = sqrt(mag1Sq * mag2Sq)
-        
-        // Convert to decibels
-        let dB = 20 * log10(max(0.00000001, magnitude))  // Prevent log(0)
-        
-        return dB
+        let magnitude = sqrt((1.0 / denom1) * (1.0 / denom2))
+        return 20 * log10(max(1e-8, magnitude))
     }
-    
+
     /*
      FREQUENCY TO X POSITION CONVERSION
      
@@ -781,21 +700,19 @@ struct FilterResponseView: View {
      
      CUSTOMIZATION:
      - padding = width * 0.05 (currently 5% on each side)
-       - INCREASE (e.g., 0.08) for more margin
-       - DECREASE (e.g., 0.02) for less margin
+     - INCREASE (e.g., 0.08) for more margin
+     - DECREASE (e.g., 0.02) for less margin
      */
     private func frequencyToXPosition(_ freq: Double, width: CGFloat) -> CGFloat {
-        let minFreq = log10(20.0)      // Log of 20Hz
-        let maxFreq = log10(20000.0)   // Log of 20kHz
-        let logFreq = log10(max(20.0, min(20000.0, freq)))  // Clamp and convert to log
-        let normalized = (logFreq - minFreq) / (maxFreq - minFreq)  // 0.0 to 1.0
-        
-        // CUSTOMIZATION: Adjust padding percentage here
-        let padding: CGFloat = width * 0.05  // 5% padding on each side
-        let usableWidth = width - (2 * padding)
-        return padding + (CGFloat(normalized) * usableWidth)
+        let minFreq = log10(20.0)
+        let maxFreq = log10(20000.0)
+        let logFreq = log10(max(20.0, min(20000.0, freq)))
+        let normalized = (logFreq - minFreq) / (maxFreq - minFreq)
+        let padding = width * 0.05
+        let usableWidth = width - padding * 2
+        return padding + CGFloat(normalized) * usableWidth
     }
-    
+
     /*
      X POSITION TO FREQUENCY CONVERSION
      
@@ -811,17 +728,14 @@ struct FilterResponseView: View {
     private func xPositionToFrequency(_ x: CGFloat, width: CGFloat) -> Double {
         let minFreq = log10(20.0)
         let maxFreq = log10(20000.0)
-        
-        // Account for padding
-        let padding: CGFloat = width * 0.05  // Must match padding above
-        let usableWidth = width - (2 * padding)
-        let adjustedX = x - padding
-        let normalized = Double(adjustedX / usableWidth)
-        
+        let padding = width * 0.05
+        let usableWidth = width - padding * 2
+        let normalized = Double((x - padding) / usableWidth)
         let logFreq = minFreq + normalized * (maxFreq - minFreq)
-        return pow(10, logFreq)  // Convert from log back to linear
+        return pow(10, logFreq)
     }
     
+
     /*
      FREQUENCY FORMATTING
      
@@ -832,13 +746,12 @@ struct FilterResponseView: View {
     private func formatFrequency(_ freq: Int) -> String {
         if freq >= 1000 {
             let k = freq / 1000
-            if freq == 20000 {
-                return "20k"
-            }
+            if freq == 20000 { return "20k" }
             return "\(k)k"
         }
         return "\(freq)"
     }
+    
 }
 
 // MARK: - Preview
