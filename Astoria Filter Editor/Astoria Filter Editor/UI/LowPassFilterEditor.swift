@@ -23,6 +23,28 @@ struct ModSource: Identifiable, Hashable {
     let name: String
 }
 
+
+enum FilterFillStyle: String, CaseIterable, Identifiable {
+    case none
+    case soft
+    case strong
+    case cutoffGlow
+    case strongGlow      // 👈 NEW
+    
+    var id: String { rawValue }
+    
+    var label: String {
+        switch self {
+            case .none:       return "None"
+            case .soft:       return "Soft"
+            case .strong:     return "Strong"
+            case .cutoffGlow: return "Cutoff Glow"
+            case .strongGlow: return "Strong + Glow"   // 👈 NEW
+        }
+    }
+}
+
+
 // MARK: - Main View
 
 struct LowPassFilterEditor: View {
@@ -39,7 +61,9 @@ struct LowPassFilterEditor: View {
     // CUSTOMIZATION: 64 = neutral (0%), 0 = -100%, 127 = +100%
     @State private var frequencyModAmount: Double = 64  // No modulation at start
     @State private var resonanceModAmount: Double = 64  // No modulation at start
-    
+    @State private var fillStyle: FilterFillStyle = .soft
+
+
     // CUSTOMIZATION: Add or modify modulation sources here
     // First entry (id: 0, name: "Off") should always remain as the "no modulation" option
     let modulationSources = [
@@ -77,7 +101,8 @@ struct LowPassFilterEditor: View {
                 frequencyModSource: frequencyModSource,
                 frequencyModAmount: frequencyModAmount,
                 resonanceModSource: resonanceModSource,
-                resonanceModAmount: resonanceModAmount
+                resonanceModAmount: resonanceModAmount,
+                fillStyle: fillStyle            // 👈 NEW
             )
             .frame(height: 300)  // CUSTOMIZATION: Graph height in points
             .background(Color.black)  // CUSTOMIZATION: Graph background color
@@ -201,6 +226,23 @@ struct LowPassFilterEditor: View {
             }
             .padding(.horizontal)
             
+            GroupBox(label: Text("Display").font(.headline)) {
+                HStack {
+                    Text("Fill Style:")
+                        .font(.caption)
+                        .frame(width: 90, alignment: .leading)
+                    
+                    Picker("", selection: $fillStyle) {
+                        ForEach(FilterFillStyle.allCases) { style in
+                            Text(style.label).tag(style)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                }
+                .padding(.vertical, 6)
+            }
+            .padding(.horizontal)
+
             Spacer()
         }
     }
@@ -267,7 +309,8 @@ struct FilterResponseView: View {
     let frequencyModAmount: Double
     let resonanceModSource: ModSource
     let resonanceModAmount: Double
-    
+    let fillStyle: FilterFillStyle   // 👈 NEW
+
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .topLeading) {
@@ -289,30 +332,106 @@ struct FilterResponseView: View {
     
     
     private func filterVisualization(geometry: GeometryProxy) -> some View {
-        ZStack {
-            // Existing grid
+        let curveColor: Color = resonance >= 80 ? .red : .blue
+        let size = geometry.size
+        
+        return ZStack {
+            // Grid
             frequencyScaleView(geometry: geometry)
             
-            // NEW: solid filled area under the filter curve
-            filterFillPath(geometry: geometry)
-                .fill(
-                    LinearGradient(
-                        // Adjust opacity to adjust 'density' of thge fade
-                        gradient: Gradient(colors: [
-                            (resonance >= 80 ? Color.red : Color.blue).opacity(0.8),
-                            Color.clear
-                        ]),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+            // FILL AREA under the curve, style based on enum
+            switch fillStyle {
+                case .none:
+                    EmptyView()
+                    
+                case .soft:
+                    filterFillPath(geometry: geometry)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    curveColor.opacity(0.35),
+                                    .clear
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                    
+                case .strong:
+                    filterFillPath(geometry: geometry)
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(stops: [
+                                    .init(color: curveColor.opacity(0.8), location: 0.0),
+                                    .init(color: curveColor.opacity(0.3), location: 0.5),
+                                    .init(color: .clear,               location: 1.0),
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                    
+                case .cutoffGlow:
+                    let cutoffFreq = frequencyToHz(frequency)
+                    let cutoffX = frequencyToXPosition(cutoffFreq, width: size.width)
+                    let center = UnitPoint(x: cutoffX / size.width, y: 0.45)
+                    
+                    filterFillPath(geometry: geometry)
+                        .fill(
+                            RadialGradient(
+                                gradient: Gradient(colors: [
+                                    curveColor.opacity(0.8),
+                                    curveColor.opacity(0.3),
+                                    .clear
+                                ]),
+                                center: center,
+                                startRadius: 0,
+                                endRadius: min(size.width, size.height) * 0.7
+                            )
+                        )
+                    
+                case .strongGlow:    // 👈 NEW COMBINED STYLE
+                    let cutoffFreq = frequencyToHz(frequency)
+                    let cutoffX = frequencyToXPosition(cutoffFreq, width: size.width)
+                    let center = UnitPoint(x: cutoffX / size.width, y: 0.45)
+                    
+                    ZStack {
+                        // Base strong linear fill
+                        filterFillPath(geometry: geometry)
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(stops: [
+                                        .init(color: curveColor.opacity(0.85), location: 0.0),
+                                        .init(color: curveColor.opacity(0.4),  location: 0.5),
+                                        .init(color: .clear,                  location: 1.0),
+                                    ]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                        
+                        // Cutoff-centered glow layered on top
+                        filterFillPath(geometry: geometry)
+                            .fill(
+                                RadialGradient(
+                                    gradient: Gradient(colors: [
+                                        curveColor.opacity(0.9),
+                                        curveColor.opacity(0.4),
+                                        .clear
+                                    ]),
+                                    center: center,
+                                    startRadius: 0,
+                                    endRadius: min(size.width, size.height) * 0.7
+                                )
+                            )
+                            .blendMode(.screen)
+                            .opacity(0.9)
+                    }
+            }
             
-            // Existing curve line on top (still sharp)
+            // Curve line on top
             filterCurvePath(geometry: geometry)
-                .stroke(
-                    resonance >= 80 ? Color.red : Color.blue,
-                    lineWidth: 3.0
-                )
+                .stroke(curveColor, lineWidth: 3.0)
                 .shadow(color: .white.opacity(0.5), radius: 1.2)
         }
     }
