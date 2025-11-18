@@ -21,34 +21,55 @@ struct ContentView: View {
     @State private var viewModel = EditorViewModel()
     @State private var program: Int = 0
     
+    private func columnWidth(from proxy: GeometryProxy) -> CGFloat {
+        proxy.size.width / 5
+    }
     
+    private func rowHeight(from proxy: GeometryProxy) -> CGFloat {
+        proxy.size.height / 3
+    }
+
     var body: some View {
-        TabView {
-            Tab("Editor", systemImage: "slider.horizontal.3") {
-                Text("The Editor")
+        GeometryReader { geometry in
+            HStack {
+                
+                VStack {
+                    // Globals
+                    RoundedRectangle(cornerRadius: 8)
+                        .foregroundStyle(.orange)
+                    
+                    // Programs
+                    RoundedRectangle(cornerRadius: 8)
+                        .foregroundStyle(.green)
+                    
+                    // /ROMs
+                    RoundedRectangle(cornerRadius: 8)
+                        .foregroundStyle(.purple)
+
+                }
+                .frame(width: columnWidth(from: geometry))
+                
+                
+                VStack {
+                    HStack {
+                        // Program Info
+                        RoundedRectangle(cornerRadius: 8)
+                            .foregroundStyle(.red)
+                            .frame(width: columnWidth(from: geometry) * 3)
+
+                        // Connections
+                        ConnectionsBox(viewModel:  $viewModel)
+
+                    }
+                    .frame(height: rowHeight(from: geometry) * 0.5)
+
+                    // Edit View
+                    RoundedRectangle(cornerRadius: 8)
+                        .foregroundStyle(.yellow)
+                }
+                .frame(width: columnWidth(from: geometry) * 4)
+                
             }
-            Tab("Library", systemImage: "book.and.wrench") {
-                Text("The Library")
-            }
-            Tab("Settings", systemImage: "gear") {
-                Text("Settings go Here")
-            }
-            
-            
-//            connectionBox
-            
-//            HStack {
-//                slider(for: viewModel.program.vcfEnvelopeAttack)
-//                programChangeStepper
-//            }
-            
-            
-            
-//            Text(viewModel.program.description)
-//                .multilineTextAlignment(.leading)
-//                .frame(maxHeight: .infinity)
-//                .font(.title3)
-//                .fontDesign(.monospaced)
         }
         .padding()
     }
@@ -72,70 +93,75 @@ struct ContentView: View {
     }
     
     
-    var connectionBox: some View {
-        GroupBox("MIDI Connection") {
-            VStack(alignment: .leading, spacing: 30) {
-                    // Source selection
-                HStack {
-                    Text("Input:")
-                        .frame(width: 60, alignment: .trailing)
-                    
-                    Picker("Source", selection: $viewModel.selectedSource) {
-                        Text("None").tag(nil as MIDIDevice?)
-                        
-                        ForEach(viewModel.availableSources) { device in
-                            Text(device.name)
-                                .tag(device as MIDIDevice?)
-                        }
-                    }
-                }
-                
-                    // Destination selection
-                HStack {
-                    Text("Output:")
-                        .frame(width: 60, alignment: .trailing)
-                    
-                    Picker("Destination", selection: $viewModel.selectedDestination) {
-                        Text("None").tag(nil as MIDIDevice?)
-                        
-                        ForEach(viewModel.availableDestinations) { device in
-                            Text(device.name).tag(device as MIDIDevice?)
-                        }
-                    }
-                }
-                
-                    // Connection buttons
-                HStack {
-                    Button(viewModel.isConnected ? "Disconnect" : "Connect") {
-                        Task {
-                            if viewModel.isConnected {
-                                await viewModel.disconnect()
-                            } else {
-                                await viewModel.connect()
-                            }
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    
-                    Button("Refresh") {
-                        Task { await viewModel.refreshDevices() }
-                    }
-                    .buttonStyle(.bordered)
-                }
-                
-                    // Status
-                HStack {
-                    Circle()
-                        .fill(viewModel.isConnected ? Color.green : Color.red)
-                        .frame(width: 10, height: 10)
-                    
-                    Text(viewModel.statusMessage)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-        }
-    }
+//    var connectionBox: some View {
+////        GroupBox("MIDI Connection") {
+//            GroupBox() {
+//            VStack(alignment: .leading) {
+//                
+//                HStack {
+//                    
+//                    // Left side
+//                    VStack {
+//                        // Source selection
+//                        Text("Input:")
+//                        
+//                        Picker("Source", selection: $viewModel.selectedSource) {
+//                            Text("None").tag(nil as MIDIDevice?)
+//                            
+//                            ForEach(viewModel.availableSources) { device in
+//                                Text(device.name)
+//                                    .tag(device as MIDIDevice?)
+//                            }
+//                        }
+//                        
+//                        // Connection Button
+//                        Button(viewModel.isConnected ? "Disconnect" : "Connect") {
+//                            Task {
+//                                if viewModel.isConnected {
+//                                    await viewModel.disconnect()
+//                                } else {
+//                                    await viewModel.connect()
+//                                }
+//                            }
+//                        }
+//                        .buttonStyle(.borderedProminent)
+//                        .frame(maxWidth: .infinity)
+//                    }
+//                    
+//                    
+//                    VStack {
+//                        Text("Output:")
+//                        
+//                        Picker("Destination", selection: $viewModel.selectedDestination) {
+//                            Text("None").tag(nil as MIDIDevice?)
+//                            
+//                            ForEach(viewModel.availableDestinations) { device in
+//                                Text(device.name).tag(device as MIDIDevice?)
+//                            }
+//                        }
+//                        
+//                        // Connections
+//                        Button("Refresh") {
+//                            Task { await viewModel.refreshDevices() }
+//                        }
+//                        .buttonStyle(.bordered)
+//                        .frame(maxWidth: .infinity)
+//                    }
+//                }
+//                
+//                    // Status
+//                HStack {
+//                    Circle()
+//                        .fill(viewModel.isConnected ? Color.green : Color.red)
+//                        .frame(width: 10, height: 10)
+//                    
+//                    Text(viewModel.statusMessage)
+//                        .font(.caption)
+//                        .foregroundStyle(.secondary)
+//                }
+//            }
+//        }
+//    }
     
 }
 

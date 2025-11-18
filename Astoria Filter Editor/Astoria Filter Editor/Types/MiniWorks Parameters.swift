@@ -153,6 +153,68 @@ enum MiniWorksParameter: String, Codable {
         }
     }
     
+    // TODO: Finish Tool Tips
+    
+    var toolTip: String {
+        switch self {
+            case .LFOSpeed: return "LFO Speed"
+            case .LFOSpeedModulationAmount: return "LFO Speed Modulation Amount"
+            case .LFOShape: return "LFO Shape"
+            case .LFOSpeedModulationSource: return "LFO Speed Modulation Source"
+                
+            case .cutoffModulationAmount: return "Cutoff Modulation Amount"
+                
+            default: return "Unknown"
+//            case .VCFEnvelopeAttack:
+//                <#code#>
+//            case .VCFEnvelopeDecay:
+//                <#code#>
+//            case .VCFEnvelopeSustain:
+//                <#code#>
+//            case .VCFEnvelopeRelease:
+//                <#code#>
+//            case .VCAEnvelopeAttack:
+//                <#code#>
+//            case .VCAEnvelopeDecay:
+//                <#code#>
+//            case .VCAEnvelopeSustain:
+//                <#code#>
+//            case .VCAEnvelopeRelease:
+//                <#code#>
+//            case .VCFEnvelopeCutoffAmount:
+//                <#code#>
+//            case .VCAEnvelopeVolumeAmount:
+//                <#code#>
+//            case .resonanceModulationAmount:
+//                <#code#>
+//            case .volumeModulationAmount:
+//                <#code#>
+//            case .panningModulationAmount:
+//                <#code#>
+//            case .cutoffModulationSource:
+//                <#code#>
+//            case .resonanceModulationSource:
+//                <#code#>
+//            case .volumeModulationSource:
+//                <#code#>
+//            case .panningModulationSource:
+//                <#code#>
+//            case .cutoff:
+//                <#code#>
+//            case .resonance:
+//                <#code#>
+//            case .volume:
+//                <#code#>
+//            case .panning:
+//                <#code#>
+//            case .gateTime:
+//                <#code#>
+//            case .triggerSource:
+//                <#code#>
+//            case .triggerMode:
+//                <#code#>
+        }
+    }
     
         /// Determines if this parameter selects a ModulationSource enum case. (5 parameters)
     var isModulationSourceSelector: Bool {

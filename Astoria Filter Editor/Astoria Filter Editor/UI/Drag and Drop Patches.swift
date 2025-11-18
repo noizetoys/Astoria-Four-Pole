@@ -331,7 +331,7 @@ struct PatchPaletteView: View {
     @ObservedObject var viewModel: PatchEditorViewModel
     
     // Layout customization
-    private let columnCount: Int = 3
+    private let columnCount: Int = 4
     private let paletteBackgroundColor: Color = Color.gray.opacity(0.15)
     private let paletteBorderColor: Color = Color.gray
     
@@ -492,7 +492,9 @@ struct PatchEditorColumnView: View {
     
     /// Convert dropped data into a program number and forward to ViewModel.
     private func handleDrop(providers: [NSItemProvider]) -> Bool {
-        guard let provider = providers.first(where: { $0.canLoadObject(ofClass: NSString.self) }) else {
+        guard
+            let provider = providers.first(where: { $0.canLoadObject(ofClass: NSString.self) })
+        else {
             return false
         }
         
