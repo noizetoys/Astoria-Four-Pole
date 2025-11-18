@@ -1,38 +1,7 @@
 import SwiftUI
 
-// MARK: - Overview
-//  ArrowPickerGlowView
-//
-//  This view draws an arrow with a color picker *inside the shaft* and an
-//  animated glow that flows from the tail of the arrow to the tip.
-//
-//  Features:
-//  - Color Picker in the shaft: None (default), Red, Green, Blue.
-//  - When "None" is selected:
-//      * Arrow is dull gray.
-//      * Glow is disabled.
-//  - When a color is selected:
-//      * Arrow fill and stroke use that color (semi-transparent).
-//      * A glow band travels from tail → tip, then jumps back and repeats.
-//  - A Direction Picker (up, down, left, right) rotates the arrow & glow.
-//  - Sliders:
-//      * Glow speed in cycles per second (passes per second).
-//      * Glow intensity (brightness of the glow band).
-//
-//  Important implementation details:
-//  - The arrow is drawn as a right-pointing `ArrowShape`, then rotated to
-//    match the selected direction.
-//  - The glow is driven by a `TimelineView(.animation)`, which gives you
-//    a time value you can map to a 0–1 "phase" of the animation.
-//  - The **glow is inside a container ZStack the same size as the arrow, and
-//    that container is masked with a full-size ArrowShape**. This guarantees
-//    that the visible glow always matches the arrow’s shape and size, rather
-//    than being limited to the width of the picker or gradient band.
-//
-
 // MARK: - Models
 
-/// Which color mode the arrow is in.
 enum ArrowSelection: String, CaseIterable, Identifiable {
     case none
     case red
@@ -41,7 +10,6 @@ enum ArrowSelection: String, CaseIterable, Identifiable {
     
     var id: String { rawValue }
     
-    /// Label for the UI picker.
     var label: String {
         switch self {
             case .none:  return "None"
@@ -51,8 +19,6 @@ enum ArrowSelection: String, CaseIterable, Identifiable {
         }
     }
     
-    /// Base SwiftUI color used for this mode.
-    /// `nil` means "no active color" (we use gray instead).
     var color: Color? {
         switch self {
             case .none:  return nil
@@ -63,9 +29,6 @@ enum ArrowSelection: String, CaseIterable, Identifiable {
     }
 }
 
-/// Direction for the arrow.
-///
-/// The underlying shape is drawn pointing right, then rotated by this angle.
 enum ArrowDirection: String, CaseIterable, Identifiable {
     case right
     case left
@@ -83,7 +46,6 @@ enum ArrowDirection: String, CaseIterable, Identifiable {
         }
     }
     
-    /// Rotation applied to the right-pointing base arrow.
     var rotationAngle: Angle {
         switch self {
             case .right: return .degrees(0)
@@ -94,30 +56,23 @@ enum ArrowDirection: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - Arrow Shape
+// MARK: - Shapes
 
-/// A right-pointing arrow shape that fills its given rect.
-///
-/// The arrow has:
-/// - A rectangular shaft (centered vertically).
-/// - A triangular head at the right side.
-struct ArrowShape: Shape {
+/// Single, right-pointing arrow (shaft + one head).
+struct SingleArrowShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         
-        let width  = rect.width
-        let height = rect.height
+        let w = rect.width
+        let h = rect.height
         
-        // Proportions for head and shaft.
-        let headWidth   = width * 0.30
-        let shaftWidth  = width - headWidth
-        let shaftHeight = height * 0.45
+        let headWidth   = w * 0.30
+        let shaftWidth  = w - headWidth
+        let shaftHeight = h * 0.45
         
-        // Vertical extents of the shaft.
         let shaftTopY    = rect.midY - shaftHeight / 2
         let shaftBottomY = rect.midY + shaftHeight / 2
         
-        // Construct the arrow outline (clockwise).
         path.move(to: CGPoint(x: rect.minX, y: shaftTopY))                     // shaft top-left
         path.addLine(to: CGPoint(x: rect.minX + shaftWidth, y: shaftTopY))     // shaft top-right
         path.addLine(to: CGPoint(x: rect.minX + shaftWidth, y: rect.minY))     // head top
@@ -131,49 +86,65 @@ struct ArrowShape: Shape {
     }
 }
 
+/// Double-headed arrow (heads on both ends, shared shaft).
+struct DoubleArrowShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        
+        let w = rect.width
+        let h = rect.height
+        
+        let headWidth   = w * 0.25          // each head width
+        let shaftWidth  = w - 2 * headWidth
+        let shaftHeight = h * 0.45
+        
+        let shaftTopY    = rect.midY - shaftHeight / 2
+        let shaftBottomY = rect.midY + shaftHeight / 2
+        
+        let leftHeadEndX  = rect.minX + headWidth
+        let rightHeadStartX = rect.maxX - headWidth
+        
+        // Outline goes around both heads + shaft in one loop.
+        path.move(to: CGPoint(x: rightHeadStartX, y: rect.minY))             // top of right head
+        path.addLine(to: CGPoint(x: rect.maxX,       y: rect.midY))          // right tip
+        path.addLine(to: CGPoint(x: rightHeadStartX, y: rect.maxY))          // bottom of right head
+        path.addLine(to: CGPoint(x: rightHeadStartX, y: shaftBottomY))       // shaft bottom-right
+        path.addLine(to: CGPoint(x: leftHeadEndX,    y: shaftBottomY))       // shaft bottom-left
+        path.addLine(to: CGPoint(x: leftHeadEndX,    y: rect.maxY))          // bottom of left head
+        path.addLine(to: CGPoint(x: rect.minX,       y: rect.midY))          // left tip
+        path.addLine(to: CGPoint(x: leftHeadEndX,    y: rect.minY))          // top of left head
+        path.addLine(to: CGPoint(x: leftHeadEndX,    y: shaftTopY))          // shaft top-left
+        path.addLine(to: CGPoint(x: rightHeadStartX, y: shaftTopY))          // shaft top-right
+        path.closeSubpath()
+        
+        return path
+    }
+}
+
 // MARK: - Main View
 
-
 struct ArrowPickerGlowView: View {
-    // MARK: State
-    
-    /// Current color selection.
     @State private var selection: ArrowSelection = .none
-    
-    /// Current arrow direction.
     @State private var direction: ArrowDirection = .right
-    
-    /// Glow speed in cycles per second (passes from tail → tip).
     @State private var glowSpeedCPS: Double = 0.5
-    
-    /// Glow intensity from 0 (almost invisible) to 1 (full strength).
     @State private var glowIntensity: Double = 0.9
     
-    // MARK: Derived Properties
+    private var hasColor: Bool { selection != .none }
     
-    /// Whether a real color is active (vs. "None").
-    private var hasColor: Bool {
-        selection != .none
-    }
-    
-    /// Base fill color for the arrow body.
     private var baseColor: Color {
         guard let color = selection.color else {
-            return Color.gray.opacity(0.35)   // dull gray when no color
+            return Color.gray.opacity(0.35)
         }
-        return color.opacity(0.55)           // semi-transparent when active
+        return color.opacity(0.55)
     }
     
-    /// Outline color for the arrow, same family as body.
     private var strokeColor: Color {
         baseColor.opacity(hasColor ? 0.9 : 0.7)
     }
     
-    // MARK: - Body
-    
     var body: some View {
         VStack(spacing: 24) {
-            // Direction picker (segmented control).
+            // Direction control
             HStack {
                 Text("Direction")
                     .font(.caption)
@@ -188,106 +159,86 @@ struct ArrowPickerGlowView: View {
             }
             .padding(.horizontal)
             
-            // Main arrow + glow + color picker section.
+            // Arrow + picker
             GeometryReader { geo in
-                // Arrow geometry: tweak these ratios to change overall size.
                 let arrowWidth  = min(geo.size.width * 0.7, 280)
-                let arrowHeight = arrowWidth * 0.35  // relatively shallow arrow
+                let arrowHeight = arrowWidth * 0.35
                 
                 ZStack {
-                    // This whole ZStack holds BOTH the arrow+glow and the picker overlay.
-                    // We rotate this container once, so the picker sits inside the shaft
-                    // in ALL directions (right/left/up/down).
+                    // This ZStack holds arrow visuals + picker in a single
+                    // coordinate system. We rotate it once so the picker
+                    // is always inside the shaft for all directions.
                     ZStack {
-                        // --- Arrow + Glow (base coordinate system: right-pointing) ---
                         TimelineView(.animation) { timeline in
                             let now = timeline.date.timeIntervalSinceReferenceDate
-                            
-                            // phase ranges from 0.0 to 1.0 over time:
-                            //  phase = fractional part of (time * cyclesPerSecond)
                             let phase: Double = (hasColor && glowSpeedCPS > 0)
                             ? (now * glowSpeedCPS).truncatingRemainder(dividingBy: 1.0)
                             : 0.0
                             
-                            ZStack {
-                                // 1. Arrow body and outline.
-                                ArrowShape()
-                                    .fill(baseColor)
-                                    .overlay(
-                                        ArrowShape()
-                                            .stroke(strokeColor, lineWidth: 2)
-                                    )
-                                
-                                // 2. Glow band moving along the arrow.
-                                if let activeColor = selection.color,
-                                   glowSpeedCPS > 0,
-                                   hasColor {
-                                    
-                                    // ZStack that has the same size as the arrow.
-                                    // We place the gradient band inside this container
-                                    // and then mask the whole container with ArrowShape.
-                                    ZStack {
-                                        // Width of the glowing band.
-                                        let bandWidth = arrowWidth * 0.45
-                                        
-                                        // Total distance for the center of the band to travel
-                                        // from "off the tail" to "off the tip".
-                                        let travel = arrowWidth + bandWidth
-                                        
-                                        // Center position at phase = 0 (start) and phase = 1 (end).
-                                        let startX = -travel / 2
-                                        let endX   =  travel / 2
-                                        
-                                        // Interpolate between start and end based on phase.
-                                        let xOffset = startX + phase * (endX - startX)
-                                        
-                                        // The gradient itself: transparent -> bright -> transparent.
-                                        LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                .clear,
-                                                activeColor.opacity(glowIntensity),
-                                                .clear
-                                            ]),
-                                            startPoint: .leading,
-                                            endPoint: .trailing
+                            Group {
+                                if selection == .none {
+                                    // Dull, double-headed arrow, no glow.
+                                    DoubleArrowShape()
+                                        .fill(baseColor)
+                                        .overlay(
+                                            DoubleArrowShape()
+                                                .stroke(strokeColor, lineWidth: 2)
                                         )
-                                        .frame(width: bandWidth, height: arrowHeight * 1.2)
-                                        .offset(x: xOffset)
-                                        .blur(radius: 10)
+                                } else {
+                                    // Single-headed arrow with glow.
+                                    ZStack {
+                                        SingleArrowShape()
+                                            .fill(baseColor)
+                                            .overlay(
+                                                SingleArrowShape()
+                                                    .stroke(strokeColor, lineWidth: 2)
+                                            )
+                                        
+                                        if let activeColor = selection.color,
+                                           glowSpeedCPS > 0 {
+                                            // Glow container same size as arrow.
+                                            ZStack {
+                                                let bandWidth = arrowWidth * 0.45
+                                                let travel = arrowWidth + bandWidth
+                                                let startX = -travel / 2
+                                                let endX   =  travel / 2
+                                                let xOffset = startX + phase * (endX - startX)
+                                                
+                                                LinearGradient(
+                                                    gradient: Gradient(colors: [
+                                                        .clear,
+                                                        activeColor.opacity(glowIntensity),
+                                                        .clear
+                                                    ]),
+                                                    startPoint: .leading,
+                                                    endPoint: .trailing
+                                                )
+                                                .frame(width: bandWidth, height: arrowHeight * 1.2)
+                                                .offset(x: xOffset)
+                                                .blur(radius: 10)
+                                            }
+                                            .frame(width: arrowWidth, height: arrowHeight)
+                                            .mask(
+                                                SingleArrowShape()
+                                                    .fill(style: FillStyle(eoFill: false, antialiased: true))
+                                            )
+                                        }
                                     }
-                                    // Match the size of the arrow.
-                                    .frame(width: arrowWidth, height: arrowHeight)
-                                    // Mask with a full-size ArrowShape, so the glow
-                                    // is visible ONLY inside the arrow silhouette.
-                                    .mask(
-                                        ArrowShape()
-                                            .fill(style: FillStyle(eoFill: false, antialiased: true))
-                                    )
                                 }
                             }
-                            // Constrain arrow+glow to the chosen size.
                             .frame(width: arrowWidth, height: arrowHeight)
                         }
                         
-                        // --- Picker overlay in the shaft (same coordinate system) ---
-                        //
-                        // Because this overlay shares the same coordinate space
-                        // as the base right-pointing arrow, it naturally sits
-                        // inside the horizontal shaft. We rotate the WHOLE
-                        // container ZStack (see below), so when the arrow points
-                        // up or down, the picker rotates with it and becomes
-                        // vertical, occupying the shaft area in that direction.
+                        // Picker inside the shaft; rotates with the arrow.
                         Picker("", selection: $selection) {
                             ForEach(ArrowSelection.allCases) { option in
                                 Text(option.label).tag(option)
                             }
                         }
                         .labelsHidden()
-                        .pickerStyle(.menu)       // non-segmented menu picker
+                        .pickerStyle(.menu)
                         .frame(width: arrowWidth * 0.7)
                     }
-                    // This rotation is applied to BOTH the arrow+glow and the picker,
-                    // keeping the picker aligned in the shaft no matter the direction.
                     .frame(width: arrowWidth, height: arrowHeight)
                     .rotationEffect(direction.rotationAngle)
                 }
@@ -296,9 +247,8 @@ struct ArrowPickerGlowView: View {
             .frame(height: 160)
             .padding(.horizontal)
             
-            // Glow controls: speed & intensity.
+            // Glow controls
             VStack(alignment: .leading, spacing: 16) {
-                // Glow speed slider.
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Glow Speed (cycles per second)")
                         .font(.caption)
@@ -313,7 +263,6 @@ struct ArrowPickerGlowView: View {
                         .foregroundColor(.secondary)
                 }
                 
-                // Glow intensity slider.
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Glow Intensity")
                         .font(.caption)
@@ -335,29 +284,6 @@ struct ArrowPickerGlowView: View {
     }
 }
 
-// MARK: - How to Integrate
-//
-// To use this in an app, create your own App and ContentView, e.g.:
-//
-// struct ContentView: View {
-//     var body: some View {
-//         ArrowPickerGlowView()
-//     }
-// }
-//
-// @main
-// struct MyApp: App {
-//     var body: some Scene {
-//         WindowGroup {
-//             ContentView()
-//         }
-//     }
-// }
-//
-// Customization pointers are in the comments above at the relevant lines:
-// - Change arrow proportions in `ArrowShape`.
-// - Change `arrowWidth` / `arrowHeight` calculation in `GeometryReader`.
-// - Adjust glow band width and motion in the glow ZStack.
 
 #Preview {
     ArrowPickerGlowView()
