@@ -21,6 +21,8 @@ struct ContentView: View {
     @State private var viewModel = EditorViewModel()
     @State private var program: Int = 0
     
+    @State private var showGlobals: Bool = false
+    
     private func columnWidth(from proxy: GeometryProxy) -> CGFloat {
         proxy.size.width / 5
     }
@@ -34,31 +36,37 @@ struct ContentView: View {
             HStack {
                 
                 VStack {
-                    // Globals
-                    Globals_View(globals: viewModel.configuration.globalSetup)
+                    DisclosureGroup {
+                        ConnectionsBox(viewModel:  $viewModel)
+                    } label: {
+                        Text("Connections")
+                            .foregroundStyle(.black)
+                    }
                     
+                    // Globals
+                    DisclosureGroup {
+                        Globals_View(globals: viewModel.configuration.globalSetup)
+                    } label: {
+                        Text("Globals")
+                            .foregroundStyle(.black)
+                    }
+
+                    
+                    DisclosureGroup {
+                        Program_Matrix(viewModel: viewModel, isROMPrograms: true)
+                    } label: {
+                        Text("ROM Programs")
+                            .foregroundStyle(.black)
+                    }
+
                     // Programs
                     Program_Matrix(viewModel: viewModel, isROMPrograms: false)
-
-                    // ROMs
-                    Program_Matrix(viewModel: viewModel, isROMPrograms: true)
-
                 }
-                .frame(width: columnWidth(from: geometry))
                 
                 
                 VStack {
-                    HStack {
-                        // Program Info
-                        RoundedRectangle(cornerRadius: 8)
-                            .foregroundStyle(.red)
-                            .frame(width: columnWidth(from: geometry) * 3)
-
-                        // Connections
-                        ConnectionsBox(viewModel:  $viewModel)
-
-                    }
-                    .frame(height: rowHeight(from: geometry) * 0.5)
+                    Program_Title_View(program: viewModel.program)
+                        .frame(height: rowHeight(from: geometry) * 0.5)
 
                     // Edit View
                     RoundedRectangle(cornerRadius: 8)
@@ -67,7 +75,6 @@ struct ContentView: View {
                 .frame(width: columnWidth(from: geometry) * 4)
                 
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .padding()
     }

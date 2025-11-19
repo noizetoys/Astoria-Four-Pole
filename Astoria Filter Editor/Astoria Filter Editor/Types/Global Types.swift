@@ -23,8 +23,8 @@ enum GlobalMIDIControl: UInt8, Codable, CaseIterable, Identifiable {
     var name: String {
         switch self {
             case .off:  "Off"
-            case .ctr:  "Control Changes"
-            case .cts:  "Signal Envelope"
+            case .ctr:  "Controls"
+            case .cts:  "Signal"
         }
     }
     

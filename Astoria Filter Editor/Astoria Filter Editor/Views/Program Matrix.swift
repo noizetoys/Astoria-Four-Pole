@@ -13,10 +13,11 @@ struct ProgramCellView: View {
     let program: MiniWorksProgram
     let backgroundColor: Color
     
+    
     var body: some View {
         VStack(alignment: .center) {
             Text("\(program.programNumber)")
-//                .font(.title3)
+                //                .font(.title3)
                 .bold()
             
             Text("Info")
@@ -28,7 +29,7 @@ struct ProgramCellView: View {
         .background(
             RoundedRectangle(cornerRadius: 8)
                 .fill(backgroundColor)
-            )
+        )
         .overlay(
             RoundedRectangle(cornerRadius: 8)
                 .fill(.clear)
@@ -78,28 +79,25 @@ struct Program_Matrix: View {
 
 
     var body: some View {
-        VStack(alignment: .center, spacing: 0) {
-            Text(programTitle)
-                .font(.headline)
-                .foregroundStyle(.black)
-            
-            Text(programSubtitle)
-                .font(.caption)
-                .foregroundStyle(.gray)
-            
-            Grid(horizontalSpacing: 3, verticalSpacing: 3) {
-                row(range: 0..<4)
-                row(range: 4..<8)
-                row(range: 8..<12)
-                row(range: 12..<16)
-                row(range: 16..<20)
+        GroupBox {
+            VStack(alignment: .center, spacing: 0) {
+                Text(programTitle)
+                    .font(.headline)
+                    .foregroundStyle(.black)
+                
+                Text(programSubtitle)
+                    .font(.caption)
+                    .foregroundStyle(.gray)
+                
+                Grid(horizontalSpacing: 3, verticalSpacing: 3) {
+                    row(range: 0..<4)
+                    row(range: 4..<8)
+                    row(range: 8..<12)
+                    row(range: 12..<16)
+                    row(range: 16..<20)
+                }
             }
-            .padding(5)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .strokeBorder(borderColor, lineWidth: 2)
-                            .fill(backgroundColor)
-            )
+            .frame(maxWidth: .infinity)
         }
         
     }

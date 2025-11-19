@@ -12,7 +12,6 @@ struct ConnectionsBox: View {
     
     
     var body: some View {
-        //        GroupBox("MIDI Connection") {
         GroupBox() {
             VStack(alignment: .leading) {
                 

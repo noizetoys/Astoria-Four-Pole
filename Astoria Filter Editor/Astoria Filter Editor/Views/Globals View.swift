@@ -21,55 +21,60 @@ struct Globals_View: View {
     
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 1) {
-            Text("Globals")
-                .font(.headline)
-                .padding(.bottom)
+        GroupBox {
+//            Text("Globals")
+//                .frame(maxWidth: .infinity, alignment: .center)
+//                .font(.headline)
             
             HStack {
                 Text("MIDI Channel")
-                Picker("MIDI Channel", selection: $midiChannel) {
+                Spacer()
+                Picker("", selection: $midiChannel) {
                     ForEach(0..<17) { channel in
-                    Text(channelString(for: channel))
+                        Text(channelString(for: channel))
                             .tag(channel)
                     }
                 }
             }
-            
+
             HStack {
                 Text("MIDI Note")
-                Picker("MIDI Note", selection: $midiNote) {
+                Spacer()
+                Picker("", selection: $midiNote) {
                     ForEach(21..<109) { note in
                         Text(midiNoteName(note))
                             .tag(note)
                     }
-                }
+               }
             }
             
             HStack {
                 Text("Device ID")
-                Picker("Device ID", selection: $deviceID) {
+                Spacer()
+                Picker("", selection: $deviceID) {
                     ForEach(0..<127) { id in
                         Text("\(id)")
                             .tag(id)
                     }
                 }
-
             }
             
             HStack {
                 Text("Startup Program")
-                Picker("Startup Program", selection: $startupProgram) {
+                    .padding(.trailing)
+                Spacer()
+                Picker("", selection: $startupProgram) {
                     ForEach(0..<40) { program in
                         Text("\(program + 1)")
                             .tag(program)
                     }
                 }
-            }
+           }
             
             HStack {
                 Text("MIDI Control")
-                Picker("MIDI Control", selection: $midiControl) {
+                Spacer()
+                Picker("", selection: $midiControl) {
                     ForEach(GlobalMIDIControl.allCases) { control in
                         Text("\(control.name)")
                             .tag(control)
@@ -80,7 +85,8 @@ struct Globals_View: View {
             
             HStack {
                 Text("Knob Mode")
-                Picker("Knob Mode", selection: $knobMode) {
+                Spacer()
+                Picker("", selection: $knobMode) {
                     ForEach(GlobalKnobMode.allCases) { mode in
                         Text("\(mode.name)")
                             .tag(mode)
@@ -97,7 +103,7 @@ struct Globals_View: View {
                         .padding(.horizontal)
                 }
                 .buttonStyle(.borderedProminent)
-
+                
                 Button {
                     saveGlobals()
                 } label: {
@@ -107,15 +113,7 @@ struct Globals_View: View {
                 .buttonStyle(.borderedProminent)
 
             }
-            .padding(.top)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(.clear)
-                .strokeBorder(.black)
-        )
         .onAppear {
             resetGlobals()
         }
@@ -163,6 +161,7 @@ struct Globals_View: View {
         
         globals.saveToDefaults()
     }
+        
     
 }
 
