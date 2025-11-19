@@ -23,7 +23,7 @@ struct ConnectionsBox: View {
                         // Source selection
                         Text("Input:")
                         
-                        Picker("Source", selection: $viewModel.selectedSource) {
+                        Picker("", selection: $viewModel.selectedSource) {
                             Text("None").tag(nil as MIDIDevice?)
                             
                             ForEach(viewModel.availableSources) { device in
@@ -50,7 +50,7 @@ struct ConnectionsBox: View {
                     VStack {
                         Text("Output:")
                         
-                        Picker("Destination", selection: $viewModel.selectedDestination) {
+                        Picker("", selection: $viewModel.selectedDestination) {
                             Text("None").tag(nil as MIDIDevice?)
                             
                             ForEach(viewModel.availableDestinations) { device in

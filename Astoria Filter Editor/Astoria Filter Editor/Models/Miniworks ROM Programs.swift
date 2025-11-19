@@ -51,7 +51,14 @@ class MiniworksROMPrograms {
     static func programs() -> [MiniWorksProgram] {
         ROMProgramsData
             .enumerated()
-            .map { MiniWorksProgram(bytes: $1, number: UInt8($0)) }
+            .map { MiniWorksProgram(ROM: $1, number: UInt8($0 + 21)) }
+    }
+    
+    
+    static func copyOfROMPrograms() -> [MiniWorksProgram] {
+        ROMProgramsData
+            .enumerated()
+            .map { MiniWorksProgram(bytes: $1, number: UInt8($0 + 1)) }
     }
     
     

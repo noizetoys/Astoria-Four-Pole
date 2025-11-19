@@ -35,16 +35,13 @@ struct ContentView: View {
                 
                 VStack {
                     // Globals
-                    RoundedRectangle(cornerRadius: 8)
-                        .foregroundStyle(.orange)
+                    Globals_View(globals: viewModel.configuration.globalSetup)
                     
                     // Programs
-                    RoundedRectangle(cornerRadius: 8)
-                        .foregroundStyle(.green)
-                    
-                    // /ROMs
-                    RoundedRectangle(cornerRadius: 8)
-                        .foregroundStyle(.purple)
+                    Program_Matrix(viewModel: viewModel, isROMPrograms: false)
+
+                    // ROMs
+                    Program_Matrix(viewModel: viewModel, isROMPrograms: true)
 
                 }
                 .frame(width: columnWidth(from: geometry))
@@ -70,6 +67,7 @@ struct ContentView: View {
                 .frame(width: columnWidth(from: geometry) * 4)
                 
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .padding()
     }

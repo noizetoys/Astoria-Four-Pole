@@ -8,7 +8,9 @@
 import Foundation
 
 
-enum GlobalMIDIControl: UInt8, Codable, CaseIterable {
+enum GlobalMIDIControl: UInt8, Codable, CaseIterable, Identifiable {
+    var id: UInt8 { self.rawValue }
+    
     case off = 0
     
     // Allows for sending control changes to be
@@ -29,7 +31,9 @@ enum GlobalMIDIControl: UInt8, Codable, CaseIterable {
 }
 
 
-enum GlobalKnobMode: UInt8, Codable, CaseIterable {
+enum GlobalKnobMode: UInt8, Codable, CaseIterable, Identifiable {
+    var id: UInt8 { self.rawValue }
+    
     case jump = 0
     case relative = 1
     

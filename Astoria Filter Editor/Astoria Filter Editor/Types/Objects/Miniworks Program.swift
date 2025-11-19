@@ -87,7 +87,6 @@ class MiniWorksProgram: Identifiable, Sendable {
             debugPrint(icon: "❌", message: "No parameter found for CC: \(cc)")
         }
     }
-    
 }
 
 
@@ -114,6 +113,15 @@ extension MiniWorksProgram {
         programNumber = number
         
         properties.forEach { $0.use(bytes: bytes) }
+    }
+    
+    
+    /// Creates Read Only copy of ROM program (21-40)
+    convenience init(ROM bytes: SysExDump, number: UInt8) {
+        debugPrint(message: "program #\(number + 1), byte count: \(bytes.count), \(bytes.hexString)")
+        
+        self.init(bytes: bytes, number: number)
+        self.isReadOnly = true
     }
     
     

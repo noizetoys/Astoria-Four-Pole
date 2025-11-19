@@ -24,12 +24,15 @@ final class EditorViewModel {
     
     // Default Program
     var program: MiniWorksProgram = MiniWorksProgram()
-    var configuration: MiniworksDeviceProfile = .newMachineConfiguration()
-    var codec: MiniworksSysExCodec = MiniworksSysExCodec()
+//    var programs: [MiniWorksProgram] = []
+    var programs: [MiniWorksProgram] = MiniworksROMPrograms.copyOfROMPrograms()
+    let ROMPrograms: [MiniWorksProgram] = MiniworksROMPrograms.programs()
     
+    var configuration: MiniworksDeviceProfile = .newMachineConfiguration()
     
     private let midiService: MIDIService = .shared
-    
+    private let codec: MiniworksSysExCodec = MiniworksSysExCodec()
+
     private var sysExListenerTask: Task<Void, Never>?
     private var ccListenerTask: Task<Void, Never>?
     
@@ -181,4 +184,8 @@ final class EditorViewModel {
         }
     }
     
+    
+    func requestLoadProgram(_ number: Int, isROM: Bool) {
+        debugPrint(icon: "👇🏻", message: "Loading \(isROM ? "ROM" : "") Program #\(number + 1)")
+    }
 }
