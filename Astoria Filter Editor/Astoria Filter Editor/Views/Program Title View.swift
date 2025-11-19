@@ -13,86 +13,70 @@ struct Program_Title_View: View {
     let sampleTags = ["Guitar", "Compressed", "Bright"]
     
     
+    var programNameView: some View {
+        HStack {
+            Text("[\(program.programNumber)] \(program.programName)")
+                .font(.title)
+            
+            Text("- Edited")
+                .font(.title)
+                .foregroundStyle(.gray)
+            
+            Spacer()
+        }
+    }
+    
+    
+    var tagsView: some View {
+        HStack {
+            ForEach(sampleTags, id: \.self) { tag in
+                tagView(for: tag)
+            }
+            Spacer()
+        }
+    }
+    
+    
+    
     var body: some View {
         GroupBox {
-            VStack(alignment: .leading, spacing: 0) {
-                
+            
+            HStack(spacing: 0) {
                     // Top
-                HStack {
-                    Text("[\(program.programNumber)] \(program.programName)")
-                        .font(.title)
-                    
-                    Text("- Edited")
-                        .font(.title)
-                        .foregroundStyle(.gray)
+                VStack {
+                    programNameView
+                     
+                        // Tags
+                    tagsView
                     
                     Spacer()
                 }
-                .border(.black)
                 
-                
-                    // Bottom
-                HStack {
-                    
-                        // Tags
-                    VStack(spacing: 0) {
-                        HStack {
-                            ForEach(sampleTags, id: \.self) { tag in
-                                tagView(for: tag)
-                            }
-                            Spacer()
-                        }
-                        
-                        Spacer()
-                    }
-                    .border(.green)
-                    
-                        // Buttons (Reset/Save)
-                    HStack(alignment: .center) {
-                        Button {
-                            
-                        } label: {
-                            Text("Reset")
-                                .padding(.horizontal)
-                                .padding(.vertical, 10)
-                        }
-                        .buttonStyle(.bordered)
-                        
-                        Button {
-                            
-                        } label: {
-                            Text("Save")
-                                .padding(.horizontal)
-                                .padding(.vertical, 10)
-                        }
-                        .buttonStyle(.bordered)
-                    }
-                    .border(.orange)
-                    
-                    
-                    HStack {
-                        Button {
-                            
-                        } label: {
-                            Text("Compare")
-                        }
-                        .buttonStyle(.bordered)
-                    }
-                    .border(.purple)
-                    
+                    // Buttons (Reset/Save)
+                HStack(spacing: 20) {
+                    bigButton("Save", color: .blue)
+                    bigButton("Cancel", color: .red)
+                    bigButton("Compare", color: .green)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                
                 
             } // VStack
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .border(.blue)
             
         } // GroupBox
-        .border(.red)
-        
     }
-        
+    
+    
+    func bigButton(_ text: String, color: Color) -> some View {
+        Text(text)
+            .font(.title)
+            .bold()
+            .padding(.horizontal)
+            .frame(maxHeight: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(color)
+            )
+            .frame(maxHeight: .infinity)
+    }
     
     
     private func tagView(for text: String) -> some View {
@@ -103,15 +87,18 @@ struct Program_Title_View: View {
             .padding(.vertical, 10)
             .padding(.horizontal)
             .background(
-                Capsule()
+                RoundedRectangle(cornerRadius: 6)
                     .foregroundStyle(.red)
             )
-
+        
     }
     
 }
 
 
 #Preview {
-    Program_Title_View(program: MiniWorksProgram())
+    GeometryReader { proxy in
+        Program_Title_View(program: MiniWorksProgram())
+            .frame(maxWidth: proxy.size.width * (4/5), maxHeight: proxy.size.height * 1/6)
+    }
 }

@@ -43,8 +43,8 @@ struct ProgramCellView: View {
 struct Program_Matrix: View {
     var viewModel: EditorViewModel
     
-    private let columnCount = 4
-    private let rowCount = 5
+    private let columnCount = 2
+    private let rowCount = 10
 
     private let backgroundColor: Color = .white
     private let borderColor: Color = .gray
@@ -90,11 +90,25 @@ struct Program_Matrix: View {
                     .foregroundStyle(.gray)
                 
                 Grid(horizontalSpacing: 3, verticalSpacing: 3) {
-                    row(range: 0..<4)
-                    row(range: 4..<8)
-                    row(range: 8..<12)
-                    row(range: 12..<16)
-                    row(range: 16..<20)
+                    // 2 X 10
+                    row(range: 0..<2)
+                    row(range: 2..<4)
+                    row(range: 4..<6)
+                    row(range: 6..<8)
+                    row(range: 8..<10)
+                    row(range: 10..<12)
+                    row(range: 12..<14)
+                    row(range: 14..<16)
+                    row(range: 16..<18)
+                    row(range: 18..<20)
+
+                    // 4 X 10
+//                    row(range: 0..<4)
+//                    row(range: 4..<8)
+//                    row(range: 8..<12)
+//                    row(range: 12..<16)
+//                    row(range: 16..<20)
+
                 }
             }
             .frame(maxWidth: .infinity)
