@@ -1,14 +1,14 @@
 //
-//  PatchGrid.swift
+//  Program Mattrix.swift
 //  Astoria Filter Editor
 //
-//  Created by James Majors on 11/18/25.
+//  Created by James B. Majors on 11/19/25.
 //
 
 import SwiftUI
 
 
-/// Holds a single Program
+    /// Holds a single Program
 struct ProgramCellView: View {
     @Binding var program: MiniWorksProgram
     
@@ -20,14 +20,15 @@ struct ProgramCellView: View {
 }
 
 
-
-
-struct PatchGrid: View {
+struct Program_Mattrix: View {
+    
+    
+    
     var body: some View {
         Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
     }
 }
 
 #Preview {
-    PatchGrid()
+    Program_Mattrix()
 }
