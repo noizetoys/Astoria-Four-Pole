@@ -15,7 +15,7 @@ final class ProgramParameter: Identifiable {
     
     let type: MiniWorksParameter
     
-    var _value: UInt8
+    var _value: UInt8 = 64
     var doubleBinding: Binding<Double> {
         Binding<Double>(
             get: { Double(self._value) },
@@ -127,6 +127,18 @@ extension ClosedRange<UInt8> { // where Bound == UInt8 {
     // Convert to a floating-point range
     func convert<T: BinaryFloatingPoint>(to type: T.Type) -> ClosedRange<T> {
         T(self.lowerBound)...T(self.upperBound)
+    }
+}
+
+
+extension ProgramParameter: Hashable {
+    static func == (lhs: ProgramParameter, rhs: ProgramParameter) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 

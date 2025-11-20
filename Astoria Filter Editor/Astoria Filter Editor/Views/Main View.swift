@@ -100,8 +100,9 @@ struct ContentView: View {
                     .frame(height: rowHeight(from: geometry) / 2)
                     
                         // Edit View
-                    RoundedRectangle(cornerRadius: 8)
-                        .foregroundStyle(.yellow)
+                    LowPassFilterEditor(program: viewModel.program)
+//                    RoundedRectangle(cornerRadius: 8)
+//                        .foregroundStyle(.yellow)
                 }
                 .frame(width: columnWidth(from: geometry) * 4)
                 

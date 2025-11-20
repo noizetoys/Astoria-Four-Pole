@@ -1,292 +1,12 @@
+//
+//  FilterResponseView.swift
+//  Astoria Filter Editor
+//
+//  Created by James B. Majors on 11/19/25.
+//
+import Foundation
 import SwiftUI
 
-/*
- LOW PASS FILTER EDITOR
- 
- This SwiftUI component creates a professional audio filter editor with visual frequency response display.
- 
- KEY CONCEPTS:
- - Filter parameters use MIDI-style 0-127 range
- - Frequency is logarithmically mapped from 20Hz to 20kHz
- - 24dB/octave slope = 4th order filter (two cascaded 2nd order biquad sections)
- - Resonance creates a peak at the cutoff frequency
- - Modulation allows external sources to dynamically change parameters
- 
- CUSTOMIZATION GUIDE:
- See inline comments marked with "CUSTOMIZATION:" for easy adjustment points.
- */
-
-// MARK: - Models
-
-struct ModSource: Identifiable, Hashable {
-    let id: Int
-    let name: String
-}
-
-
-enum FilterFillStyle: String, CaseIterable, Identifiable {
-    case none
-    case soft
-    case strong
-    case cutoffGlow
-    case strongGlow      // 👈 NEW
-    
-    var id: String { rawValue }
-    
-    var label: String {
-        switch self {
-            case .none:       return "None"
-            case .soft:       return "Soft"
-            case .strong:     return "Strong"
-            case .cutoffGlow: return "Cutoff Glow"
-            case .strongGlow: return "Strong + Glow"   // 👈 NEW
-        }
-    }
-}
-
-
-// MARK: - Main View
-
-struct LowPassFilterEditor: View {
-    // Filter parameters (0-127 MIDI-style range)
-    // CUSTOMIZATION: Change initial values here
-    @State private var frequency: Double = 64      // 0 = 20Hz, 127 = 20kHz
-    @State private var resonance: Double = 0       // 0 = no resonance, 127 = max resonance
-    
-    // Modulation sources
-    @State private var frequencyModSource: ModSource = ModSource(id: 0, name: "Off")
-    @State private var resonanceModSource: ModSource = ModSource(id: 0, name: "Off")
-    
-    // Modulation amounts (0-127 mapped to -64 to +63, where 64 = 0%)
-    // CUSTOMIZATION: 64 = neutral (0%), 0 = -100%, 127 = +100%
-    @State private var frequencyModAmount: Double = 64  // No modulation at start
-    @State private var resonanceModAmount: Double = 64  // No modulation at start
-    @State private var fillStyle: FilterFillStyle = .soft
-
-
-    // CUSTOMIZATION: Add or modify modulation sources here
-    // First entry (id: 0, name: "Off") should always remain as the "no modulation" option
-    let modulationSources = [
-        ModSource(id: 0, name: "Off"),        // No modulation
-        ModSource(id: 1, name: "LFO 1"),      // Low Frequency Oscillator 1
-        ModSource(id: 2, name: "LFO 2"),      // Low Frequency Oscillator 2
-        ModSource(id: 3, name: "Envelope 1"), // Envelope Generator 1
-        ModSource(id: 4, name: "Envelope 2"), // Envelope Generator 2
-        ModSource(id: 5, name: "Mod Wheel"),  // MIDI Mod Wheel
-        ModSource(id: 6, name: "Aftertouch"), // MIDI Aftertouch
-        ModSource(id: 7, name: "Velocity"),   // Note Velocity
-        ModSource(id: 8, name: "Key Track"),  // Keyboard tracking
-        ModSource(id: 9, name: "Random"),     // Random modulation
-        ModSource(id: 10, name: "Sample & Hold"),
-        ModSource(id: 11, name: "Sequencer"),
-        ModSource(id: 12, name: "Macro 1"),
-        ModSource(id: 13, name: "Macro 2"),
-        ModSource(id: 14, name: "Macro 3"),
-        ModSource(id: 15, name: "Macro 4")
-    ]
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            // CUSTOMIZATION: Change title text or styling here
-            Text("Low Pass Filter Editor")
-                .font(.title)
-                .fontWeight(.bold)
-                .padding(.top)
-            
-            // Filter Visualization
-            // CUSTOMIZATION: Adjust .frame(height:) to change graph size
-            FilterResponseView(
-                frequency: frequency,
-                resonance: resonance,
-                frequencyModSource: frequencyModSource,
-                frequencyModAmount: frequencyModAmount,
-                resonanceModSource: resonanceModSource,
-                resonanceModAmount: resonanceModAmount,
-                fillStyle: fillStyle            // 👈 NEW
-            )
-            .frame(height: 300)  // CUSTOMIZATION: Graph height in points
-            .background(Color.black)  // CUSTOMIZATION: Graph background color
-            .cornerRadius(10)  // CUSTOMIZATION: Corner rounding
-            .padding(.horizontal)
-            
-            // Frequency Controls
-            GroupBox(label: Text("Cutoff Frequency").font(.headline)) {
-                VStack(spacing: 10) {
-                    HStack {
-                        Text("Mod Source:")
-                            .font(.caption)
-                            .frame(width: 90, alignment: .leading)
-                        Picker("", selection: $frequencyModSource) {
-                            ForEach(modulationSources) { source in
-                                Text(source.name).tag(source)
-                            }
-                        }
-                        Spacer()
-                    }
-                    
-                    if frequencyModSource.id != 0 {
-                        HStack {
-                            Text("Mod Amount:")
-                                .font(.caption)
-                                .frame(width: 90, alignment: .leading)
-                            Slider(value: $frequencyModAmount, in: 0...127, step: 1)
-                                .accentColor(.orange)
-                            Text("\(modAmountToPercentage(frequencyModAmount), specifier: "%.0f")%")
-                                .font(.caption)
-                                .foregroundColor(.orange)
-                                .frame(width: 50)
-                            Text("[\(Int(frequencyModAmount))]")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .frame(width: 40)
-                        }
-                    }
-                    
-                    HStack {
-                        Text("Cutoff:")
-                            .font(.caption)
-                            .frame(width: 90, alignment: .leading)
-                        Slider(value: $frequency, in: 0...127, step: 1)
-                            .accentColor(.blue)
-                        Text("\(frequencyToHz(frequency), specifier: "%.0f") Hz")
-                            .font(.caption)
-                            .foregroundColor(.blue)
-                            .frame(width: 70)
-                        Text("[\(Int(frequency))]")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .frame(width: 40)
-                    }
-                }
-                .padding(.vertical, 5)
-            }
-            .padding(.horizontal)
-            
-            // Resonance Controls
-            GroupBox(label: HStack {
-                Text("Resonance").font(.headline)
-                if resonance >= 80 {
-                    Text("⚠ Self-Oscillation")
-                        .font(.caption)
-                        .foregroundColor(.red)
-                        .fontWeight(.bold)
-                }
-            }) {
-                VStack(spacing: 10) {
-                    HStack {
-                        Text("Mod Source:")
-                            .font(.caption)
-                            .frame(width: 90, alignment: .leading)
-                        Picker("", selection: $resonanceModSource) {
-                            ForEach(modulationSources) { source in
-                                Text(source.name).tag(source)
-                            }
-                        }
-                        Spacer()
-                    }
-                    
-                    if resonanceModSource.id != 0 {
-                        VStack(spacing: 5) {
-                            HStack {
-                                Text("Mod Amount:")
-                                    .font(.caption)
-                                    .frame(width: 90, alignment: .leading)
-                                Slider(value: $resonanceModAmount, in: 0...127, step: 1)
-                                    .accentColor(.orange)
-                                Text("\(modAmountToPercentage(resonanceModAmount), specifier: "%.0f")%")
-                                    .font(.caption)
-                                    .foregroundColor(.orange)
-                                    .frame(width: 50)
-                                Text("[\(Int(resonanceModAmount))]")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                    .frame(width: 40)
-                            }
-                            Text("(+) In Phase | (-) Out of Phase")
-                                .font(.caption2)
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    
-                    HStack {
-                        Text("Resonance:")
-                            .font(.caption)
-                            .frame(width: 90, alignment: .leading)
-                        Slider(value: $resonance, in: 0...127, step: 1)
-                            .accentColor(resonance >= 80 ? .red : .green)
-                        Text("  ")
-                            .frame(width: 70)
-                        Text("[\(Int(resonance))]")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .frame(width: 40)
-                    }
-                }
-                .padding(.vertical, 5)
-            }
-            .padding(.horizontal)
-            
-            GroupBox(label: Text("Display").font(.headline)) {
-                HStack {
-                    Text("Fill Style:")
-                        .font(.caption)
-                        .frame(width: 90, alignment: .leading)
-                    
-                    Picker("", selection: $fillStyle) {
-                        ForEach(FilterFillStyle.allCases) { style in
-                            Text(style.label).tag(style)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                }
-                .padding(.vertical, 6)
-            }
-            .padding(.horizontal)
-
-            Spacer()
-        }
-    }
-    
-    /*
-     FREQUENCY CONVERSION: 0-127 to 20Hz-20kHz
-     
-     WHY LOGARITHMIC?
-     - Human hearing perceives frequency logarithmically
-     - Musical octaves are logarithmic (each octave doubles the frequency)
-     - This provides more resolution in the bass range where it's needed
-     
-     MATH EXPLANATION:
-     1. Convert 20Hz and 20kHz to log10 values
-     2. Normalize input (0-127) to range 0.0-1.0
-     3. Interpolate in log space
-     4. Convert back to linear frequency with pow(10, x)
-     
-     CUSTOMIZATION:
-     - Change minFreq/maxFreq to adjust frequency range
-     - Currently: 20Hz to 20kHz (full audio spectrum)
-     */
-    private func frequencyToHz(_ value: Double) -> Double {
-        let minFreq = log10(20.0)      // CUSTOMIZATION: Minimum frequency (log)
-        let maxFreq = log10(20000.0)   // CUSTOMIZATION: Maximum frequency (log)
-        let normalized = value / 127.0  // Normalize to 0.0-1.0
-        let logFreq = minFreq + normalized * (maxFreq - minFreq)
-        return pow(10, logFreq)  // Convert back from log to linear
-    }
-    
-    /*
-     MODULATION AMOUNT CONVERSION
-     
-     Maps 0-127 to -100% to +100%
-     - 0 = -100% (full negative)
-     - 64 = 0% (neutral, no modulation)
-     - 127 = +100% (full positive)
-     
-     CUSTOMIZATION: Adjust 63.5 to change the scaling
-     */
-    private func modAmountToPercentage(_ value: Double) -> Double {
-        return ((value - 64) / 63.5) * 100
-    }
-}
 
 // MARK: - Filter Response Visualization
 
@@ -303,13 +23,9 @@ struct LowPassFilterEditor: View {
  4. Resonance modulation arrow (vertical, right of peak)
  */
 struct FilterResponseView: View {
-    let frequency: Double
-    let resonance: Double
-    let frequencyModSource: ModSource
-    let frequencyModAmount: Double
-    let resonanceModSource: ModSource
-    let resonanceModAmount: Double
+    let program: MiniWorksProgram
     let fillStyle: FilterFillStyle   // 👈 NEW
+    
 
     var body: some View {
         GeometryReader { geometry in
@@ -318,12 +34,16 @@ struct FilterResponseView: View {
                 filterVisualization(geometry: geometry)
                 
                 // Frequency modulation arrow (horizontal, just above the line)
-                if frequencyModSource.id != 0 && abs((frequencyModAmount - 64) / 63.5) > 0.01 {
+                let cutoffModAmount = abs(Double(program.cutoffModulationAmount.value) - 64) / 63.5
+                let _ = debugPrint(message: "cutoffModAmount == \(cutoffModAmount)")
+                if program.cutoffModulationSource.modulationSource?.id != 0 && cutoffModAmount > 0.01 {
                     frequencyModArrow(geometry: geometry)
                 }
                 
                 // Resonance modulation arrow (vertical, to the right of peak)
-                if resonanceModSource.id != 0 && abs((resonanceModAmount - 64) / 63.5) > 0.01 {
+                let resModAmount = abs(Double(program.resonanceModulationAmount.value) - 64) / 63.5
+                let _ = debugPrint(message: "resModAmount == \(resModAmount)")
+                    if program.resonanceModulationSource.modulationSource?.id != 0 && resModAmount > 0.01 {
                     resonanceModArrow(geometry: geometry)
                 }
             }
@@ -332,7 +52,7 @@ struct FilterResponseView: View {
     
     
     private func filterVisualization(geometry: GeometryProxy) -> some View {
-        let curveColor: Color = resonance >= 80 ? .red : .blue
+        let curveColor: Color = program.resonance.value >= 80 ? .red : .blue
         let size = geometry.size
         
         return ZStack {
@@ -372,7 +92,7 @@ struct FilterResponseView: View {
                         )
                     
                 case .cutoffGlow:
-                    let cutoffFreq = frequencyToHz(frequency)
+                    let cutoffFreq = frequencyToHz(program.cutoff.value)
                     let cutoffX = frequencyToXPosition(cutoffFreq, width: size.width)
                     let center = UnitPoint(x: cutoffX / size.width, y: 0.45)
                     
@@ -391,7 +111,7 @@ struct FilterResponseView: View {
                         )
                     
                 case .strongGlow:    // 👈 NEW COMBINED STYLE
-                    let cutoffFreq = frequencyToHz(frequency)
+                    let cutoffFreq = frequencyToHz(program.cutoff.value)
                     let cutoffX = frequencyToXPosition(cutoffFreq, width: size.width)
                     let center = UnitPoint(x: cutoffX / size.width, y: 0.45)
                     
@@ -443,8 +163,8 @@ struct FilterResponseView: View {
         
         var path = Path()
         
-        let cutoffFreq = frequencyToHz(frequency)
-        let Q = resonanceToQ(resonance)
+        let cutoffFreq = frequencyToHz(program.cutoff.value)
+        let Q = resonanceToQ(program.resonance.value)
         
         let numPoints = 1200
         
@@ -511,7 +231,7 @@ struct FilterResponseView: View {
     private func frequencyModArrow(geometry: GeometryProxy) -> some View {
         let width = geometry.size.width
         let height = geometry.size.height
-        let percentage = ((frequencyModAmount - 64) / 63.5) * 100
+        let percentage = ((Double(program.cutoffModulationAmount.value) - 64) / 63.5) * 100
         
         // Position arrow on the LEFT side of the graph area, away from resonance peak
         let xPos = width * 0.15 // Position at 15% from left
@@ -547,20 +267,21 @@ struct FilterResponseView: View {
         .position(x: xPos, y: yPos)
     }
     
+    
     private func resonanceModArrow(geometry: GeometryProxy) -> some View {
         let width = geometry.size.width
         let height = geometry.size.height - 30
-        let percentage = ((resonanceModAmount - 64) / 63.5) * 100
+        let percentage = ((Double(program.resonanceModulationAmount.value) - 64) / 63.5) * 100
         
         // Position arrow to the RIGHT of the resonance peak
-        let cutoffFreq = frequencyToHz(frequency)
+        let cutoffFreq = frequencyToHz(program.cutoff.value)
         let cutoffXPos = frequencyToXPosition(cutoffFreq, width: width)
         
         // Position significantly to the right of the cutoff frequency
         let xPos = min(width - 60, cutoffXPos + 80)
         
         // Calculate peak height
-        let Q = resonanceToQ(resonance)
+        let Q = resonanceToQ(program.resonance.value)
         let peakResponse = lowPassResponse24dB(freq: cutoffFreq, cutoff: cutoffFreq, Q: Q)
         let baselineY = height * 0.5
         let topMargin: CGFloat = 30
@@ -714,8 +435,8 @@ struct FilterResponseView: View {
         
         var path = Path()
         
-        let cutoffFreq = frequencyToHz(frequency)
-        let Q = resonanceToQ(resonance)
+        let cutoffFreq = frequencyToHz(program.cutoff.value)
+        let Q = resonanceToQ(program.resonance.value)
         
         // Increased precision → sharper rendering
         let numPoints = 1200
@@ -780,10 +501,11 @@ struct FilterResponseView: View {
     }
 
     // Convert 0-127 to 20Hz-20kHz (logarithmic)
-    private func frequencyToHz(_ value: Double) -> Double {
+//    private func frequencyToHz(_ value: Double) -> Double {
+    private func frequencyToHz(_ value: UInt8) -> Double {
         let minFreq = log10(20.0)
         let maxFreq = log10(20000.0)
-        let normalized = value / 127.0
+        let normalized = Double(value) / 127.0
         let logFreq = minFreq + normalized * (maxFreq - minFreq)
         return pow(10, logFreq)
     }
@@ -803,11 +525,12 @@ struct FilterResponseView: View {
        - INCREASE for more aggressive curve (peaks appear faster as resonance increases)
        - DECREASE for more linear response
      */
-    private func resonanceToQ(_ value: Double) -> Double {
+//    private func resonanceToQ(_ value: Double) -> Double {
+    private func resonanceToQ(_ value: UInt8) -> Double {
         if value < 1 {
             return 0.707  // Minimum Q (Butterworth response)
         }
-        let normalized = value / 127.0  // Convert to 0.0-1.0 range
+        let normalized = Double(value) / 127.0  // Convert to 0.0-1.0 range
         // CUSTOMIZATION: Change 3.0 to adjust maximum Q factor
         return 0.707 + pow(normalized, 1.2) * 3.0
     }
@@ -960,10 +683,8 @@ struct FilterResponseView: View {
     }
 }
 
-// MARK: - Preview
 
-struct LowPassFilterEditor_Previews: PreviewProvider {
-    static var previews: some View {
-        LowPassFilterEditor()
-    }
+
+#Preview {
+    FilterResponseView(program: MiniWorksProgram(), fillStyle: .cutoffGlow)
 }

@@ -13,8 +13,8 @@ class MiniWorksProgram: Identifiable, Sendable {
     var id: UUID = UUID()
     private(set) var isReadOnly: Bool = false
     
-    var programNumber: UInt8 = 0
-    var programName: String = "No Name"
+    var programNumber: UInt8 = 1
+    var programName: String = "New Program"
     
     var vcfEnvelopeAttack = ProgramParameter(type: .VCFEnvelopeAttack)
     var vcfEnvelopeDecay = ProgramParameter(type: .VCFEnvelopeDecay)

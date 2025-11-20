@@ -8,7 +8,10 @@
 import Foundation
 
 
-enum ModulationSource: UInt8, Codable, CaseIterable {
+enum ModulationSource: UInt8, Codable, CaseIterable, Identifiable {
+    var id: UInt8 { self.rawValue }
+    
+    
     case off = 0 // Selection/Option number
     
     case lfo = 1                // Low Frequency Oscillator

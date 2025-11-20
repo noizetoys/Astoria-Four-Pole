@@ -1,113 +1,13 @@
+//
+//  ADSREnvelopeEditor.swift
+//  Astoria Filter Editor
+//
+//  Created by James B. Majors on 11/19/25.
+//
+
 import SwiftUI
+import Foundation
 
-// MARK: - Stage Colors
-
-/// Colors used for each stage of the ADSR envelope.
-/// These are used for:
-///  - Drawing the individual envelope segments (Attack, Decay, Sustain, Release)
-///  - Coloring the handles
-///  - Tinting the corresponding sliders
-///
-/// If you want to restyle the UI, these are good "knobs" to tweak.
-struct ADSRStageColors {
-    static let attack  = Color.red
-    static let decay   = Color.orange
-    static let sustain = Color.green
-    static let release = Color.blue
-}
-
-// MARK: - Attack Time Mapping (logarithmic)
-//
-// This block encapsulates all the logic for translating between MIDI-style
-// attack values (0...127) and actual time in milliseconds, plus some formatting.
-//
-// Design goals:
-// - Provide a perceptually sensible mapping (log-scale, not linear).
-// - Hit exact anchor points from the spec:
-///    0   -> 2 ms
-///    64  -> 1000 ms (1 second)
-///    127 -> 60000 ms (60 seconds)
-//
-// We implement this as two log-linear segments in "seconds" space:
-//
-//   1) For 0...64:  0.002 s  -> 1 s
-//   2) For 65...127: 1 s     -> 60 s
-//
-// That lets us interpolate smoothly in log domain while matching the anchors.
-//
-enum ADSRAttackTime {
-    /// Convert an attack value in MIDI space (0...127) to milliseconds.
-    ///  - Uses a log interpolation between the three anchor points.
-    ///  - Returned value is in ms for easier display and downstream use.
-    static func ms(from midi: Int) -> Double {
-        // Clamp to legal MIDI 0...127 range
-        let m = max(0, min(127, midi))
-        
-        if m <= 64 {
-            // Segment 1: 0...64 maps to 0.002s ... 1s
-            //
-            // t = (m / 64) in [0,1]
-            // logTime = lerp(log(0.002), log(1.0), t)
-            // timeSec = exp(logTime)
-            // return timeSec * 1000
-            return exp(lerp(log(0.002), log(1.0), Double(m) / 64.0)) * 1000.0
-        } else {
-            // Segment 2: 65...127 maps to 1s ... 60s
-            //
-            // Offset so 65 -> 0 and 127 -> 1
-            // t = (m - 64) / 63
-            return exp(lerp(log(1.0), log(60.0), Double(m - 64) / 63.0)) * 1000.0
-        }
-    }
-    
-    /// Approx inverse mapping (ms -> MIDI).
-    ///
-    /// Used for placing the log-grid lines in the attack region:
-    ///  - We start from interesting time markers (e.g. 10ms, 100ms, 1s, 10s, 60s),
-    ///  - Convert each marker to the corresponding MIDI value using the inverse curve,
-    ///  - Then treat that MIDI value as a 0...127 position for the x-axis.
-    static func midi(fromMilliseconds ms: Double) -> Int {
-        // Convert to seconds and clamp into the [0.002, 60] range
-        // to stay within our defined mapping.
-        let s = max(0.002, min(60_000.0, ms)) / 1000.0
-        
-        if s <= 1.0 {
-            // Inverse of segment 1: [0.002, 1.0] seconds
-            //
-            // t = (log(s) - log(0.002)) / (log(1.0) - log(0.002))
-            // midi = t * 64
-            let t = (log(s) - log(0.002)) / (log(1.0) - log(0.002))
-            return Int(round(t * 64.0))
-        } else {
-            // Inverse of segment 2: [1.0, 60.0] seconds
-            //
-            // t = (log(s) - log(1.0)) / (log(60.0) - log(1.0))
-            // midi = 64 + t * 63
-            let t = (log(s) - log(1.0)) / (log(60.0) - log(1.0))
-            return 64 + Int(round(t * 63.0))
-        }
-    }
-    
-    /// Linear interpolation helper used by ms(from:).
-    /// Given endpoints a and b, and a parameter t in [0,1], compute a + (b - a) * t.
-    private static func lerp(_ a: Double, _ b: Double, _ t: Double) -> Double {
-        a + (b - a) * max(0, min(1, t))
-    }
-    
-    /// Human-friendly string for an attack time in ms:
-    ///   - For < 1000ms, show integer ms (e.g. "123 ms")
-    ///   - For >= 1000ms, show seconds to two decimals (e.g. "1.23s")
-    ///
-    /// This keeps the UI readable for both very short and very long times.
-    static func formatted(_ ms: Double) -> String {
-        if ms < 1000 {
-            return "\(Int(round(ms))) ms"
-        } else {
-            let seconds = ms / 1000.0
-            return String(format: "%.2fs", seconds)
-        }
-    }
-}
 
 // MARK: - ADSR Envelope Editor
 
@@ -124,10 +24,10 @@ enum ADSRAttackTime {
 /// - Expose sliders for all four stages, colored to match their segments.
 struct ADSREnvelopeEditor: View {
     // Stage values (0...127)
-    @Binding var attack: Int
-    @Binding var decay: Int
-    @Binding var sustain: Int   // level (vertical)
-    @Binding var release: Int
+    @Binding var attack: ProgramParameter
+    @Binding var decay: ProgramParameter
+    @Binding var sustain: ProgramParameter   // level (vertical)
+    @Binding var release: ProgramParameter
     
     private let range = 0...127
     
@@ -163,7 +63,7 @@ struct ADSREnvelopeEditor: View {
                     gridBackground(
                         in: rect,
                         points: points,
-                        attackValue: attack
+                        attackValue: attack.value
                     )
                     coloredEnvelope(in: rect, points: points)
                 }
@@ -189,27 +89,27 @@ struct ADSREnvelopeEditor: View {
                 // - shows raw MIDI value
                 // - shows human-formatted attack time
                 // - shows the scale legend that matches the grid
-                let attackMs = ADSRAttackTime.ms(from: attack)
+                let attackMs = ADSRAttackTime.ms(from: attack.value)
                 sliderRow(
                     title: "Attack",
-                    value: $attack,
+                    value: $attack._value,
                     color: ADSRStageColors.attack,
                     extra: ADSRAttackTime.formatted(attackMs),
                     legend: "Scale: 2ms → 1s → 60s"
                 )
                 sliderRow(
                     title: "Decay",
-                    value: $decay,
+                    value: $decay._value,
                     color: ADSRStageColors.decay
                 )
                 sliderRow(
                     title: "Sustain (Level)",
-                    value: $sustain,
+                    value: $sustain._value,
                     color: ADSRStageColors.sustain
                 )
                 sliderRow(
                     title: "Release",
-                    value: $release,
+                    value: $release._value,
                     color: ADSRStageColors.release
                 )
             }
@@ -350,33 +250,47 @@ struct ADSREnvelopeEditor: View {
         func verticalValue() -> Int {
             let clampedY = min(max(location.y - rect.minY, 0), h)
             let t = Double(1.0 - (clampedY / h))  // 0 bottom -> 1 top
-            return clampToRange(Int(round(t * 127.0)))
+            return clampToIntRange(Int(round(t * 127.0)))
         }
+        
+        
+        func verticalUInt8Value() -> UInt8 {
+            let clampedY = min(max(location.y - rect.minY, 0), h)
+            let t = Double(1.0 - (clampedY / h))  // 0 bottom -> 1 top
+            return clampToUInt8Range(UInt8(round(t * 127.0)))
+        }
+        
         
         switch stage {
             case .attack:
                 // Attack uses the segment p0 -> p1
                 let t = tAlongSegment(point: location, a: p0, b: p1)
-                attack = clampToRange(Int(round(t * 127.0)))
+                attack._value = clampToUInt8Range(UInt8(round(t * 127.0)))
             case .decay:
                 // Decay uses the segment p1 -> p2
                 let t = tAlongSegment(point: location, a: p1, b: p2)
-                decay = clampToRange(Int(round(t * 127.0)))
+                decay._value = clampToUInt8Range(UInt8(round(t * 127.0)))
+//                decay = clampToRange(Int(round(t * 127.0)))
             case .sustain:
                 // Sustain uses vertical position only.
-                sustain = verticalValue()
+                sustain._value = verticalUInt8Value()
             case .release:
                 // Release uses the segment p3 -> p4
                 let t = tAlongSegment(point: location, a: p3, b: p4)
-                release = clampToRange(Int(round(t * 127.0)))
+                release._value = clampToUInt8Range(UInt8(round(t * 127.0)))
+//                release = clampToRange(Int(round(t * 127.0)))
         }
     }
     
     /// Clamp a MIDI value into the 0...127 range.
-    private func clampToRange(_ value: Int) -> Int {
+    private func clampToIntRange(_ value: Int) -> Int {
         max(range.lowerBound, min(range.upperBound, value))
     }
     
+    private func clampToUInt8Range(_ value: UInt8) -> UInt8 {
+        UInt8(clampToIntRange(Int(value)))
+    }
+
     // MARK: - Colored Envelope
     
     /// Draws the ADSR envelope polyline as four separately colored segments,
@@ -459,7 +373,7 @@ struct ADSREnvelopeEditor: View {
     private func gridBackground(
         in rect: CGRect,
         points: (p0: CGPoint, p1: CGPoint, p2: CGPoint, p3: CGPoint, p4: CGPoint),
-        attackValue: Int
+        attackValue: UInt8
     ) -> some View {
         let slot = rect.width / 4.0
         let vLinesPerSlot = 4
@@ -522,7 +436,7 @@ struct ADSREnvelopeEditor: View {
     private func attackLogGridAndLegend(
         in rect: CGRect,
         slotWidth: CGFloat,
-        attackValue: Int
+        attackValue: UInt8
     ) -> some View {
         // Time markers (ms) for log ticks / legend.
         // Chosen to cover a musically meaningful range:
@@ -539,7 +453,7 @@ struct ADSREnvelopeEditor: View {
         // Internal representation of a grid marker
         struct Marker {
             let ms: Double   // time in ms
-            let midi: Int    // corresponding MIDI value (approx)
+            let midi: UInt8    // corresponding MIDI value (approx)
             let x: CGFloat   // x-position in the attack slot
             let label: String
         }
@@ -671,7 +585,7 @@ struct ADSREnvelopeEditor: View {
     ///  - Optional "extra" readout (e.g. time in ms/s)
     ///  - Optional legend line under the row (used for Attack time scale)
     private func sliderRow(title: String,
-                           value: Binding<Int>,
+                           value: Binding<UInt8>,
                            color: Color,
                            extra: String? = nil,
                            legend: String? = nil) -> some View {
@@ -684,7 +598,7 @@ struct ADSREnvelopeEditor: View {
                     value: Binding(
                         get: { Double(value.wrappedValue) },
                         set: { newVal in
-                            value.wrappedValue = clampToRange(Int(newVal.rounded()))
+                            value.wrappedValue = clampToUInt8Range(UInt8(newVal.rounded()))
                         }
                     ),
                     in: 0...127,
@@ -730,17 +644,16 @@ struct ADSREnvelopeEditor: View {
     ///    "relative width within their slot".
     ///  - Sustain interprets its 0...127 value as a vertical level.
     private func envelopePoints(in rect: CGRect)
-    -> (p0: CGPoint, p1: CGPoint, p2: CGPoint, p3: CGPoint, p4: CGPoint)
-    {
+    -> (p0: CGPoint, p1: CGPoint, p2: CGPoint, p3: CGPoint, p4: CGPoint) {
         let w = rect.width
         let h = rect.height
         let slot = w / 4.0
         
-        // Convert a sustain-like value (0...127) into a y-position,
-        // with some padding at the top and bottom.
-        //
-        // 127 -> near top
-        //   0 -> near bottom
+            // Convert a sustain-like value (0...127) into a y-position,
+            // with some padding at the top and bottom.
+            //
+            // 127 -> near top
+            //   0 -> near bottom
         func yForLevel(_ v: Double) -> CGFloat {
             let t = max(0.0, min(1.0, v / 127.0))
             let topPad: CGFloat = h * 0.08
@@ -748,71 +661,73 @@ struct ADSREnvelopeEditor: View {
             return rect.maxY - bottomPad - CGFloat(t) * (h - topPad - bottomPad)
         }
         
-        // Convert a time-like value (0...127) into a width within a slot.
-        //
-        // This keeps each stage's temporal domain visually independent and avoids
-        // compressing other stages when one is long.
+            // Convert a time-like value (0...127) into a width within a slot.
+            //
+            // This keeps each stage's temporal domain visually independent and avoids
+            // compressing other stages when one is long.
         func widthFor(_ v: Double) -> CGFloat {
             let t = max(0.0, min(1.0, v / 127.0))
             return slot * CGFloat(t)
         }
         
-        // Sustain horizontal line's y coordinate
-        let sustainY = yForLevel(Double(sustain))
+            // Sustain horizontal line's y coordinate
+        let sustainY = yForLevel(Double(sustain.value))
         
-        // Stage-specific widths
-        let aW = widthFor(Double(attack))
-        let dW = widthFor(Double(decay))
+            // Stage-specific widths
+        let aW = widthFor(Double(attack.value))
+        let dW = widthFor(Double(decay.value))
         let sW = slot
-        let rW = widthFor(Double(release))
+        let rW = widthFor(Double(release.value))
         
-        // Points:
-        // p0: start (time=0, level=0)
-        // p1: end of Attack (top of envelope)
-        // p2: end of Decay (reached sustain)
-        // p3: end of Sustain (fixed slot width)
-        // p4: end of Release (back to zero)
-        let p0 = CGPoint(x: rect.minX,
-                         y: rect.maxY)
-        let p1 = CGPoint(x: rect.minX + aW,
-                         y: rect.minY + h * 0.08)
-        let p2 = CGPoint(x: p1.x + dW,
-                         y: sustainY)
-        let p3 = CGPoint(x: p2.x + sW,
-                         y: sustainY)
-        let p4 = CGPoint(x: p3.x + rW,
-                         y: rect.maxY)
+            // Points:
+            // p0: start (time=0, level=0)
+            // p1: end of Attack (top of envelope)
+            // p2: end of Decay (reached sustain)
+            // p3: end of Sustain (fixed slot width)
+            // p4: end of Release (back to zero)
+        let p0 = CGPoint(x: rect.minX, y: rect.maxY)
+        let p1 = CGPoint(x: rect.minX + aW, y: rect.minY + h * 0.08)
+        let p2 = CGPoint(x: p1.x + dW, y: sustainY)
+        let p3 = CGPoint(x: p2.x + sW, y: sustainY)
+        let p4 = CGPoint(x: p3.x + rW, y: rect.maxY)
         
         return (p0, p1, p2, p3, p4)
     }
 }
 
-// MARK: - Preview
 
-/// Simple local preview for Xcode's canvas.
-///
-/// Adjust initial state here to try different shapes by default.
-struct ADSREnvelopeEditor_Previews: PreviewProvider {
-    struct Demo: View {
-        @State var attack = 32
-        @State var decay = 48
-        @State var sustain = 80
-        @State var release = 40
-        
-        var body: some View {
-            ADSREnvelopeEditor(
-                attack: $attack,
-                decay: $decay,
-                sustain: $sustain,
-                release: $release
-            )
+
+#Preview {
+    @Previewable @State var viewModel: EditorViewModel = .init()
+    
+    VStack {
+        HStack {
+            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
+                               decay: $viewModel.program.vcfEnvelopeDecay,
+                               sustain: $viewModel.program.vcfEnvelopeSustain,
+                               release: $viewModel.program.vcfEnvelopeRelease)
             .padding()
-            .preferredColorScheme(.dark)
+
+            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
+                               decay: $viewModel.program.vcfEnvelopeDecay,
+                               sustain: $viewModel.program.vcfEnvelopeSustain,
+                               release: $viewModel.program.vcfEnvelopeRelease)
+            .padding()
+        }
+        
+        HStack {
+            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
+                               decay: $viewModel.program.vcfEnvelopeDecay,
+                               sustain: $viewModel.program.vcfEnvelopeSustain,
+                               release: $viewModel.program.vcfEnvelopeRelease)
+            .padding()
+
+            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
+                               decay: $viewModel.program.vcfEnvelopeDecay,
+                               sustain: $viewModel.program.vcfEnvelopeSustain,
+                               release: $viewModel.program.vcfEnvelopeRelease)
+            .padding()
         }
     }
-    
-    static var previews: some View {
-        Demo()
-    }
+    .padding()
 }
-
