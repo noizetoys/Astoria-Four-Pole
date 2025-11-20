@@ -700,34 +700,35 @@ struct ADSREnvelopeEditor: View {
 #Preview {
     @Previewable @State var viewModel: EditorViewModel = .init()
     
-    VStack {
-        HStack {
+//    VStack {
+//        HStack {
+//            ADSREnvelopeEditor(program: viewModel.program)
             ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
                                decay: $viewModel.program.vcfEnvelopeDecay,
                                sustain: $viewModel.program.vcfEnvelopeSustain,
                                release: $viewModel.program.vcfEnvelopeRelease)
             .padding()
 
-            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
-                               decay: $viewModel.program.vcfEnvelopeDecay,
-                               sustain: $viewModel.program.vcfEnvelopeSustain,
-                               release: $viewModel.program.vcfEnvelopeRelease)
-            .padding()
-        }
-        
-        HStack {
-            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
-                               decay: $viewModel.program.vcfEnvelopeDecay,
-                               sustain: $viewModel.program.vcfEnvelopeSustain,
-                               release: $viewModel.program.vcfEnvelopeRelease)
-            .padding()
-
-            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
-                               decay: $viewModel.program.vcfEnvelopeDecay,
-                               sustain: $viewModel.program.vcfEnvelopeSustain,
-                               release: $viewModel.program.vcfEnvelopeRelease)
-            .padding()
-        }
-    }
-    .padding()
+//            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
+//                               decay: $viewModel.program.vcfEnvelopeDecay,
+//                               sustain: $viewModel.program.vcfEnvelopeSustain,
+//                               release: $viewModel.program.vcfEnvelopeRelease)
+//            .padding()
+//        }
+//        
+//        HStack {
+//            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
+//                               decay: $viewModel.program.vcfEnvelopeDecay,
+//                               sustain: $viewModel.program.vcfEnvelopeSustain,
+//                               release: $viewModel.program.vcfEnvelopeRelease)
+//            .padding()
+//
+//            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
+//                               decay: $viewModel.program.vcfEnvelopeDecay,
+//                               sustain: $viewModel.program.vcfEnvelopeSustain,
+//                               release: $viewModel.program.vcfEnvelopeRelease)
+//            .padding()
+//        }
+//    }
+//    .padding()
 }
