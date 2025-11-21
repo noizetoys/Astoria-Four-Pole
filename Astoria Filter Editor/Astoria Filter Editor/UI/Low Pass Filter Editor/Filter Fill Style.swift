@@ -7,15 +7,6 @@
 import Foundation
 
 
-
-// MARK: - Models
-
-//struct ModSource: Identifiable, Hashable {
-//    let id: Int
-//    let name: String
-//}
-
-
 enum FilterFillStyle: String, CaseIterable, Identifiable {
     case none
     case soft

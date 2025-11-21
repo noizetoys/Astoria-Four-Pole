@@ -75,36 +75,14 @@ struct ContentView: View {
                         Program_Title_View(program: viewModel.program)
                             .frame(height: rowHeight(from: geometry) * 0.5)
                         
-                        GroupBox {
-                            VStack {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .foregroundStyle(.orange)
-                                    .overlay(
-                                        Text("File Manager")
-                                    )
-                                
-                                RoundedRectangle(cornerRadius: 8)
-                                    .foregroundStyle(.blue)
-                                    .overlay(
-                                        Text("Settings")
-                                    )
-                                
-                            }
-                            .frame(width: columnWidth(from: geometry) / 2)
-                            .frame(maxHeight: .infinity)
-                            
-                        }
-                        
+                       File_Management_View()
+                            .frame(maxWidth: columnWidth(from: geometry))
                     }
                     .frame(height: rowHeight(from: geometry) / 2)
                     
                         // Edit View
-                    HStack {
-//                        LowPassFilterEditor(program: viewModel.program)
-                        
-                        RoundedRectangle(cornerRadius: 8)
-                            .foregroundStyle(.yellow)
-                    }
+                    Patch_Editor_View(program: $viewModel.program)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
                 .frame(width: columnWidth(from: geometry) * 4)
                 
@@ -129,32 +107,13 @@ struct ContentView: View {
         } onEditingChanged: { isEditing in
             viewModel.selectProgram(program)
         }
-        
-        
-        //    func slider(for parameter: ProgramParameter) -> some View {
-        //        Slider(value: parameter.doubleBinding, in: parameter.doubleRange, step: 1) {
-        //            Text("Current Value: \(parameter.value)")
-        //        } onEditingChanged: { isEditing in
-        //            viewModel.updateCC(from: parameter)
-        //        }
-        //    }
-        
-        
-        //    var programChangeStepper: some View {
-        //        Stepper(value: $program, in: 0...39, step: 1) {
-        //            Text("Current Value: \(program + 1)")
-        //        } onEditingChanged: { isEditing in
-        //            viewModel.selectProgram(program)
-        //        }
-        //    }
-        
-        
-        
     }
+    
 }
 
 
 
 #Preview {
     ContentView()
+        .frame(width: 1200, height: 800)
 }

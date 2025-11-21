@@ -16,12 +16,22 @@ final class ProgramParameter: Identifiable {
     let type: MiniWorksParameter
     
     var _value: UInt8 = 64
+    var doubleValue: Double { Double(_value) }
+    
     var doubleBinding: Binding<Double> {
         Binding<Double>(
             get: { Double(self._value) },
             set: { self._value = UInt8($0) }
         )
     }
+    
+    var knobBinding: Binding<Double> {
+        Binding<Double>(
+            get: { Double(self._value) / 127 },
+            set: { self._value = UInt8($0 * 127) }
+        )
+    }
+
     
     var modulationSource: ModulationSource?
     var containedParameter: ContainedParameter?
@@ -72,16 +82,16 @@ final class ProgramParameter: Identifiable {
     
     // MARK: - Lifecycle
     
-    init(type: MiniWorksParameter, initialValue: UInt8 = 0) {
+    init(type: MiniWorksParameter, initialValue startingValue: UInt8? = nil) {
         self.type = type
-        self._value = initialValue
+        self._value = startingValue ?? type.initialValue
         
         if type.isModulationSourceSelector {
-            self.modulationSource = ModulationSource(rawValue: initialValue)
+            self.modulationSource = ModulationSource(rawValue: startingValue ?? type.initialValue)
         }
         
         if type.containedOptions != nil {
-            self.containedParameter = type.containedOptions?.first(where: { $0.value == initialValue })
+            self.containedParameter = type.containedOptions?.first(where: { $0.value == startingValue ??  type.initialValue })
         }
     }
     

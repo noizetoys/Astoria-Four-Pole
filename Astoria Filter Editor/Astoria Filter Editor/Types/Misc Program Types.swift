@@ -6,9 +6,10 @@
 //
 
 import Foundation
+import SwiftUI
 
 
-enum ContainedParameter: Codable {
+enum ContainedParameter: Codable, Equatable {
     case lfo(LFOType)
     case trigger(TriggerSource)
     case mode(Mode)
@@ -35,6 +36,8 @@ enum ContainedParameter: Codable {
     
         // NOTE: Custom Codable implementation is required for this enum due to associated values.
 }
+
+
 
 
     // MARK: - LFO Shapes
@@ -87,3 +90,86 @@ enum Mode: String, Codable, CaseIterable {
 }
 
 
+extension ContainedParameter {
+    private enum CodingKeys: String, CodingKey { case kind, lfo, trigger, mode }
+    
+    enum Kind: String, Codable { case lfo, trigger, mode }
+}
+
+extension ContainedParameter {
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let kind = try container.decode(Kind.self, forKey: .kind)
+        switch kind {
+            case .lfo:
+                let value = try container.decode(LFOType.self, forKey: .lfo)
+                self = .lfo(value)
+            case .trigger:
+                let value = try container.decode(TriggerSource.self, forKey: .trigger)
+                self = .trigger(value)
+            case .mode:
+                let value = try container.decode(Mode.self, forKey: .mode)
+                self = .mode(value)
+        }
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+            case .lfo(let value):
+                try container.encode(Kind.lfo, forKey: .kind)
+                try container.encode(value, forKey: .lfo)
+            case .trigger(let value):
+                try container.encode(Kind.trigger, forKey: .kind)
+                try container.encode(value, forKey: .trigger)
+            case .mode(let value):
+                try container.encode(Kind.mode, forKey: .kind)
+                try container.encode(value, forKey: .mode)
+        }
+    }
+}
+
+
+extension Binding where Value == ContainedParameter {
+    var lfoBinding: Binding<LFOType>? {
+        switch wrappedValue {
+            case .lfo(let current):
+                return Binding<LFOType>(
+                    get: { current },
+                    set: { newValue in
+                        wrappedValue = .lfo(newValue)
+                    }
+                )
+            default:
+                return nil
+        }
+    }
+    
+    var triggerBinding: Binding<TriggerSource>? {
+        switch wrappedValue {
+            case .trigger(let current):
+                return Binding<TriggerSource>(
+                    get: { current },
+                    set: { newValue in
+                        wrappedValue = .trigger(newValue)
+                    }
+                )
+            default:
+                return nil
+        }
+    }
+    
+    var modeBinding: Binding<Mode>? {
+        switch wrappedValue {
+            case .mode(let current):
+                return Binding<Mode>(
+                    get: { current },
+                    set: { newValue in
+                        wrappedValue = .mode(newValue)
+                    }
+                )
+        default:
+            return nil
+        }
+    }
+}

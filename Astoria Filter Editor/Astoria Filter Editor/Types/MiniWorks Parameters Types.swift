@@ -153,6 +153,47 @@ enum MiniWorksParameter: String, Codable {
         }
     }
     
+    
+    var initialValue: UInt8 {
+        switch self {
+            case .VCFEnvelopeAttack,
+            .VCFEnvelopeDecay,
+            .VCFEnvelopeSustain,
+            .VCFEnvelopeRelease: 64
+                
+            case .VCAEnvelopeAttack,
+            .VCAEnvelopeDecay,
+            .VCAEnvelopeSustain,
+            .VCAEnvelopeRelease: 64
+                
+            case .VCFEnvelopeCutoffAmount, .VCAEnvelopeVolumeAmount: 0
+                
+            case .LFOSpeed: 16
+            case .LFOSpeedModulationAmount: 64
+            case .LFOShape: 0
+            case .LFOSpeedModulationSource: 64
+                
+            case .cutoffModulationAmount,
+            .resonanceModulationAmount,
+            .volumeModulationAmount,
+            .panningModulationAmount: 64
+                
+            case .cutoffModulationSource,
+            .resonanceModulationSource,
+            .volumeModulationSource,
+            .panningModulationSource: 0
+                
+            case .cutoff: 127
+            case .resonance: 0
+            case .volume: 127
+            case .panning: 64
+                
+            case .gateTime: 16
+            case .triggerSource: 0
+            case .triggerMode: 0
+        }
+    }
+    
     // TODO: Finish Tool Tips
     
     var toolTip: String {

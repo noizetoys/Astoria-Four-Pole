@@ -4,14 +4,18 @@ struct CircularFader: View {
     @Binding var value: Double   // 0...1
     
     // Knob sizing
-    var size: CGFloat = 200
-    var ringWidth: CGFloat = 16                  // internal decorative ring width (optional)
-    var dotDiameter: CGFloat = 14
-    var dotInsetInside: CGFloat = 20             // dot inside the knob rim
+    var size: CGFloat // = 200
+    let ringColor: Color
+    var isActive: Bool = true
+    
+    
+    private var ringWidth: CGFloat { size / 8 }// = 16                  // internal decorative ring width (optional)
+    private var dotDiameter: CGFloat { size / 6 }
+    var dotInsetInside: CGFloat { dotDiameter * 2 }// dot inside the knob rim
     
     // Outside line (the tracking indicator line)
-    var outsideLineWidth: CGFloat = 12
-    var outsideLineGap: CGFloat = 10             // gap between knob rim and outside line
+    var outsideLineWidth: CGFloat { size / 10 }
+    var outsideLineGap: CGFloat { 0 }             // gap between knob rim and outside line
     
     // Arc definition (CLOCKWISE; 3 o'clock = 0°)
     // 7 o'clock ≈ 120°, 5 o'clock ≈ 60°. Sweep CW 300° from 120° → 60°.
@@ -35,7 +39,7 @@ struct CircularFader: View {
                     RadialGradient(
                         gradient: Gradient(colors: [
                             Color(white: 0.95),
-                            Color(white: 0.86),
+//                            Color(white: 0.86),
                             Color(white: 0.28)
                         ]),
                         center: .center,
@@ -52,9 +56,9 @@ struct CircularFader: View {
                 .frame(width: diameter, height: diameter)
             
             // Optional internal track (subtle, inside knob)
-            ArcCW_Polyline(startCW: startCW, sweepCW: sweepCW)
-                .stroke(Color.black.opacity(0.10), style: StrokeStyle(lineWidth: ringWidth, lineCap: .round))
-                .frame(width: diameter - ringWidth, height: diameter - ringWidth)
+//            ArcCW_Polyline(startCW: startCW, sweepCW: sweepCW)
+//                .stroke(Color.black.opacity(0.10), style: StrokeStyle(lineWidth: ringWidth, lineCap: .round))
+//                .frame(width: diameter - ringWidth, height: diameter - ringWidth)
             
             // OUTSIDE LINE (Background)
             ArcCW_Polyline(startCW: startCW, sweepCW: sweepCW)
@@ -67,7 +71,7 @@ struct CircularFader: View {
             
             // OUTSIDE LINE (Active) — tracks value clockwise
             ArcCW_Polyline(startCW: startCW, sweepCW: sweepCW * value.clamped01())
-                .stroke(Color.accentColor.opacity(0.9), style: StrokeStyle(lineWidth: outsideLineWidth, lineCap: .round))
+                .stroke(ringColor.opacity((value/0.5)), style: StrokeStyle(lineWidth: outsideLineWidth, lineCap: .round))
                 .shadow(color: Color.accentColor.opacity(0.35), radius: 3)
                 .modifier(OutsideArcFrameModifier(
                     knobSize: diameter,
@@ -79,7 +83,7 @@ struct CircularFader: View {
             IndicatorDotInside(
                 angleCW: angleForValue(value.clamped01()),
                 diameter: dotDiameter,
-                insetFromOuterEdge: 20
+                insetFromOuterEdge: dotDiameter
 //                insetFromOuterEdge: dotInsetInside
             )
             .frame(width: diameter, height: diameter)
@@ -104,6 +108,8 @@ private extension CircularFader {
     func dragGesture(in size: CGSize) -> some Gesture {
         DragGesture(minimumDistance: 0)
             .onChanged { state in
+                guard isActive else { return }
+                
                 let loc = state.location
                 if dragStartPoint == nil {
                     dragStartPoint = loc
@@ -226,20 +232,52 @@ private extension Double {
 // MARK: - Demo
 struct CircularFaderDemo: View {
     @State private var v: Double = 0.0
+    
     var body: some View {
-        VStack(spacing: 24) {
-            CircularFader(
-                value: $v,
-                size: 220,
-                ringWidth: 18,
-                dotDiameter: 16,
-                dotInsetInside: 10,
-                outsideLineWidth: 12,
-                outsideLineGap: 12
-            )
-            Text(String(format: "Value: %.3f", v))
-            Slider(value: $v, in: 0...1)
-                .padding(.horizontal, 32)
+        HStack {
+            VStack(spacing: 24) {
+                CircularFader(
+                    value: $v,
+                    size: 300,
+                    ringColor: .red
+                )
+                .padding(40)
+                
+                Text(String(format: "Value: %.3f", v * 127))
+            }
+            
+            VStack(spacing: 24) {
+                CircularFader(
+                    value: $v,
+                    size: 100, ringColor: .green, // was 220
+                )
+                .padding(40)
+                
+                Text(String(format: "Value: %.3f", v * 127))
+            }
+
+            VStack(spacing: 24) {
+                CircularFader(
+                    value: $v,
+                    size: 60, // was 220
+                    ringColor: .blue
+                )
+                .padding(40)
+                
+                Text(String(format: "Value: %.3f", v * 127))
+            }
+
+            VStack(spacing: 24) {
+                CircularFader(
+                    value: $v,
+                    size: 30, // was 220
+                    ringColor: .orange
+                )
+                .padding(40)
+                
+                Text(String(format: "Value: %.3f", v * 127))
+            }
+
         }
         .padding()
     }

@@ -24,10 +24,10 @@ import Foundation
 /// - Expose sliders for all four stages, colored to match their segments.
 struct ADSREnvelopeEditor: View {
     // Stage values (0...127)
-    @Binding var attack: ProgramParameter
-    @Binding var decay: ProgramParameter
-    @Binding var sustain: ProgramParameter   // level (vertical)
-    @Binding var release: ProgramParameter
+    var attack: ProgramParameter
+    var decay: ProgramParameter
+    var sustain: ProgramParameter   // level (vertical)
+    var release: ProgramParameter
     
     private let range = 0...127
     
@@ -51,7 +51,7 @@ struct ADSREnvelopeEditor: View {
                 // The main envelope drawing lives in this GeometryReader
                 // so it adapts to any given size.
                 let rect = CGRect(origin: .zero, size: geo.size)
-                
+
                 // Compute the ADSR polyline points *once* per layout pass.
                 // These points are used by:
                 //  - The envelope rendering
@@ -84,36 +84,41 @@ struct ADSREnvelopeEditor: View {
             .padding(.horizontal, 12)
             
             // Sliders + readouts (each tinted to match its stage color)
-            VStack(spacing: 10) {
-                // Attack slider row:
-                // - shows raw MIDI value
-                // - shows human-formatted attack time
-                // - shows the scale legend that matches the grid
-                let attackMs = ADSRAttackTime.ms(from: attack.value)
-                sliderRow(
-                    title: "Attack",
-                    value: $attack._value,
-                    color: ADSRStageColors.attack,
-                    extra: ADSRAttackTime.formatted(attackMs),
-                    legend: "Scale: 2ms → 1s → 60s"
-                )
-                sliderRow(
-                    title: "Decay",
-                    value: $decay._value,
-                    color: ADSRStageColors.decay
-                )
-                sliderRow(
-                    title: "Sustain (Level)",
-                    value: $sustain._value,
-                    color: ADSRStageColors.sustain
-                )
-                sliderRow(
-                    title: "Release",
-                    value: $release._value,
-                    color: ADSRStageColors.release
-                )
+//            HStack(spacing: 40) {
+            HStack {
+                VStack(alignment: .center, spacing: 20) {
+                    Text("\(attack.value)")
+                    CircularFader(value: attack.knobBinding,
+                                  size: 40,
+                                  ringColor: ADSRStageColors.attack)
+                    Text("Attack")
+                }
+                
+                VStack(alignment: .center, spacing: 20) {
+                    Text("\(decay.value)")
+                    CircularFader(value: decay.knobBinding,
+                                  size: 40,
+                                  ringColor: ADSRStageColors.decay)
+                    Text("Decay")
+                }
+
+                VStack(alignment: .center, spacing: 20) {
+                    Text("\(sustain.value)")
+                    CircularFader(value: sustain.knobBinding,
+                                  size: 40,
+                                  ringColor: ADSRStageColors.sustain)
+                    Text("Sustain")
+                }
+
+                VStack(alignment: .center, spacing: 20) {
+                    Text("\(release.value)")
+                    CircularFader(value: release.knobBinding,
+                                  size: 40,
+                                  ringColor: ADSRStageColors.release)
+                    Text("Release")
+                }
+
             }
-            .padding(.horizontal, 12)
         }
     }
     
@@ -383,6 +388,7 @@ struct ADSREnvelopeEditor: View {
             // Panel background + border
             RoundedRectangle(cornerRadius: 12)
                 .fill(.background.opacity(0.45))
+            
             RoundedRectangle(cornerRadius: 12)
                 .strokeBorder(.secondary.opacity(0.35), lineWidth: 1)
             
@@ -441,14 +447,7 @@ struct ADSREnvelopeEditor: View {
         // Time markers (ms) for log ticks / legend.
         // Chosen to cover a musically meaningful range:
         //   2ms (very snappy) up to 60s (extremely slow).
-        let timeMarkersMs: [Double] = [
-            2,
-            10,
-            100,
-            1000,
-            10000,
-            60000
-        ]
+        let timeMarkersMs: [Double] = [2, 10, 100, 1000, 10000, 60000]
         
         // Internal representation of a grid marker
         struct Marker {
@@ -467,7 +466,7 @@ struct ADSREnvelopeEditor: View {
             // Short label for each marker
             let label: String
             if ms < 1000 {
-                label = "\(Int(ms))ms"
+                label = "\(Int(ms))\nms"
             } else {
                 label = "\(Int(ms / 1000))s"
             }
@@ -482,13 +481,16 @@ struct ADSREnvelopeEditor: View {
         //  - If attackMs is above last marker    -> highlight last two.
         let attackMs = ADSRAttackTime.ms(from: attackValue)
         var highlightedIndices: Set<Int> = []
+        
         if let idx = (0..<(markers.count - 1)).first(where: { attackMs >= markers[$0].ms && attackMs <= markers[$0 + 1].ms }) {
             highlightedIndices.insert(idx)
             highlightedIndices.insert(idx + 1)
-        } else if attackMs < markers.first?.ms ?? 0 {
+        }
+        else if attackMs < markers.first?.ms ?? 0 {
             highlightedIndices.insert(0)
             if markers.count > 1 { highlightedIndices.insert(1) }
-        } else if attackMs > markers.last?.ms ?? 0 {
+        }
+        else if attackMs > markers.last?.ms ?? 0 {
             let last = markers.count - 1
             highlightedIndices.insert(last)
             if last > 0 { highlightedIndices.insert(last - 1) }
@@ -521,7 +523,7 @@ struct ADSREnvelopeEditor: View {
                     .foregroundStyle(
                         isHighlighted
                         ? ADSRStageColors.attack
-                        : ADSRStageColors.attack.opacity(0.6)
+                        : ADSRStageColors.attack.opacity(0.2)
                     )
                     .position(x: marker.x,
                               y: rect.minY - 10)
@@ -584,51 +586,51 @@ struct ADSREnvelopeEditor: View {
     ///  - Numeric readout of the raw MIDI value
     ///  - Optional "extra" readout (e.g. time in ms/s)
     ///  - Optional legend line under the row (used for Attack time scale)
-    private func sliderRow(title: String,
-                           value: Binding<UInt8>,
-                           color: Color,
-                           extra: String? = nil,
-                           legend: String? = nil) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            HStack(spacing: 10) {
-                Text(title)
-                    .frame(width: 140, alignment: .leading)
-                
-                Slider(
-                    value: Binding(
-                        get: { Double(value.wrappedValue) },
-                        set: { newVal in
-                            value.wrappedValue = clampToUInt8Range(UInt8(newVal.rounded()))
-                        }
-                    ),
-                    in: 0...127,
-                    step: 1
-                )
-                .tint(color)
-                .accessibilityLabel(Text(title))
-                .accessibilityValue(Text("\(value.wrappedValue)"))
-                
-                Text(String(format: "%3d", value.wrappedValue))
-                    .font(.caption2.monospacedDigit())
-                    .foregroundStyle(.secondary)
-                    .frame(width: 40, alignment: .trailing)
-                
-                if let extra = extra {
-                    Text(extra)
-                        .font(.caption2.monospacedDigit())
-                        .foregroundStyle(.secondary)
-                        .frame(minWidth: 80, alignment: .trailing)
-                }
-            }
-            
-            if let legend = legend {
-                Text(legend)
-                    .font(.caption2.monospacedDigit())
-                    .foregroundStyle(color.opacity(0.9))
-                    .padding(.leading, 140) // align under slider area (same as label width)
-            }
-        }
-    }
+//    private func sliderRow(title: String,
+//                           value: Binding<UInt8>,
+//                           color: Color,
+//                           extra: String? = nil,
+//                           legend: String? = nil) -> some View {
+//        VStack(alignment: .leading, spacing: 2) {
+//            HStack(spacing: 10) {
+//                Text(title)
+//                    .frame(width: 140, alignment: .leading)
+//                
+//                Slider(
+//                    value: Binding(
+//                        get: { Double(value.wrappedValue) },
+//                        set: { newVal in
+//                            value.wrappedValue = clampToUInt8Range(UInt8(newVal.rounded()))
+//                        }
+//                    ),
+//                    in: 0...127,
+//                    step: 1
+//                )
+//                .tint(color)
+//                .accessibilityLabel(Text(title))
+//                .accessibilityValue(Text("\(value.wrappedValue)"))
+//                
+//                Text(String(format: "%3d", value.wrappedValue))
+//                    .font(.caption2.monospacedDigit())
+//                    .foregroundStyle(.secondary)
+//                    .frame(width: 40, alignment: .trailing)
+//                
+//                if let extra = extra {
+//                    Text(extra)
+//                        .font(.caption2.monospacedDigit())
+//                        .foregroundStyle(.secondary)
+//                        .frame(minWidth: 80, alignment: .trailing)
+//                }
+//            }
+//            
+//            if let legend = legend {
+//                Text(legend)
+//                    .font(.caption2.monospacedDigit())
+//                    .foregroundStyle(color.opacity(0.9))
+//                    .padding(.leading, 140) // align under slider area (same as label width)
+//            }
+//        }
+//    }
     
     // MARK: - Geometry helper
     
@@ -699,36 +701,22 @@ struct ADSREnvelopeEditor: View {
 
 #Preview {
     @Previewable @State var viewModel: EditorViewModel = .init()
-    
-//    VStack {
-//        HStack {
-//            ADSREnvelopeEditor(program: viewModel.program)
-            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
-                               decay: $viewModel.program.vcfEnvelopeDecay,
-                               sustain: $viewModel.program.vcfEnvelopeSustain,
-                               release: $viewModel.program.vcfEnvelopeRelease)
-            .padding()
+    viewModel.program.vcfEnvelopeAttack._value = 64
+    viewModel.program.vcfEnvelopeDecay._value = 64
+    viewModel.program.vcfEnvelopeSustain._value = 64
+    viewModel.program.vcfEnvelopeRelease._value = 64
 
-//            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
-//                               decay: $viewModel.program.vcfEnvelopeDecay,
-//                               sustain: $viewModel.program.vcfEnvelopeSustain,
-//                               release: $viewModel.program.vcfEnvelopeRelease)
-//            .padding()
-//        }
-//        
-//        HStack {
-//            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
-//                               decay: $viewModel.program.vcfEnvelopeDecay,
-//                               sustain: $viewModel.program.vcfEnvelopeSustain,
-//                               release: $viewModel.program.vcfEnvelopeRelease)
-//            .padding()
-//
-//            ADSREnvelopeEditor(attack: $viewModel.program.vcfEnvelopeAttack,
-//                               decay: $viewModel.program.vcfEnvelopeDecay,
-//                               sustain: $viewModel.program.vcfEnvelopeSustain,
-//                               release: $viewModel.program.vcfEnvelopeRelease)
-//            .padding()
-//        }
-//    }
+    return VStack {
+//        Spacer(minLength: 30)
+        ADSREnvelopeEditor(attack: viewModel.program.vcfEnvelopeAttack,
+                           decay: viewModel.program.vcfEnvelopeDecay,
+                           sustain: viewModel.program.vcfEnvelopeSustain,
+                           release: viewModel.program.vcfEnvelopeRelease)
+//        .frame(width: 400, height: 300)
+//        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    .frame(width: 350, height: 350)
+//    .frame(maxWidth: .infinity, maxHeight: .infinity)
 //    .padding()
+    
 }

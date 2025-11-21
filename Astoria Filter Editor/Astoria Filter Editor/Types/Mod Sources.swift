@@ -38,23 +38,45 @@ enum ModulationSource: UInt8, Codable, CaseIterable, Identifiable {
     case footcontroller = 15    // MIDI Controller #4
     
     
+    var shortName: String {
+        switch self {
+            case .off: return "Off"
+            case .lfo: return "LFO"
+            case .lfo_ModWheel: return "LFO * ModWhl"
+            case .lfo_Aftertouch: return "LFO * AftTch"
+            case .lfo_VCAEnvelope: return "LFO * VCAEnv"
+            case .vcfEnvelope: return "VCF Env"
+            case .vcaEnvelope: return "VCA Env"
+            case .signalEnvelope: return "Signal Env"
+            case .velocity_VCAEnvelope: return "Vel * VCA Env"
+            case .velocity: return "Vel"
+            case .keytrack: return "Keytrk"
+            case .pitchbend: return "Pttchbnd"
+            case .modWheel: return "ModWhl"
+            case .aftertouch: return "AftTch"
+            case .breathControl: return "Breath"
+            case .footcontroller: return "Foot"
+        }
+    }
+    
+    
     var name: String {
         switch self {
             case .off: return "Off"
             case .lfo: return "LFO"
             case .lfo_ModWheel: return "LFO * ModWheel"
-            case .lfo_Aftertouch: return "LFO * Aftertouch"
+            case .lfo_Aftertouch: return "LFO * AfterTouch"
             case .lfo_VCAEnvelope: return "LFO * VCAEnvelope"
             case .vcfEnvelope: return "VCF Envelope"
             case .vcaEnvelope: return "VCA Envelope"
             case .signalEnvelope: return "Signal Envelope Follower"
             case .velocity_VCAEnvelope: return "Vel * VCA Envelope"
             case .velocity: return "Velocity"
-            case .keytrack: return "Keytrack"
+            case .keytrack: return "Keytracking"
             case .pitchbend: return "Pitchbend"
             case .modWheel: return "ModWheel"
-            case .aftertouch: return "Aftertouch"
-            case .breathControl: return "Breath Control"
+            case .aftertouch: return "AfterTouch"
+            case .breathControl: return "Breath Controller"
             case .footcontroller: return "Foot Controller"
         }
     }

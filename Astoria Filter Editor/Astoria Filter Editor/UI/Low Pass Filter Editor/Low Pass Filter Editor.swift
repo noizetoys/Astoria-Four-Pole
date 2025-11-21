@@ -24,8 +24,6 @@ import SwiftUI
  See inline comments marked with "CUSTOMIZATION:" for easy adjustment points.
  */
 
-
-
 // MARK: - Main View
 
 struct LowPassFilterEditor: View {
@@ -40,169 +38,199 @@ struct LowPassFilterEditor: View {
     // CUSTOMIZATION: 64 = neutral (0%), 0 = -100%, 127 = +100%
 //    @State private var cutoffModAmount: UInt8 = 64  // No modulation at start
 //    @State private var resonanceModAmount: UInt8 = 64  // No modulation at start
-    @State private var fillStyle: FilterFillStyle = .soft
+    @State private var fillStyle: FilterFillStyle = .strongGlow
 
     
     var body: some View {
         VStack(spacing: 20) {
-            // CUSTOMIZATION: Change title text or styling here
+                // CUSTOMIZATION: Change title text or styling here
             Text("Low Pass Filter Editor")
                 .font(.title)
                 .fontWeight(.bold)
-                .padding(.top)
+                .padding(.top, 40)
             
-            // Filter Visualization
-            // CUSTOMIZATION: Adjust .frame(height:) to change graph size
+                // Filter Visualization
+                // CUSTOMIZATION: Adjust .frame(height:) to change graph size
             FilterResponseView(program: program, fillStyle: fillStyle)
-                .frame(height: 300)  // CUSTOMIZATION: Graph height in points
+                .frame(height: 250)  // CUSTOMIZATION: Graph height in points
                 .background(Color.black)  // CUSTOMIZATION: Graph background color
                 .cornerRadius(10)  // CUSTOMIZATION: Corner rounding
-                .padding(.horizontal)
             
                 // Frequency Controls
-            GroupBox(label: Text("Cutoff Frequency").font(.headline)) {
-                VStack(spacing: 10) {
-                    HStack {
-                        Text("Mod Source:")
-                            .font(.caption)
-                            .frame(width: 90, alignment: .leading)
-                        Picker("", selection: $program.cutoffModulationSource.modulationSource) {
-                            ForEach(ModulationSource.allCases) { source in
-                                Text(source.name).tag(source)
-                            }
-                        }
-                        Spacer()
-                    }
-                    
-                    if program.cutoffModulationSource.modulationSource?.id != 0 {
+            HStack {
+                GroupBox(label: cutoffHeader) {
+                    VStack {
+                        cutoffModSource
+                            .padding(.bottom)
+                        
                         HStack {
-                            Text("Mod Amount:")
-                                .font(.caption)
-                                .frame(width: 90, alignment: .leading)
-                            Slider(value: program.cutoffModulationAmount.doubleBinding, in: 0...127, step: 1)
-                                .accentColor(.orange)
-                            
-                            Text("\(modAmountToPercentage(program.cutoffModulationAmount.value), specifier: "%.0f")%")
-                                .font(.caption)
-                                .foregroundColor(.orange)
-                                .frame(width: 50)
-                            
-                            Text("[\(Int(program.cutoffModulationAmount.value)))]")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .frame(width: 40)
+                            cutoffModAmount
+                            cutoffFrequency
                         }
                     }
-                    
-                    HStack {
-                        Text("Cutoff:")
-                            .font(.caption)
-                            .frame(width: 90, alignment: .leading)
-                        
-                        Slider(value: program.cutoff.doubleBinding, in: 0...127, step: 1)
-                            .accentColor(.blue)
-                        
-                        Text("\(frequencyToHz(program.cutoff.value), specifier: "%.0f") Hz")
-                            .font(.caption)
-                            .foregroundColor(.blue)
-                            .frame(width: 70)
-                        
-                        Text("[\(Int(program.cutoff.value))]")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .frame(width: 40)
-                    }
+                    .padding(.bottom)
                 }
-                .padding(.vertical, 5)
+                .padding()
+                
+                    // Resonance Controls
+                GroupBox(label: resonanceHeader) {
+                    VStack {
+                        resonanceModSource
+                            .padding(.bottom)
+                        
+                        HStack {
+                            resonanceModAmount
+                            resonanceKnob
+                                //                            Text("(+) In Phase | (-) Out of Phase")
+                                //                                .font(.caption2)
+                                //                                .foregroundColor(.gray)
+                        }
+                    }
+                    .padding(.bottom)
+                }
+                .padding()
             }
-            .padding(.horizontal)
+        }
+    }
+    
+    
+    var cutoffHeader: some View {
+        Text("Cutoff Frequency")
+            .font(.headline)
+    }
+    
+    var cutoffModSource: some View {
+        VStack {
+            Text("Mod Source:")
+                .font(.caption)
             
-            // Resonance Controls
-            GroupBox(label: HStack {
-                Text("Resonance").font(.headline)
-                if program.resonance.value >= 80 {
-                    Text("⚠ Self-Oscillation")
-                        .font(.caption)
-                        .foregroundColor(.red)
-                        .fontWeight(.bold)
+            Picker("", selection: $program.cutoffModulationSource.modulationSource) {
+                ForEach(ModulationSource.allCases) { source in
+                    Text(source.name).tag(source)
                 }
-            }) {
-                VStack(spacing: 10) {
-                    HStack {
-                        Text("Mod Source:")
-                            .font(.caption)
-                            .frame(width: 90, alignment: .leading)
-                        Picker("", selection: $program.resonanceModulationSource.modulationSource) {
-                            ForEach(ModulationSource.allCases) { source in
-                                Text(source.name).tag(source)
-                            }
-                        }
-                        Spacer()
-                    }
-                    
-                    if program.resonanceModulationSource.modulationSource?.id != 0 {
-                        VStack(spacing: 5) {
-                            HStack {
-                                Text("Mod Amount:")
-                                    .font(.caption)
-                                    .frame(width: 90, alignment: .leading)
-                                
-                                Slider(value: program.resonanceModulationAmount.doubleBinding, in: 0...127, step: 1)
-                                    .accentColor(.orange)
-                                
-                                Text("\(modAmountToPercentage(program.resonanceModulationAmount.value), specifier: "%.0f")%")
-                                    .font(.caption)
-                                    .foregroundColor(.orange)
-                                    .frame(width: 50)
-                                
-                                Text("[\(Int(program.resonanceModulationAmount.value))]")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                    .frame(width: 40)
-                            }
-                            
-                            Text("(+) In Phase | (-) Out of Phase")
-                                .font(.caption2)
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    
-                    HStack {
-                        Text("Resonance:")
-                            .font(.caption)
-                            .frame(width: 90, alignment: .leading)
-                        Slider(value: program.resonance.doubleBinding, in: 0...127, step: 1)
-                            .accentColor(program.resonance.value >= 80 ? .red : .green)
-                        Text("  ")
-                            .frame(width: 70)
-                        Text("[\(Int(program.resonance.value))]")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                            .frame(width: 40)
-                    }
-                }
-                .padding(.vertical, 5)
             }
-            .padding(.horizontal)
+        }
+    }
+    
+    
+    var cutoffModAmount: some View {
+        VStack {
+            Text("Mod Amount:")
+                .font(.caption)
             
-            GroupBox(label: Text("Display").font(.headline)) {
-                HStack {
-                    Text("Fill Style:")
-                        .font(.caption)
-                        .frame(width: 90, alignment: .leading)
-                    
-                    Picker("", selection: $fillStyle) {
-                        ForEach(FilterFillStyle.allCases) { style in
-                            Text(style.label).tag(style)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                }
-                .padding(.vertical, 6)
-            }
-            .padding(.horizontal)
+            CircularFader(value: program.cutoffModulationAmount.knobBinding,
+                          size: 40,
+                          ringColor: .red,
+                          isActive: program.cutoffModulationSource.modulationSource?.id != 0)
+            .frame(width: 60)
 
-            Spacer()
+            Text("\(modAmountToPercentage(program.cutoffModulationAmount.value), specifier: "%.0f")%")
+                .font(.caption)
+                .foregroundColor(.orange)
+                .frame(width: 50)
+            
+            Text("[\(Int(program.cutoffModulationAmount.value)))]")
+                .font(.caption)
+                .foregroundColor(.gray)
+                .frame(width: 40)
+        }
+    }
+    
+    
+    var cutoffFrequency: some View {
+        VStack {
+            Text("Cutoff:")
+                .font(.caption)
+            
+            CircularFader(value: program.cutoff.knobBinding,
+                          size: 40,
+                          ringColor: .blue)
+            .frame(width: 60)
+
+            Text("\(frequencyToHz(program.cutoff.value), specifier: "%.0f") Hz")
+                .font(.caption)
+                .foregroundColor(.blue)
+            
+            Text("[\(Int(program.cutoff.value))]")
+                .font(.caption)
+                .foregroundColor(.gray)
+        }
+    }
+    
+    
+    var resonanceHeader: some View {
+        HStack {
+            Text("Resonance")
+                .font(.headline)
+            
+            if program.resonance.value >= 80 {
+                Text("⚠ Self-Osc.")
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .fontWeight(.bold)
+            }
+        }
+    }
+    
+    
+    var resonanceModSource: some View {
+        VStack {
+            Text("Mod Source:")
+                .font(.caption)
+            
+            Picker("", selection: $program.resonanceModulationSource.modulationSource) {
+                ForEach(ModulationSource.allCases) { source in
+                    Text(source.name).tag(source)
+                }
+            }
+        }
+        .padding(.horizontal)
+    }
+    
+    
+    var resonanceModAmount: some View {
+        VStack {
+            Text("Mod Amount:")
+                .font(.caption)
+            
+            CircularFader(value: program.resonanceModulationAmount.knobBinding,
+                          size: 40,
+                          ringColor: .green,
+                          isActive: program.resonanceModulationSource.modulationSource?.id != 0)
+            .frame(width: 60)
+
+            Text("\(modAmountToPercentage(program.resonanceModulationAmount.value), specifier: "%.0f")%")
+                .font(.caption)
+                .foregroundColor(.orange)
+                .frame(width: 50)
+
+            Text("[\(Int(program.resonanceModulationAmount.value))]")
+                .font(.caption)
+                .foregroundColor(.gray)
+                .frame(width: 40)
+        }
+    }
+    
+    
+    var resonanceKnob: some View {
+        VStack {
+            Text("Resonance:")
+                .font(.caption)
+            
+            CircularFader(value: program.resonance.knobBinding,
+                          size: 40,
+                          ringColor: .pink)
+            .frame(width: 60)
+            
+            Text("\(modAmountToPercentage(program.resonance.value), specifier: "%.0f")%")
+                .font(.caption)
+                .foregroundColor(.orange)
+                .frame(width: 50)
+
+            
+            Text("[\(Int(program.resonance.value))]")
+                .font(.caption)
+                .foregroundColor(.gray)
         }
     }
     

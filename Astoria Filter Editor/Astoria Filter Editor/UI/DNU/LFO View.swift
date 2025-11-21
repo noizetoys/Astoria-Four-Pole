@@ -1,5 +1,14 @@
 import SwiftUI
 
+
+//@State private var musicalNote: MusicalNote = .init(noteName: "C", octave: 3, cents: 0, midiNote: 48)
+//    .onChange(of: frequency) { oldValue, newValue in
+//        if oldValue != newValue {
+//            musicalNote = frequencyToMusicalNote(frequency)
+//        }
+//    }
+
+
 struct LFOView: View {
     @State private var phase: Double = 0
     @State private var frequency: Double = 1.0 // Hz
