@@ -9,50 +9,61 @@ import SwiftUI
 
 struct File_Management_View: View {
     var body: some View {
-        GroupBox {
+//        GroupBox {
             HStack {
                 
                 VStack {
                     RoundedRectangle(cornerRadius: 8)
-                        //                                        .foregroundStyle(.orange)
+                        .overlay(
+                            Text("Something")
+                                .foregroundStyle(.black)
+                        )
+                    
+                    RoundedRectangle(cornerRadius: 8)
+                        .overlay(
+                            Text("Something Else")
+                                .foregroundStyle(.black)
+                        )
+                    
+                } // VStack
+
+                
+                VStack {
+                    RoundedRectangle(cornerRadius: 8)
                         .overlay(
                             Text("Configuration")
                                 .foregroundStyle(.black)
                         )
                     
                     RoundedRectangle(cornerRadius: 8)
-                        //                                        .foregroundStyle(.blue)
                         .overlay(
                             Text("Patches")
                                 .foregroundStyle(.black)
                         )
                     
-                }
-//                .frame(width: columnWidth(from: geometry) / 2)
-                .frame(maxHeight: .infinity)
-                
+                } // VStack
+
                 VStack {
                     RoundedRectangle(cornerRadius: 8)
-                        //                                        .foregroundStyle(.orange)
                         .overlay(
                             Text("File Manager")
                                 .foregroundStyle(.black)
                         )
                     
                     RoundedRectangle(cornerRadius: 8)
-                        //                                        .foregroundStyle(.blue)
                         .overlay(
                             Text("Settings")
                                 .foregroundStyle(.black)
                         )
                     
-                }
-//                .frame(width: columnWidth(from: geometry) / 2)
-                .frame(maxHeight: .infinity)
+                } // VStack
                 
-            }
-        }    }
+            } // HStack
+//        }
+    }
+    
 }
+
 
 #Preview {
     File_Management_View()

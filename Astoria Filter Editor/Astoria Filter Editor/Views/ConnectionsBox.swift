@@ -12,7 +12,7 @@ struct ConnectionsBox: View {
     
     
     var body: some View {
-        GroupBox() {
+//        GroupBox() {
             VStack(alignment: .leading) {
                 
                 HStack {
@@ -77,7 +77,7 @@ struct ConnectionsBox: View {
                         .foregroundStyle(.secondary)
                 }
             }
-        }
+//        }
     }
 }
 

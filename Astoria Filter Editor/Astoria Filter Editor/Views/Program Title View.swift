@@ -39,7 +39,7 @@ struct Program_Title_View: View {
     
     
     var body: some View {
-        GroupBox {
+//        GroupBox {
             
             HStack(spacing: 0) {
                     // Top
@@ -61,7 +61,7 @@ struct Program_Title_View: View {
                 
             } // VStack
             
-        } // GroupBox
+//        }  GroupBox
     }
     
     

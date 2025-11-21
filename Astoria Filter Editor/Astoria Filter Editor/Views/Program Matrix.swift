@@ -79,15 +79,17 @@ struct Program_Matrix: View {
 
 
     var body: some View {
-        GroupBox {
+//        GroupBox {
             VStack(alignment: .center, spacing: 0) {
                 Text(programTitle)
                     .font(.headline)
-                    .foregroundStyle(.black)
+//                    .foregroundStyle(.black)
+                    .padding(.top)
                 
                 Text(programSubtitle)
                     .font(.caption)
                     .foregroundStyle(.gray)
+                    .padding(.bottom)
                 
                 Grid(horizontalSpacing: 3, verticalSpacing: 3) {
                     // 2 X 10
@@ -112,7 +114,7 @@ struct Program_Matrix: View {
                 }
             }
             .frame(maxWidth: .infinity)
-        }
+//        }
         
     }
     

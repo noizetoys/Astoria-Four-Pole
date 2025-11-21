@@ -37,26 +37,19 @@ struct LFOAnimationView: View {
             LFOLayerViewRepresentable(
                 lfoSpeed: lfoSpeed,
                 lfoShape: lfoShape,
-                isRunning: isRunning
+                isRunning: isRunning,
+//                #if os(iOS)
+//                onWaveformMenuRequest: nil  // iOS uses long press with action sheet
+//                #elseif os(macOS)
+                onWaveformSelect: { waveform in
+                    setWaveform(waveform)
+                }
+//                #endif
             )
             .frame(height: 250)
             .cornerRadius(12)
-            .contextMenu {
-                ForEach(LFOType.allCases, id: \.self) { waveform in
-                    Button(action: {
-                        setWaveform(waveform)
-                    }) {
-                        HStack {
-                            Text(waveform.rawValue)
-                            if selectedWaveform == waveform {
-                                Image(systemName: "checkmark")
-                            }
-                        }
-                    }
-                }
-            }
             
-//            waveformSelectorView
+            waveformSelectorView
             frequencyControlView
             infoDisplayView
             
@@ -267,13 +260,17 @@ struct LFOLayerViewRepresentable: UIViewRepresentable {
     var lfoSpeed: ProgramParameter
     var lfoShape: ProgramParameter
     var isRunning: Bool
+    var onWaveformMenuRequest: (() -> Void)?
     
     func makeUIView(context: Context) -> LFOLayerView {
-        return LFOLayerView()
+        let view = LFOLayerView()
+        view.onMenuRequest = onWaveformMenuRequest
+        return view
     }
     
     func updateUIView(_ uiView: LFOLayerView, context: Context) {
         uiView.update(speed: lfoSpeed.value, shape: lfoShape.containedParameter, isRunning: isRunning)
+        uiView.onMenuRequest = onWaveformMenuRequest
     }
 }
 #elseif os(macOS)
@@ -281,13 +278,17 @@ struct LFOLayerViewRepresentable: NSViewRepresentable {
     var lfoSpeed: ProgramParameter
     var lfoShape: ProgramParameter
     var isRunning: Bool
+    var onWaveformSelect: ((LFOType) -> Void)?
     
     func makeNSView(context: Context) -> LFOLayerView {
-        return LFOLayerView()
+        let view = LFOLayerView()
+        view.onWaveformSelect = onWaveformSelect
+        return view
     }
     
     func updateNSView(_ nsView: LFOLayerView, context: Context) {
         nsView.update(speed: lfoSpeed.value, shape: lfoShape.containedParameter, isRunning: isRunning)
+        nsView.onWaveformSelect = onWaveformSelect
     }
 }
 #endif
@@ -300,8 +301,11 @@ class LFOLayerView: PlatformView {
     
 #if os(iOS)
     private var displayLink: CADisplayLink?
+    var onMenuRequest: (() -> Void)?
 #elseif os(macOS)
     private var displayLink: CVDisplayLink?
+    var onWaveformSelect: ((LFOType) -> Void)?
+    var currentWaveform: LFOType = .sine
 #endif
     
     private var phase: Double = 0
@@ -342,6 +346,11 @@ class LFOLayerView: PlatformView {
     private func setup() {
 #if os(iOS)
         backgroundColor = .black
+        
+            // Add long press gesture for menu
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        addGestureRecognizer(longPress)
+        
 #elseif os(macOS)
         wantsLayer = true
         layer?.backgroundColor = NSColor.black.cgColor
@@ -350,6 +359,43 @@ class LFOLayerView: PlatformView {
         setupLayers()
         startAnimation()
     }
+    
+#if os(iOS)
+    @objc private func handleLongPress(_ gesture: UILongPressGestureRecognizer) {
+        if gesture.state == .began {
+            onMenuRequest?()
+        }
+    }
+#elseif os(macOS)
+    override func menu(for event: NSEvent) -> NSMenu? {
+        let menu = NSMenu()
+        
+        for waveform in LFOType.allCases {
+            let item = NSMenuItem(
+                title: waveform.rawValue,
+                action: #selector(selectWaveform(_:)),
+                keyEquivalent: ""
+            )
+            item.target = self
+            item.representedObject = waveform
+            
+                // Add checkmark if this is the current waveform
+            if waveform == currentWaveform {
+                item.state = .on
+            }
+            
+            menu.addItem(item)
+        }
+        
+        return menu
+    }
+    
+    @objc private func selectWaveform(_ sender: NSMenuItem) {
+        if let waveform = sender.representedObject as? LFOType {
+            onWaveformSelect?(waveform)
+        }
+    }
+#endif
     
     private func setupLayers() {
 #if os(iOS)
@@ -657,6 +703,9 @@ class LFOLayerView: PlatformView {
         if case .lfo(let lfoType) = shape {
             if waveformType != lfoType {
                 waveformType = lfoType
+#if os(macOS)
+                currentWaveform = lfoType
+#endif
                 updateWaveformPath()
             }
         }
@@ -675,12 +724,4 @@ class LFOLayerView: PlatformView {
     deinit {
         stopAnimation()
     }
-}
-
-
-
-#Preview {
-    @Previewable @State var program = MiniWorksProgram()
-    
-    LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
 }

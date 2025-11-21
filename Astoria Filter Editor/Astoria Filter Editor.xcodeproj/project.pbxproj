@@ -38,6 +38,7 @@
 				UI/DNU/Arrow.swift,
 				"UI/DNU/Claude Log.swift",
 				UI/DNU/Knob.swift,
+				"UI/DNU/LFO Editor V2.swift",
 				"UI/DNU/LFO tracer - Simpler.swift",
 				"UI/DNU/LFO Tracer View.swift",
 				"UI/DNU/LFO View.swift",

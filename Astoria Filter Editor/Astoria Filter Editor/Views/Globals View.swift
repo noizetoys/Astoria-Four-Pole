@@ -21,7 +21,7 @@ struct Globals_View: View {
     
 
     var body: some View {
-        GroupBox {
+//        GroupBox {
 //            Text("Globals")
 //                .frame(maxWidth: .infinity, alignment: .center)
 //                .font(.headline)
@@ -113,7 +113,7 @@ struct Globals_View: View {
                 .buttonStyle(.borderedProminent)
 
             }
-        }
+//        }
         .onAppear {
             resetGlobals()
         }

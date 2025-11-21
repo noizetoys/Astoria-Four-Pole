@@ -17,7 +17,7 @@ import SwiftUI
 
 
 
-struct ContentView: View {
+struct MainView: View {
     @State private var viewModel = EditorViewModel()
     @State private var program: Int = 0
     
@@ -35,25 +35,30 @@ struct ContentView: View {
         GeometryReader { geometry in
             HStack {
                 
+                // Left Side Controls
                 VStack {
                     DisclosureGroup {
-                        ConnectionsBox(viewModel:  $viewModel)
+                        GroupBox {
+                            ConnectionsBox(viewModel:  $viewModel)
+                        }
+                        .padding()
                     } label: {
                         Text("Connections")
                     }
                     
-                    Spacer()
                     
                     // Globals
                     DisclosureGroup {
-                        Globals_View(globals: viewModel.configuration.globalSetup)
+                        GroupBox {
+                            Globals_View(globals: viewModel.configuration.globalSetup)
+                        }
+                        .padding()
                     } label: {
                         Text("Globals")
                     }
                     
-                    Spacer()
                     
-                    
+                        // Programs
                     Button {
                         withAnimation {
                             showROMPrograms.toggle()
@@ -63,32 +68,39 @@ struct ContentView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                     }
+                    .padding()
                     
-                    // Programs
+                    
                     Program_Matrix(viewModel: viewModel, isROMPrograms: showROMPrograms)
                         .frame(maxHeight: rowHeight(from: geometry) * 2.5)
+                        .padding([.horizontal, .bottom])
                 }
                 
                 
                 VStack {
-                    HStack {
-                        Program_Title_View(program: viewModel.program)
-                            .frame(height: rowHeight(from: geometry) * 0.5)
-                        
-                       File_Management_View()
-                            .frame(maxWidth: columnWidth(from: geometry))
+                        HStack {
+                            GroupBox {
+                                Program_Title_View(program: viewModel.program)
+                            }
+                                //                            .frame(height: rowHeight(from: geometry) * 0.25)
+                            
+                            GroupBox {
+                                File_Management_View()
+                                    .frame(maxWidth: columnWidth(from: geometry))
+                            }
                     }
-                    .frame(height: rowHeight(from: geometry) / 2)
+                    .frame(width: columnWidth(from: geometry) * 4, height: rowHeight(from: geometry) / 4)
                     
                         // Edit View
-                    Patch_Editor_View(program: $viewModel.program)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    GroupBox {
+                        Patch_Editor_View(program: $viewModel.program)
+                    }
                 }
-                .frame(width: columnWidth(from: geometry) * 4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
             }
         }
-        .padding()
+//        .padding()
     }
     
     
@@ -114,6 +126,6 @@ struct ContentView: View {
 
 
 #Preview {
-    ContentView()
-        .frame(width: 1200, height: 800)
+    MainView()
+        .frame(width: 1696, height: 1051)
 }
