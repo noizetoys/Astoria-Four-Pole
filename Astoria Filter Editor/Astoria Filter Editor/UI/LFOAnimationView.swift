@@ -56,7 +56,7 @@ struct LFOAnimationView: View {
                 }
             }
             
-            waveformSelectorView
+//            waveformSelectorView
             frequencyControlView
             infoDisplayView
             
@@ -675,4 +675,12 @@ class LFOLayerView: PlatformView {
     deinit {
         stopAnimation()
     }
+}
+
+
+
+#Preview {
+    @Previewable @State var program = MiniWorksProgram()
+    
+    LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
 }

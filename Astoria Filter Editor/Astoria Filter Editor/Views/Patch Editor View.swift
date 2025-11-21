@@ -33,7 +33,6 @@ struct Patch_Editor_View: View {
                                        release: program.vcaEnvelopeRelease)
                     
                     LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
-//                    LFOTracerView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
                     
                 }
 
