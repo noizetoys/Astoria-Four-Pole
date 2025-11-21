@@ -120,7 +120,11 @@ struct LowPassFilterEditor: View {
             
             CircularFader(value: program.cutoffModulationAmount.knobBinding,
                           size: 40,
-                          ringColor: .red,
+                          mode: .bidirectional(positiveColor: .green,
+                                               negativeColor: .red,
+                                               center: 64,
+                                               positiveRange: 64..<128,
+                                               negativeRange: 0..<64),
                           isActive: program.cutoffModulationSource.modulationSource?.id != 0)
             .frame(width: 60)
 
@@ -144,8 +148,8 @@ struct LowPassFilterEditor: View {
             
             CircularFader(value: program.cutoff.knobBinding,
                           size: 40,
-                          ringColor: .blue)
-            .frame(width: 60)
+                          mode: .unidirectional(color: .blue))
+                .frame(width: 60)
 
             Text("\(frequencyToHz(program.cutoff.value), specifier: "%.0f") Hz")
                 .font(.caption)
@@ -192,10 +196,14 @@ struct LowPassFilterEditor: View {
         VStack {
             Text("Mod Amount:")
                 .font(.caption)
-            
+
             CircularFader(value: program.resonanceModulationAmount.knobBinding,
                           size: 40,
-                          ringColor: .green,
+                          mode: .bidirectional(positiveColor: .green,
+                                               negativeColor: .red,
+                                               center: 64,
+                                               positiveRange: 64..<128,
+                                               negativeRange: 0..<64),
                           isActive: program.resonanceModulationSource.modulationSource?.id != 0)
             .frame(width: 60)
 
@@ -219,7 +227,7 @@ struct LowPassFilterEditor: View {
             
             CircularFader(value: program.resonance.knobBinding,
                           size: 40,
-                          ringColor: .pink)
+                          mode: .unidirectional(color: .pink))
             .frame(width: 60)
             
             Text("\(modAmountToPercentage(program.resonance.value), specifier: "%.0f")%")

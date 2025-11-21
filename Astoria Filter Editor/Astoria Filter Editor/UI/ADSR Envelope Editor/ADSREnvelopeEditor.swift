@@ -90,7 +90,10 @@ struct ADSREnvelopeEditor: View {
                     Text("\(attack.value)")
                     CircularFader(value: attack.knobBinding,
                                   size: 40,
-                                  ringColor: ADSRStageColors.attack)
+                                  mode: .unidirectional(color: ADSRStageColors.attack))
+//                    CircularFader(value: attack.knobBinding,
+//                                  size: 40,
+//                                  ringColor: ADSRStageColors.attack)
                     Text("Attack")
                 }
                 
@@ -98,7 +101,7 @@ struct ADSREnvelopeEditor: View {
                     Text("\(decay.value)")
                     CircularFader(value: decay.knobBinding,
                                   size: 40,
-                                  ringColor: ADSRStageColors.decay)
+                                  mode: .unidirectional(color: ADSRStageColors.decay))
                     Text("Decay")
                 }
 
@@ -106,7 +109,7 @@ struct ADSREnvelopeEditor: View {
                     Text("\(sustain.value)")
                     CircularFader(value: sustain.knobBinding,
                                   size: 40,
-                                  ringColor: ADSRStageColors.sustain)
+                                  mode: .unidirectional(color: ADSRStageColors.sustain))
                     Text("Sustain")
                 }
 
@@ -114,7 +117,7 @@ struct ADSREnvelopeEditor: View {
                     Text("\(release.value)")
                     CircularFader(value: release.knobBinding,
                                   size: 40,
-                                  ringColor: ADSRStageColors.release)
+                                  mode: .unidirectional(color: ADSRStageColors.release))
                     Text("Release")
                 }
 

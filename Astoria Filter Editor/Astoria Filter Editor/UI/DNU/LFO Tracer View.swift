@@ -143,7 +143,8 @@ struct LFOTracerView: View {
     }
     
     
-    func getDoubleFrequency() -> Double {
+//    func getDoubleFrequency() -> Double {
+    var frequency: Double {
             // Map 0-127 to 0.008-261.6 Hz using exponential curve
             // This gives more resolution at lower frequencies
         let normalized = Double(lfoSpeed.value) / 127.0
@@ -222,7 +223,7 @@ struct LFOTracerView: View {
             timer?.invalidate()
         }
         .onChange(of: lfoSpeed._value) { oldValue, newValue in
-            musicalNote = frequencyToMusicalNote(getDoubleFrequency())
+            musicalNote = frequencyToMusicalNote(frequency)
         }
     }
     
@@ -240,6 +241,7 @@ struct LFOTracerView: View {
         }
         .padding(.horizontal)
     }
+    
     
     private var onOffSwitch: some View {
         HStack(spacing: 8) {
@@ -263,6 +265,7 @@ struct LFOTracerView: View {
         }
     }
     
+    
     private var waveformDisplayView: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 12)
@@ -279,6 +282,7 @@ struct LFOTracerView: View {
             waveformContextMenu
         }
     }
+    
     
     private var waveformContextMenu: some View {
         ForEach(LFOType.allCases, id: \.self) { waveform in
@@ -298,6 +302,7 @@ struct LFOTracerView: View {
         }
     }
     
+    
     private func waveformContent(geometry: GeometryProxy) -> some View {
         ZStack {
             centerGridLine(geometry: geometry)
@@ -308,6 +313,7 @@ struct LFOTracerView: View {
         }
     }
     
+    
     private func centerGridLine(geometry: GeometryProxy) -> some View {
         Path { path in
             path.move(to: CGPoint(x: 0, y: geometry.size.height / 2))
@@ -315,6 +321,7 @@ struct LFOTracerView: View {
         }
         .stroke(Color.gray.opacity(0.3), lineWidth: 1)
     }
+    
     
     private func staticWaveformPath(geometry: GeometryProxy) -> some View {
         Path { path in
@@ -340,6 +347,7 @@ struct LFOTracerView: View {
         .stroke(Color.green.opacity(0.7), lineWidth: 2)
     }
     
+    
     private func tracerDotGlow(geometry: GeometryProxy) -> some View {
         let tracerPosition = getTracerPosition(geometry: geometry)
         
@@ -360,6 +368,7 @@ struct LFOTracerView: View {
             .position(tracerPosition)
     }
     
+    
     private func tracerDotMain(geometry: GeometryProxy) -> some View {
         let tracerPosition = getTracerPosition(geometry: geometry)
         
@@ -369,6 +378,7 @@ struct LFOTracerView: View {
             .position(tracerPosition)
             .shadow(color: tracerColor.opacity(0.8), radius: 8)
     }
+    
     
     private func tracerTrail(geometry: GeometryProxy) -> some View {
         ForEach(0..<5, id: \.self) { index in
@@ -385,6 +395,7 @@ struct LFOTracerView: View {
         }
     }
     
+    
     private var waveformSelectorView: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("Waveform")
@@ -400,6 +411,7 @@ struct LFOTracerView: View {
         .padding(.horizontal)
     }
     
+    
     private func waveformBinding() -> Binding<LFOType> {
         Binding(
             get: { selectedWaveform },
@@ -412,6 +424,7 @@ struct LFOTracerView: View {
         )
     }
     
+    
     private var frequencyControlView: some View {
         VStack(alignment: .leading, spacing: 10) {
             frequencyHeader
@@ -422,16 +435,18 @@ struct LFOTracerView: View {
         .padding(.horizontal)
     }
     
+    
     private var frequencyHeader: some View {
         HStack {
             Text("Frequency")
                 .font(.headline)
             Spacer()
-            Text(String(format: "%.3f Hz", getDoubleFrequency()))
+            Text(String(format: "%.3f Hz", frequency))
                 .font(.system(.body, design: .monospaced))
                 .foregroundColor(.blue)
         }
     }
+    
     
     private func snapToNoteToggle() -> some View {
         Toggle(isOn: $snapToNote) {
@@ -445,10 +460,11 @@ struct LFOTracerView: View {
         .toggleStyle(SwitchToggleStyle(tint: .blue))
         .onChange(of: snapToNote) { _, newValue in
             if newValue {
-                setFrequency(to: snapFrequencyToNote(getDoubleFrequency()))
+                setFrequency(to: snapFrequencyToNote(frequency))
             }
         }
     }
+    
     
     private var frequencySlider: some View {
         HStack {
@@ -464,9 +480,10 @@ struct LFOTracerView: View {
         }
     }
     
+    
     private func frequencySliderBinding() -> Binding<Double> {
         Binding(
-            get: { log10(getDoubleFrequency()) },
+            get: { log10(frequency) },
             set: { newValue in
                 let newFrequency = pow(10, newValue)
                 let theFrequency = snapToNote ? snapFrequencyToNote(newFrequency) : newFrequency
@@ -478,7 +495,7 @@ struct LFOTracerView: View {
     
     private func frequencyBinding() -> Binding<Double> {
         Binding(
-            get: { getDoubleFrequency() },
+            get: { frequency },
             set: { setFrequency(to: $0) }
         )
     }
@@ -486,7 +503,7 @@ struct LFOTracerView: View {
     
     private var infoDisplayView: some View {
         VStack(spacing: 8) {
-            periodAndValueDisplay
+//            periodAndValueDisplay
             musicalNoteDisplay
         }
         .padding(.horizontal)
@@ -496,7 +513,7 @@ struct LFOTracerView: View {
     private var periodAndValueDisplay: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text("Period: \(String(format: "%.3f s", 1.0 / getDoubleFrequency()))")
+                Text("Period: \(String(format: "%.3f s", 1.0 / frequency))")
                     .font(.caption)
                     .foregroundColor(.gray)
             }
@@ -538,7 +555,7 @@ struct LFOTracerView: View {
     var tracerColor: Color {
             // Color changes based on frequency for visual feedback
             // When LFO is stopped, dim the color to show inactive state
-        let hue = min(log10(getDoubleFrequency() / minFrequency) / log10(maxFrequency / minFrequency), 1.0)
+        let hue = min(log10(frequency / minFrequency) / log10(maxFrequency / minFrequency), 1.0)
         let baseColor = Color(hue: hue * 0.6, saturation: 0.9, brightness: 1.0) // Red to cyan
 //        return isRunning ? baseColor : baseColor.opacity(0.3)
         return isRunning ? baseColor : .clear
@@ -686,7 +703,7 @@ struct LFOTracerView: View {
                 // Example at 10 Hz:
                 //   deltaPhase = 2π × 10 × (1/60) ≈ 1.047 radians per frame
                 //   After 60 frames: 1.047 × 60 ≈ 20π radians (10 complete cycles!)
-            let deltaPhase = 2 * .pi * getDoubleFrequency() * (1.0 / 60.0)
+            let deltaPhase = 2 * .pi * frequency * (1.0 / 60.0)
             
                 // Add the advancement to our current phase
             phase += deltaPhase
@@ -713,7 +730,7 @@ struct LFOTracerView: View {
             if selectedWaveform == .sampleHold {
                     // Sample at 1/8 the LFO frequency (or at least 0.1 Hz)
                     // This means 8 random steps per LFO cycle
-                let sampleRate = max(getDoubleFrequency() / 8, 0.1)
+                let sampleRate = max(frequency / 8, 0.1)
                 let samplePhaseInterval = 2 * .pi * sampleRate * (1.0 / 60.0)
                 
                     // Check if enough phase has passed since last sample
@@ -889,26 +906,6 @@ struct LFOTracerView: View {
     }
 }
 
-//struct PresetButton: View {
-//    let title: String
-//    let frequency: Double
-//    @Binding var currentFrequency: Double
-//    
-//    var body: some View {
-//        Button(action: {
-//            withAnimation {
-//                currentFrequency = frequency
-//            }
-//        }) {
-//            Text(title)
-//                .font(.caption)
-//                .padding(.horizontal, 12)
-//                .padding(.vertical, 6)
-//                .background(Color.blue.opacity(0.2))
-//                .cornerRadius(8)
-//        }
-//    }
-//}
 
 #Preview {
         // Create sample parameters for preview

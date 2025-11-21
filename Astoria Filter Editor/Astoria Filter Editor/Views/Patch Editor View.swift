@@ -16,11 +16,12 @@ struct Patch_Editor_View: View {
             
             VStack{
                 HStack {
-                    ADSREnvelopeEditor(attack: program.vcfEnvelopeAttack,
-                                       decay: program.vcfEnvelopeDecay,
-                                       sustain: program.vcfEnvelopeSustain,
-                                       release: program.vcfEnvelopeRelease)
-                    
+//                    ADSREnvelopeEditor(attack: program.vcfEnvelopeAttack,
+//                                       decay: program.vcfEnvelopeDecay,
+//                                       sustain: program.vcfEnvelopeSustain,
+//                                       release: program.vcfEnvelopeRelease)
+                    LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
+
                     LowPassFilterEditor(program: program)
                 }
                 
@@ -31,7 +32,8 @@ struct Patch_Editor_View: View {
                                        sustain: program.vcaEnvelopeSustain,
                                        release: program.vcaEnvelopeRelease)
                     
-                    LFOTracerView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
+                    LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
+//                    LFOTracerView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
                     
                 }
 
