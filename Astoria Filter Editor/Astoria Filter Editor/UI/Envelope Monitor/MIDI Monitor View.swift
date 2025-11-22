@@ -72,6 +72,10 @@ struct MIDIMonitorView: View {
     @State private var monitoredNote: Int = 48    // Default: C3
     @State private var noteType: NoteType = .both // Default: Monitor both On and Off
     
+    @State private var isOn: Bool = true
+    @State private var showVelocity: Bool = true
+    @State private var showNotes: Bool = true
+
     
     init(editorViewModel: EditorViewModel) {
         debugPrint(message: "Creating.....")
@@ -81,35 +85,74 @@ struct MIDIMonitorView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 20) {
-                HStack(spacing: 8) {
-                    Rectangle()
-                        .fill(Color.cyan)
-                        .frame(width: 30, height: 3)
-                    
-                    Text("CC\(monitoredCC) Value")
-                        .font(.system(size: 12))
-                        .foregroundColor(.white)
-                }
+            
+            HStack {
                 
-                HStack(spacing: 8) {
-                    Circle()
-                        .fill(Color.red)
-                        .frame(width: 10, height: 10)
+                Button {
+                    withAnimation {
+                        isOn.toggle()
+                    }
                     
-                    Text("\(getNoteName(monitoredNote)) Velocity")
-                        .font(.system(size: 12))
-                        .foregroundColor(.white)
+                    Task {
+                        await isOn ? viewModel.start() : viewModel.stop()
+                    }
+                } label: {
+                    HStack {
+                        Image(systemName: isOn ? "power.circle.fill" : "power.circle")
+                            .frame(width: 30, height: 3)
+                            .foregroundColor(isOn ? .gray : .green)
+
+                        Text("\(isOn ? "Off" : "On")")
+                            .font(.system(size: 12))
+                            .foregroundColor(isOn ? .gray : .green)
+                    }
                 }
+                .buttonStyle(.bordered)
+                .frame(maxWidth: .infinity)
                 
-                HStack(spacing: 8) {
-                    Circle()
-                        .fill(Color.orange)
-                        .frame(width: 8, height: 8)
-                    Text("Note On/Off")
-                        .font(.system(size: 12))
-                        .foregroundColor(.white)
+                
+                Button {
+                    withAnimation {
+                        showVelocity.toggle()
+                    }
+                    
+//                    Task {
+//                        await isOn ? viewModel.start() : viewModel.stop()
+//                    }
+                } label: {
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(showVelocity ? Color.red : Color.gray)
+                            .frame(width: 10, height: 10)
+                        
+                        Text("Velocity")
+                            .font(.system(size: 12))
+                            .foregroundColor(.white)
+                    }
                 }
+                .frame(maxWidth: .infinity)
+                
+                
+                Button {
+                    withAnimation {
+                        showNotes.toggle()
+                    }
+                    
+//                    Task {
+//                        
+//                    }
+                } label: {
+                    HStack(spacing: 8) {
+                        Circle()
+                            .fill(showNotes ? Color.orange : Color.gray )
+                            .frame(width: 8, height: 8)
+                        
+                        Text("Notes \(showNotes ? "On" : "Off")")
+                            .font(.system(size: 12))
+                            .foregroundColor(.white)
+                    }
+                }
+                .frame(maxWidth: .infinity)
             }
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity)

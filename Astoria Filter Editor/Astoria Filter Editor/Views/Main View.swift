@@ -21,8 +21,10 @@ struct MainView: View {
     @State private var viewModel = EditorViewModel()
     @State private var program: Int = 0
     
+    @State private var showConnections: Bool = false
+    @State private var showGlobals: Bool = false
     @State private var showROMPrograms: Bool = false
-    
+
     private func columnWidth(from proxy: GeometryProxy) -> CGFloat {
         proxy.size.width / 5
     }
@@ -37,29 +39,43 @@ struct MainView: View {
                 
                 // Left Side Controls
                 VStack {
-                    DisclosureGroup {
+                    Button {
+                        withAnimation {
+                            showConnections.toggle()
+                        }
+                    } label: {
+                        Text("Connections")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                    .padding([.horizontal, .top])
+
+                    if showConnections {
                         GroupBox {
                             ConnectionsBox(viewModel:  $viewModel)
                         }
-                        .padding()
-                    } label: {
-                        Text("Connections")
-                            .font(.title)
+                        .padding(.horizontal)
                     }
-                    .padding()
 
                     
                     // Globals
-                    DisclosureGroup {
+                    Button {
+                        withAnimation {
+                            showGlobals.toggle()
+                        }
+                    } label: {
+                        Text("Globals")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                    }
+                    .padding([.horizontal, .top])
+                    
+                    if showGlobals {
                         GroupBox {
                             Globals_View(globals: viewModel.configuration.globalSetup)
                         }
-                        .padding()
-                    } label: {
-                        Text("Globals")
-                            .font(.title)
+                        .padding(.horizontal)
                     }
-                    .padding()
                     
                     
                         // Programs

@@ -20,73 +20,78 @@ struct ConnectionsBox: View {
     
     
     var body: some View {
-//        GroupBox() {
-            VStack(alignment: .leading) {
+        VStack(alignment: .leading) {
+            
+            HStack {
                 
-                HStack {
-                    
                     // Left side
-                    VStack {
+                VStack {
                         // Source selection
-                        Text("Input:")
+                    Text("Input:")
+                    
+                    Picker("", selection: $viewModel.selectedSource) {
+                        Text("None").tag(nil as MIDIDevice?)
+                            .frame(maxWidth: .infinity)
                         
-                        Picker("", selection: $viewModel.selectedSource) {
-                            Text("None").tag(nil as MIDIDevice?)
-                            
-                            ForEach(viewModel.availableSources) { device in
-                                Text(device.name)
-                                    .tag(device as MIDIDevice?)
-                            }
+                        ForEach(viewModel.availableSources) { device in
+                            Text(device.name)
+                                .tag(device as MIDIDevice?)
                         }
-                        
+                        .frame(maxWidth: .infinity)
+                    }
+                    
                         // Connection Button
-                        Button(viewModel.isConnected ? "Disconnect" : "Connect") {
-                            Task {
-                                if viewModel.isConnected {
-                                    await viewModel.disconnect()
-                                }
-                                else {
-                                    await viewModel.connect()
-                                }
+                    Button {
+                        Task {
+                            if viewModel.isConnected {
+                                await viewModel.disconnect()
+                            }
+                            else {
+                                await viewModel.connect()
                             }
                         }
-                        .buttonStyle(.borderedProminent)
-                        .frame(maxWidth: .infinity)
+                    } label: {
+                        Text(viewModel.isConnected ? "Disconnect" : "Connect")
+                            .frame(maxWidth: .infinity)
                     }
-                    
-                    
-                    VStack {
-                        Text("Output:")
-                        
-                        Picker("", selection: $viewModel.selectedDestination) {
-                            Text("None").tag(nil as MIDIDevice?)
-                            
-                            ForEach(viewModel.availableDestinations) { device in
-                                Text(device.name).tag(device as MIDIDevice?)
-                            }
-                        }
-                        
-                        // Connections
-                        Button("Refresh") {
-                            Task { await viewModel.refreshDevices() }
-                        }
-                        .buttonStyle(.bordered)
-                        .frame(maxWidth: .infinity)
-                    }
+                    .buttonStyle(.borderedProminent)
                 }
                 
-                // Status
-                HStack {
-                    Circle()
-                        .fill(viewModel.isConnected ? Color.green : Color.red)
-                        .frame(width: 10, height: 10)
+                
+                VStack {
+                    Text("Output:")
                     
-                    Text(viewModel.statusMessage)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Picker("", selection: $viewModel.selectedDestination) {
+                        Text("None").tag(nil as MIDIDevice?)
+                        
+                        ForEach(viewModel.availableDestinations) { device in
+                            Text(device.name).tag(device as MIDIDevice?)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                        // Connections
+                    Button {
+                        Task { await viewModel.refreshDevices() }
+                    } label: {
+                        Text("Refresh")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
             }
-//        }
+            
+                // Status
+            HStack {
+                Circle()
+                    .fill(viewModel.isConnected ? Color.green : Color.red)
+                    .frame(width: 10, height: 10)
+                
+                Text(viewModel.statusMessage)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 

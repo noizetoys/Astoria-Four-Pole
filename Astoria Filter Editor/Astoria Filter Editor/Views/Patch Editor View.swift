@@ -37,10 +37,16 @@ struct Patch_Editor_View: View {
                                        sustain: program.vcfEnvelopeSustain,
                                        release: program.vcfEnvelopeRelease)
                     .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
-
-
+                    
+                    Color.blue
+                        .cornerRadius(10)
+                        .overlay {
+                            Text(intThatThing(geometry, width: 3, height: 3))
+                        }
+                    
+                    
                     LowPassFilterEditor(program: program)
-                        .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
+                        .frame(maxWidth: cut(geometry, by: 3), maxHeight: cut(geometry, by: 3, isWidth: false))
                 }
                 
                 HStack {
@@ -49,10 +55,16 @@ struct Patch_Editor_View: View {
                                        sustain: program.vcaEnvelopeSustain,
                                        release: program.vcaEnvelopeRelease)
                         .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
-
+                    
+                    Color.red
+                        .cornerRadius(10)
+                        .overlay {
+                            Text(intThatThing(geometry, width: 3, height: 3))
+                        }
+                    
                     LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
-                        .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
-
+                        .frame(maxWidth: cut(geometry, by: 3), maxHeight: cut(geometry, by: 3, isWidth: false))
+                    
                 }
                 
                 HStack {

@@ -102,44 +102,13 @@ class GraphViewModel: ObservableObject {
                 }
             }
             .store(in: &cancellables)
-        
-        
-//        NotificationCenter.default.publisher(for: .midiSourceDisconnected)
-//            .sink { [weak self] _ in
-//                debugPrint(icon: "📡", message: "Notification Recieved:  midiSourceDisconnected")
-//                Task {
-//                    self?.stop()
-//                }
-//            }
-//            .store(in: &cancellables)
-
-        
-        // Standard
-        
-//        NotificationCenter.default.addObserver(forName:.midiSourceConnected , object: nil, queue: .main) { [weak self] _ in
-//            Task {
-//                await self?.start()
-//            }
-//        }
-//        
-//        NotificationCenter.default.addObserver(forName:.midiSourceDisconnected , object: nil, queue: .main) { [weak self] _ in
-//            Task {
-//                await self?.stop()
-//            }
-//        }
     }
     
     
     
     func start() async {
-        var source: MIDIDevice?
-        
-//        Task {
-            source  = await midiService.availableSources().first
-//        }
-        
         guard
-            let source
+            let source = await midiService.availableSources().first
         else {
             debugPrint(icon: "🔥🔥❌", message: "Source is nil...Cannot connect")
             return
