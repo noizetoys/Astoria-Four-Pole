@@ -72,7 +72,7 @@ struct MIDIMonitorView: View {
     @State private var monitoredNote: Int = 48    // Default: C3
     @State private var noteType: NoteType = .both // Default: Monitor both On and Off
     
-    @State private var isOn: Bool = true
+    @State private var isOn: Bool = false
     @State private var showVelocity: Bool = true
     @State private var showNotes: Bool = true
 
@@ -88,71 +88,14 @@ struct MIDIMonitorView: View {
             
             HStack {
                 
-                Button {
-                    withAnimation {
-                        isOn.toggle()
-                    }
-                    
-                    Task {
-                        await isOn ? viewModel.start() : viewModel.stop()
-                    }
-                } label: {
-                    HStack {
-                        Image(systemName: isOn ? "power.circle.fill" : "power.circle")
-                            .frame(width: 30, height: 3)
-                            .foregroundColor(isOn ? .gray : .green)
+                onOffButton
+                
+                velocityButton
+                
+                notesButton
+                
+                clearButton
 
-                        Text("\(isOn ? "Off" : "On")")
-                            .font(.system(size: 12))
-                            .foregroundColor(isOn ? .gray : .green)
-                    }
-                }
-                .buttonStyle(.bordered)
-                .frame(maxWidth: .infinity)
-                
-                
-                Button {
-                    withAnimation {
-                        showVelocity.toggle()
-                    }
-                    
-//                    Task {
-//                        await isOn ? viewModel.start() : viewModel.stop()
-//                    }
-                } label: {
-                    HStack(spacing: 8) {
-                        Circle()
-                            .fill(showVelocity ? Color.red : Color.gray)
-                            .frame(width: 10, height: 10)
-                        
-                        Text("Velocity")
-                            .font(.system(size: 12))
-                            .foregroundColor(.white)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                
-                
-                Button {
-                    withAnimation {
-                        showNotes.toggle()
-                    }
-                    
-//                    Task {
-//                        
-//                    }
-                } label: {
-                    HStack(spacing: 8) {
-                        Circle()
-                            .fill(showNotes ? Color.orange : Color.gray )
-                            .frame(width: 8, height: 8)
-                        
-                        Text("Notes \(showNotes ? "On" : "Off")")
-                            .font(.system(size: 12))
-                            .foregroundColor(.white)
-                    }
-                }
-                .frame(maxWidth: .infinity)
             }
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity)
@@ -164,28 +107,122 @@ struct MIDIMonitorView: View {
         }
         .background(Color(red: 0.1, green: 0.1, blue: 0.15))
         .onAppear {
-            
-//            viewModel.start()
         }
         .onDisappear {
             viewModel.stop()
         }
+        .onReceive(NotificationCenter.default.publisher(for: .midiSourceConnected)) { _ in
+            isOn = true
+            Task {
+                await viewModel.start()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .midiSourceDisconnected)) { _ in
+            isOn = false
+            Task {
+                viewModel.stop()
+            }
+            
+        }
+
     }
     
-    private func getCCName(_ cc: Int) -> String {
-        switch cc {
-            case 1: return "Modulation"
-            case 2: return "Breath"
-            case 7: return "Volume"
-            case 11: return "Expression"
-            default: return "CC\(cc)"
+    
+    private var onOffButton: some View {
+        Button {
+            withAnimation {
+                isOn.toggle()
+            }
+            
+            Task {
+                await isOn ? viewModel.start() : viewModel.stop()
+            }
+        } label: {
+            HStack {
+                Image(systemName: isOn ? "power.circle" : "power.circle.fill")
+                    .frame(width: 30, height: 3)
+                    .foregroundColor(isOn ? .green : .red)
+                
+                Text("\(isOn ? "On" : "Off")")
+                    .font(.system(size: 12))
+                    .foregroundColor(isOn ? .green : .red)
+            }
+        }
+        .buttonStyle(.bordered)
+
+    }
+    
+    
+    private var velocityButton: some View {
+        Button {
+            withAnimation {
+                showVelocity.toggle()
+            }
+            
+                //                    Task {
+                //                        await isOn ? viewModel.start() : viewModel.stop()
+                //                    }
+        } label: {
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(showVelocity ? Color.red : Color.gray)
+                    .frame(width: 10, height: 10)
+                
+                Text("Velocity")
+                    .font(.system(size: 12))
+                    .foregroundColor(.white)
+            }
         }
     }
     
-    private func getNoteName(_ noteNumber: Int) -> String {
-        let notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-        let octave = (noteNumber / 12) - 1
-        let note = notes[noteNumber % 12]
-        return "\(note)\(octave)"
+    
+    private var notesButton: some View {
+        Button {
+            withAnimation {
+                showNotes.toggle()
+            }
+            
+                //                    Task {
+                //
+                //                    }
+        } label: {
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(showNotes ? Color.orange : Color.gray )
+                    .frame(width: 8, height: 8)
+                
+                    //                        Text("Notes \(showNotes ? "On" : "Off")")
+                Text("Notes")
+                    .font(.system(size: 12))
+                    .foregroundColor(.white)
+            }
+        }
+
     }
+    
+    
+    private var clearButton: some View {
+        Button {
+            viewModel.dataPoints = []
+        } label: {
+            Text("Clear")
+        }
+    }
+    
+//    private func getCCName(_ cc: Int) -> String {
+//        switch cc {
+//            case 1: return "Modulation"
+//            case 2: return "Breath"
+//            case 7: return "Volume"
+//            case 11: return "Expression"
+//            default: return "CC\(cc)"
+//        }
+//    }
+    
+//    private func getNoteName(_ noteNumber: Int) -> String {
+//        let notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+//        let octave = (noteNumber / 12) - 1
+//        let note = notes[noteNumber % 12]
+//        return "\(note)\(octave)"
+//    }
 }

@@ -54,6 +54,7 @@ class MIDIGraphLayer: CALayer {
     private let graphPadding: CGFloat = 50
     private let verticalPadding: CGFloat = 20
     
+    
         // MARK: - Initialization
     
     override init() {
@@ -61,10 +62,12 @@ class MIDIGraphLayer: CALayer {
         setupLayers()
     }
     
+    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setupLayers()
     }
+    
     
     private func setupLayers() {
             // Configure main layer
@@ -102,6 +105,7 @@ class MIDIGraphLayer: CALayer {
         CATransaction.commit()
     }
     
+    
         // MARK: - Layout
     
     override func layoutSublayers() {
@@ -115,6 +119,7 @@ class MIDIGraphLayer: CALayer {
         
         drawGrid()
     }
+    
     
         // MARK: - Grid Drawing (Static)
     
@@ -134,6 +139,7 @@ class MIDIGraphLayer: CALayer {
         gridLayer.strokeColor = NSColor.gray.withAlphaComponent(0.3).cgColor
         gridLayer.lineWidth = 1
     }
+    
     
         // MARK: - Data Update (Optimized)
     
@@ -168,6 +174,7 @@ class MIDIGraphLayer: CALayer {
         CATransaction.commit()
     }
     
+    
         // MARK: - CC Line Update
     
     private func updateCCLine(dataPoints: [DataPoint], xStep: CGFloat, graphHeight: CGFloat) {
@@ -191,6 +198,7 @@ class MIDIGraphLayer: CALayer {
         ccLineLayer.path = path
     }
     
+    
         // MARK: - CC Points Update
     
     private func updateCCPoints(dataPoints: [DataPoint], xStep: CGFloat, graphHeight: CGFloat) {
@@ -208,6 +216,7 @@ class MIDIGraphLayer: CALayer {
         
         ccPointsLayer.path = path
     }
+    
     
         // MARK: - Note Markers Update (with Layer Pooling)
     
@@ -271,6 +280,7 @@ class MIDIGraphLayer: CALayer {
         }
     }
     
+    
         // MARK: - Layer Pool Management
     
     private func getNoteMarkerLayer() -> CAShapeLayer {
@@ -283,6 +293,7 @@ class MIDIGraphLayer: CALayer {
         }
     }
 }
+
 
     // MARK: - SwiftUI Wrapper
 

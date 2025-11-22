@@ -31,7 +31,7 @@ struct LPF_Editor_View: View {
                         VStack(spacing: 0) {
                             ArrowPickerGlowView(selection: program.cutoffModulationSource.modulationBinding,
                                                 direction: .right,
-                                                arrowColor: .red)
+                                                arrowColor: .blue)
                             Text("Source")
                         }
                         .padding(.horizontal, -20)
@@ -53,8 +53,8 @@ struct LPF_Editor_View: View {
                         
                         VStack {
                             ArrowPickerGlowView(selection: program.resonanceModulationSource.modulationBinding,
-                                                direction: .right,
-                                                arrowColor: .pink)
+                                                direction: .left,
+                                                arrowColor: .purple)
                             Text("Source")
                         }
                         .padding(.horizontal, -20)

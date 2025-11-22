@@ -15,14 +15,18 @@ struct Patch_Editor_View: View {
 
     
         // For Debugging
-    private func intThatThing(_ proxy: GeometryProxy, width wD: Int, height hD: Int) -> String {
-        "Size for \(proxy.size):\n 1/\(wD) width: \(Int(proxy.size.width) / wD), 1/\(hD) height: \(Int(proxy.size.height) / hD)"
+    private func describeSize(_ proxy: GeometryProxy, width wD: CGFloat, height hD: CGFloat) -> String {
+        let proxyWidth = String(format: "%.0f", proxy.size.width)
+        let proxyHeight = String(format: "%.0f", proxy.size.height)
+        let adjustedWidth = String(format: "%.0f", proxy.size.width * wD)
+        let adjustedHeight = String(format: "%.0f", proxy.size.height * hD)
+        return "Size for (\(proxyWidth),\(proxyHeight)):\n  width: \(adjustedWidth),  height: \(adjustedHeight)"
     }
     
     
     private func cut(_ proxy: GeometryProxy, by div: CGFloat, isWidth: Bool = true) -> CGFloat {
         let value = isWidth ? proxy.size.width : proxy.size.height
-        return value/div
+        return value * div
     }
     
     
@@ -30,85 +34,86 @@ struct Patch_Editor_View: View {
         GeometryReader { geometry in
             
             VStack{
-                HStack {
-                    ADSREnvelopeEditor(attack: program.vcfEnvelopeAttack,
-                                       decay: program.vcfEnvelopeDecay,
-                                       sustain: program.vcfEnvelopeSustain,
-                                       release: program.vcfEnvelopeRelease)
-                    .frame(maxWidth: cut(geometry, by: 3))
-
-                    LPF_Editor_View(program: program)
-//                        .frame(maxWidth: cut(geometry, by: (3/5)))
-                }
-//                .frame(maxHeight: cut(geometry, by: 3, isWidth: false))
-
+                // Top
+                topViews(geometry)
+                
+                // Middle
+                middleViews(geometry)
                 
                 
-                
-                HStack {
-//                    ADSREnvelopeEditor(attack: program.vcaEnvelopeAttack,
-//                                       decay: program.vcaEnvelopeDecay,
-//                                       sustain: program.vcaEnvelopeSustain,
-//                                       release: program.vcaEnvelopeRelease)
-//                    .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
-                    MIDIMonitorView(editorViewModel: editorViewModel)
-                        .frame(maxWidth: geometry.size.width * (1/3))
-
-                    GroupBox {
-                        LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
-                    }
-                    .background(Color.purple.opacity(0.2))
-//                        .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
-//                        .frame(maxWidth: cut(geometry, by: (3/5)))
-
-//                    Color.red
-//                        .cornerRadius(10)
-//                        .overlay {
-//                            Text(intThatThing(geometry, width: 3, height: 3))
-//                        }
-//                    Color.red
-//                        .cornerRadius(10)
-//                        .overlay {
-//                            Text(intThatThing(geometry, width: 3, height: 3))
-//                        }
-                    
-                }
-                .frame(maxHeight: cut(geometry, by: 3, isWidth: false))
-                
-                
-                
-                
-                HStack {
-                        //                    Color.blue
-                        //                        .cornerRadius(10)
-                        //                        .overlay {
-                        //                            Text(intThatThing(geometry, width: 3, height: 3))
-                        //                        }
-//                    MIDIMonitorView(editorViewModel: editorViewModel)
-                                            ADSREnvelopeEditor(attack: program.vcaEnvelopeAttack,
-                                                               decay: program.vcaEnvelopeDecay,
-                                                               sustain: program.vcaEnvelopeSustain,
-                                                               release: program.vcaEnvelopeRelease)
-                                            .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
-
-                    
-                    Color.indigo
-                        .cornerRadius(10)
-                        .overlay {
-                            Text(intThatThing(geometry, width: 3, height: 3))
-                        }
-                    
-                    
-                    Color.purple
-                        .cornerRadius(10)
-                        .overlay {
-                            Text(intThatThing(geometry, width: 3, height: 3))
-                        }
-                    
-                }
-                
+               // Bottom
+                bottomViews(geometry)
             }
+            .padding(.horizontal)
         }
+        
+    }
+    
+    
+    private func topViews(_ geometry: GeometryProxy) -> some View {
+        HStack {
+//            ADSREnvelopeEditor(attack: program.vcfEnvelopeAttack,
+//                               decay: program.vcfEnvelopeDecay,
+//                               sustain: program.vcfEnvelopeSustain,
+//                               release: program.vcfEnvelopeRelease)
+//            .frame(maxWidth: cut(geometry, by: 3))
+//            
+//            LPF_Editor_View(program: program)
+            
+            colorthing(color: .red, geometry: geometry, width: 1/3, height: 1/3)
+            colorthing(color: .blue, geometry: geometry, width: 2/3, height: 1/3)
+        }
+        
+    }
+    
+    
+    private func middleViews(_ geometry: GeometryProxy) -> some View {
+        HStack {
+            
+            colorthing(color: .blue, geometry: geometry, width: 1/3, height: 1/3)
+                //                    MIDIMonitorView(editorViewModel: editorViewModel)
+                //                        .frame(maxWidth: geometry.size.width * (1/3))
+            
+            GroupBox {
+                LFOAnimationView(lfoSpeed: program.lfoSpeed,
+                                 lfoShape: program.lfoShape,
+                                 lfoModulationSource: program.lfoSpeedModulationSource,
+                                 lfoModulationAmount: program.lfoSpeedModulationAmount)
+            }
+            .background(Color.blue.opacity(0.2))
+        }
+
+    }
+    
+    
+    private func bottomViews(_ geometry: GeometryProxy) -> some View {
+        HStack {
+                //            ADSREnvelopeEditor(attack: program.vcaEnvelopeAttack,
+                //                               decay: program.vcaEnvelopeDecay,
+                //                               sustain: program.vcaEnvelopeSustain,
+                //                               release: program.vcaEnvelopeRelease)
+                //            .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
+            
+            colorthing(color: .red, geometry: geometry, width: 1/3, height: 1/3)
+            colorthing(color: .green, geometry: geometry, width: 1/3, height: 1/3)
+            colorthing(color: .blue, geometry: geometry, width: 1/3, height: 1/3)
+                .padding(.trailing)
+        }
+    }
+    
+    
+    private func colorthing(color: Color, geometry: GeometryProxy, width: CGFloat, height: CGFloat) -> some View {
+        let newWidth = cut(geometry, by: width)
+        let newHeight = cut(geometry, by: height, isWidth: false)
+        
+        return color
+            .cornerRadius(10)
+            .overlay {
+                Text(describeSize(geometry, width: width, height: height))
+                    .font(.title)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(width: newWidth, height: newHeight)
     }
 }
 

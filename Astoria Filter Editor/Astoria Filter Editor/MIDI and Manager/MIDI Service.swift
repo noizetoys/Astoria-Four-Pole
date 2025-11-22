@@ -239,8 +239,11 @@ final actor MIDIService {
             debugPrint(icon: "❌🔌", message: "Status Error: \(status.text)")
             throw MIDIError.connectionFailed(status)
         }
-        NotificationCenter.default.post(name: .midiSourceConnected, object: nil)
-
+        
+        Task { @MainActor in
+            NotificationCenter.default.post(name: .midiSourceConnected, object: nil)
+        }
+        
         debugPrint(icon: "🔌👍🏻", message: "\(source.name) now connected to \(destination.name)\nconnections count: \(connections.count)")
     }
     
@@ -251,9 +254,10 @@ final actor MIDIService {
         MIDIPortDisconnectSource(inputPort, source.endpoint)
         connections.removeValue(forKey: source.id)
         
-        Task {
+        Task { @MainActor in
             NotificationCenter.default.post(name: .midiSourceDisconnected, object: nil)
         }
+        
         debugPrint(icon: "🔌👍🏻", message: "Now disconnect from \(source.name)")
     }
     

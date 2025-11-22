@@ -79,7 +79,8 @@ class GraphViewModel: ObservableObject {
     
     private var ccListenerTask: Task<Void, Never>?
     private var noteListenerTask: Task<Void, Never>?
-    
+    private var timerListenerTask: Task<Void, Never>?
+
     @Published var ccValue: UInt8 = 0
     @Published var noteValue: UInt8 = 0
     
@@ -87,6 +88,7 @@ class GraphViewModel: ObservableObject {
     private var config: MiniworksDeviceProfile
     
     private var cancellables = Set<AnyCancellable>()
+    
     
     init(configuration: MiniworksDeviceProfile ) {
         debugPrint(message: "Creating with \(configuration)")
@@ -105,7 +107,6 @@ class GraphViewModel: ObservableObject {
     }
     
     
-    
     func start() async {
         guard
             let source = await midiService.availableSources().first
@@ -118,86 +119,122 @@ class GraphViewModel: ObservableObject {
         print("   - Max data points: \(maxDataPoints)")
 //        print("   - Note markers: Only at exact moment of note event")
         
+        ccListenerTask = createCCListener(source: source)
         
-        ccListenerTask = Task { [weak self] in
+        noteListenerTask = createNoteListener(source: source)
+        
+        timer = createTimer(source: source, velocity: nil, note: nil)
+        
+    }
+    
+    
+    private func createCCListener(source: MIDIDevice) -> Task<Void, Never> {
+        Task { [weak self] in
             guard
                 let self
             else { return }
             
             for await ccData in await self.midiService.ccStream(from: source) {
-//                guard
-//                    ccData.cc == ContinuousController.breathControl,
-//                    ccData.channel == config.midiChannel
-//                else {
-//                    // ✅ Use continue instead of return to skip this CC but keep processing
-//                    continue
-//                }
+                if Task.isCancelled { break }
+                
+                guard
+                    ccData.cc == ContinuousController.breathControl
+                        //                    ccData.channel == config.midiChannel
+                else {
+                        // ✅ Use continue instead of return to skip this CC but keep processing
+                    continue
+                }
                 
                 self.ccValue = ccData.value
             }
         }
         
-        
-        noteListenerTask = Task { [weak self] in
+    }
+    
+    
+    private func createNoteListener(source: MIDIDevice) -> Task<Void, Never> {
+        Task { [weak self] in
             guard
                 let self
             else { return }
-
+            
             for await note in await self.midiService.noteStream(from: source) {
-//                guard
-//                    note.channel == config.midiChannel,
-//                    note.note == config.noteNumber
-//                else {
-//                    // ✅ Use continue instead of return to skip this note but keep processing
-//                    continue
-//                }
-//                
-                // ✅ Store velocity, not note number (note number is constant per your filter)
+                if Task.isCancelled { break }
+                    //                guard
+                    //                    note.channel == config.midiChannel,
+                    //                    note.note == config.noteNumber
+                    //                else {
+                    //                    // ✅ Use continue instead of return to skip this note but keep processing
+                    //                    continue
+                    //                }
+                    //
+                    // ✅ Store velocity, not note number (note number is constant per your filter)
                 self.noteValue = note.velocity
             }
         }
-        
-        timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self else { return }
 
-                // Sample current values from MIDI manager
-                let ccVal = CGFloat(self.ccValue)
-                let currentNoteValue = self.noteValue
-
-                // CRITICAL: Only mark THIS point if the note changed RIGHT NOW
-                var noteVal: CGFloat? = nil
-
-                if currentNoteValue != self.lastNoteValue && currentNoteValue > 0 {
-                    // New note event detected with velocity > 0
-                    noteVal = CGFloat(currentNoteValue)
-//                    print("\n🎵 Note event at this exact point: velocity=\(currentNoteValue)\n")
-                    self.lastNoteValue = currentNoteValue
-                }
-                else if currentNoteValue == 0 && self.lastNoteValue > 0 {
-                    // Note off detected (velocity = 0) - reset for next note
-//                    print("\n🎵 Note off detected, resetting for next note\n")
-                    self.lastNoteValue = 0
-                }
-
-                // Create new data point with current state
-                // hasNote and noteValue are ONLY set if a note event happened on THIS tick
-                let newPoint = DataPoint(
-                    value: ccVal,
-                    hasNote: noteVal != nil,
-                    noteValue: noteVal
-                )
-
-                self.dataPoints.append(newPoint)
-
-                // SCROLLING: Remove oldest points when we exceed max
-                // This creates the left-scrolling effect
-                if self.dataPoints.count > self.maxDataPoints {
-                    self.dataPoints.removeFirst(self.dataPoints.count - self.maxDataPoints)
-                }
-            }
-        } // Timer
     }
+    
+    
+    private func createTimer(source: MIDIDevice, velocity: UInt8?, note: UInt8?) -> Timer {
+        Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+            
+            // Hop to the main actor before touching actor-isolated state
+//            Task { @MainActor [weak self] in
+                guard let self else { return }
+                
+                // Cancel any in-flight timer listener task before starting a new one
+                self.timerListenerTask?.cancel()
+                
+                self.timerListenerTask = Task { [weak self] in
+                    guard let self else { return }
+                    await self.updateTimer()
+                }
+//            }
+        }
+    }
+    
+    
+    @MainActor
+    private func updateTimer() async {
+        guard !Task.isCancelled else { return }
+        
+            // Sample current values from MIDI manager
+        let ccVal = CGFloat(self.ccValue)
+        let currentNoteValue = self.noteValue
+        
+            // CRITICAL: Only mark THIS point if the note changed RIGHT NOW
+        var noteVal: CGFloat? = nil
+        
+        if currentNoteValue != self.lastNoteValue && currentNoteValue > 0 {
+                // New note event detected with velocity > 0
+            noteVal = CGFloat(currentNoteValue)
+                //                    print("\n🎵 Note event at this exact point: velocity=\(currentNoteValue)\n")
+            self.lastNoteValue = currentNoteValue
+        }
+        else if currentNoteValue == 0 && self.lastNoteValue > 0 {
+                // Note off detected (velocity = 0) - reset for next note
+                //                    print("\n🎵 Note off detected, resetting for next note\n")
+            self.lastNoteValue = 0
+        }
+        
+            // Create new data point with current state
+            // hasNote and noteValue are ONLY set if a note event happened on THIS tick
+        let newPoint = DataPoint(
+            value: ccVal,
+            hasNote: noteVal != nil,
+            noteValue: noteVal
+        )
+        
+        self.dataPoints.append(newPoint)
+        
+            // SCROLLING: Remove oldest points when we exceed max
+            // This creates the left-scrolling effect
+        if self.dataPoints.count > self.maxDataPoints {
+            self.dataPoints.removeFirst(self.dataPoints.count - self.maxDataPoints)
+        }
+    }
+    
     
     /**
      * Stops the graph data collection.
@@ -208,11 +245,21 @@ class GraphViewModel: ObservableObject {
      * - You want to pause data collection
      */
     func stop() {
-//        print("📊 Stopping graph data collection")
+        print("📊 Stopping graph data collection")
+        
+        ccListenerTask?.cancel()
+        ccListenerTask = nil
+        
+        noteListenerTask?.cancel()
+        noteListenerTask = nil
+        
+        timerListenerTask?.cancel()
+        timerListenerTask = nil
+        
         timer?.invalidate()
         timer = nil
-        ccListenerTask = nil
-        noteListenerTask = nil
+
+        dataPoints = []
     }
     
         // MARK: Cleanup
@@ -222,7 +269,7 @@ class GraphViewModel: ObservableObject {
      * Ensures the timer is stopped.
      */
     deinit {
-//        print("📊 Stopping graph data collection")
+        print("📊 Stopping graph data collection")
         timer?.invalidate()
         timer = nil
         ccListenerTask = nil

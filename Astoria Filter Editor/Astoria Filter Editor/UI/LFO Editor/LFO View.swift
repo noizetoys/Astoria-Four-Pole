@@ -7,26 +7,36 @@
 import SwiftUI
 
 
+struct MusicalNote {
+    let description: String
+    let cents: Double
+    let midiNote: Int
+}
+
+
     /// SwiftUI wrapper for the high-performance CALayer-based LFO view
 struct LFOAnimationView: View {
     var lfoSpeed: ProgramParameter
     var lfoShape: ProgramParameter
+    var lfoModulationSource: ProgramParameter
+    var lfoModulationAmount: ProgramParameter
     @State private var isRunning: Bool = true
     @State private var snapToNote: Bool = false
     
     let minFrequency: Double = 0.008
     let maxFrequency: Double = 261.6
     
+    @State var musicNote: MusicalNote = .init(description: "", cents: 0, midiNote: 0)
+    
     
     var body: some View {
-//        VStack(spacing: 20) {
         GeometryReader { geometry in
             
             HStack {
                 GroupBox {
                     VStack {
                         Text("Amount")
-                        PercentageArrowView(rawValue: lfoSpeed.doubleBinding)
+                        PercentageArrowView(rawValue: lfoModulationAmount.doubleBinding)
                     }
                     .padding(.horizontal, -20)
                     
@@ -34,7 +44,7 @@ struct LFOAnimationView: View {
                         .bold()
                     
                     VStack(spacing: 0) {
-                        ArrowPickerGlowView(selection: lfoShape.modulationBinding,
+                        ArrowPickerGlowView(selection: lfoModulationSource.modulationBinding,
                                             direction: .right,
                                             arrowColor: .green)
                         Text("Source")
@@ -43,7 +53,6 @@ struct LFOAnimationView: View {
                 }
                 .frame(maxWidth: geometry.size.width * (1/5))
                 .foregroundStyle(Color.purple.opacity(0.6))
-//                .background(Color.purple.opacity(0.4))
 
                 
                     //            headerView
@@ -56,7 +65,7 @@ struct LFOAnimationView: View {
                         isRunning: isRunning
                     )
                     .allowsHitTesting(true)
-                    .frame(height: 250)
+//                    .frame(height: 250)
                     .cornerRadius(12)
                     .contextMenu {
                         ForEach(LFOType.allCases, id: \.self) { waveform in
@@ -73,18 +82,44 @@ struct LFOAnimationView: View {
                         }
                     }
                     
-                        //            waveformSelectorView
                     frequencyControlView
                         //            infoDisplayView
                     
                         //            Spacer()
                 }
+//                .frame(maxWidth: geometry.size.width * (4/5))
+                
+                modulationDestinationsView
+                    .frame(maxWidth: geometry.size.width * (1/5))
             }
         }
         .padding()
     }
     
         // MARK: - View Components
+    
+    
+    var modulationDestinationsView: some View {
+        let destinations = ["Cutoff", "Resonance", "Panning"]
+//        let destinations = ["Cutoff", "Resonance", "Panning", "Volume", ]
+
+        return VStack {
+            Text("Mod Destinations")
+            
+            ForEach(destinations, id: \.self) { mod in
+                Color
+                    .green
+                    .cornerRadius(5)
+//                    .padding(.horizontal, 5)
+                    .overlay {
+                        Text(mod)
+                    }
+            }
+            .background(.orange)
+            .cornerRadius(10)
+        }
+        .frame(maxHeight: .infinity)
+    }
     
     private var headerView: some View {
         HStack {
@@ -108,66 +143,104 @@ struct LFOAnimationView: View {
         .padding(.horizontal)
     }
     
-    private var waveformSelectorView: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Waveform")
-                .font(.headline)
-            
-            Picker("Waveform", selection: waveformBinding()) {
-                ForEach(LFOType.allCases, id: \.self) { waveform in
-                    Text(waveform.rawValue).tag(waveform)
-                }
-            }
-            .pickerStyle(.segmented)
-        }
-        .padding(.horizontal)
-    }
     
     private var frequencyControlView: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Frequency")
-                    .font(.headline)
-                Spacer()
-                Text(String(format: "%.3f Hz", frequency))
-                    .font(.system(.body, design: .monospaced))
-                    .foregroundColor(.blue)
-            }
-            
-            Toggle(isOn: Binding(
-                get: { snapToNote },
-                set: { newValue in
-                    snapToNote = newValue
-                    if newValue {
-                            // Immediately snap to nearest note when toggled on
-                        let snappedFreq = snapFrequencyToNote(frequency)
-                        frequency = snappedFreq
+                VStack {
+                    Text("Frequency")
+                        .font(.headline)
+                        //                Spacer()
+                    Text(String(format: "%.3f Hz", frequency))
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(.blue)
+                }
+                .frame(maxWidth: .infinity)
+
+                VStack {
+                    Text("Period:")
+                        .font(.headline)
+                    
+                    Text("\(String(format: "%.3f s", 1.0 / max(frequency, 0.001)))")
+                        .foregroundColor(.blue)
+                }
+                .frame(maxWidth: .infinity)
+
+                let musicalNote = frequencyToMusicalNote(frequency)
+                VStack {
+                    Text("Musical Note:")
+                        .font(.headline)
+                        //                        .foregroundColor(.gray)
+                        //                Spacer()
+                    Text(musicalNote.description)
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundColor(.cyan)
+                    
+                    if abs(musicalNote.cents) < 1.0 {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(.green)
                     }
                 }
-            )) {
-                HStack(spacing: 4) {
-                    Text("Snap to Note")
-                        .font(.subheadline)
-                    Image(systemName: "music.note")
-                        .font(.caption)
+                .frame(maxWidth: .infinity)
+
+                
+                GroupBox {
+                    VStack {
+                        Text("MIDI Note #:")
+                            .font(.headline)
+                        
+                        Text("\(musicalNote.midiNote)")
+                            .foregroundColor(.blue)
+                    }
                 }
+                .frame(maxWidth: .infinity)
             }
-            .toggleStyle(SwitchToggleStyle(tint: .blue))
+            .frame(maxWidth: .infinity)
+
             
             HStack {
-                Text("0.008")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+                snapToNoteToggle
                 
-                Slider(value: frequencySliderBinding(), in: log10(minFrequency)...log10(maxFrequency))
-                
-                Text("261.6")
-                    .font(.caption)
-                    .foregroundColor(.gray)
+                HStack {
+                    Text("0.008")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    
+                    Slider(value: frequencySliderBinding(), in: log10(minFrequency)...log10(maxFrequency))
+                    
+                    Text("261.6")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
             }
         }
         .padding(.horizontal)
     }
+    
+    
+    private var snapToNoteToggle: some View {
+        Toggle(isOn: Binding(
+            get: { snapToNote },
+            set: { newValue in
+                snapToNote = newValue
+                if newValue {
+                        // Immediately snap to nearest note when toggled on
+                    let snappedFreq = snapFrequencyToNote(frequency)
+                    frequency = snappedFreq
+                }
+            }
+        )) {
+            HStack(spacing: 4) {
+                Text("Snap to Note")
+                    .font(.subheadline)
+                Image(systemName: "music.note")
+                    .font(.caption)
+            }
+        }
+        .toggleStyle(SwitchToggleStyle(tint: .blue))
+    }
+    
     
     private var infoDisplayView: some View {
         VStack(spacing: 8) {
@@ -175,7 +248,7 @@ struct LFOAnimationView: View {
                 Text("Period: \(String(format: "%.3f s", 1.0 / max(frequency, 0.001)))")
                     .font(.caption)
                     .foregroundColor(.gray)
-                Spacer()
+//                Spacer()
             }
             
             let musicalNote = frequencyToMusicalNote(frequency)
@@ -210,6 +283,7 @@ struct LFOAnimationView: View {
             let logFreq = logMin + normalized * (logMax - logMin)
             return pow(10, logFreq)
         }
+        
         nonmutating set {
             let logMin = log10(minFrequency)
             let logMax = log10(maxFrequency)
@@ -220,6 +294,7 @@ struct LFOAnimationView: View {
         }
     }
     
+    
     private var selectedWaveform: LFOType {
         if case .lfo(let lfoType) = lfoShape.containedParameter {
             return lfoType
@@ -227,9 +302,11 @@ struct LFOAnimationView: View {
         return .sine
     }
     
+    
     private func setWaveform(_ waveform: LFOType) {
         lfoShape.containedParameter = .lfo(waveform)
     }
+    
     
     private func waveformBinding() -> Binding<LFOType> {
         Binding(
@@ -237,6 +314,7 @@ struct LFOAnimationView: View {
             set: { setWaveform($0) }
         )
     }
+    
     
     private func frequencySliderBinding() -> Binding<Double> {
         Binding(
@@ -254,6 +332,7 @@ struct LFOAnimationView: View {
         )
     }
     
+    
     private func snapFrequencyToNote(_ freq: Double) -> Double {
             // Calculate the nearest MIDI note
         let midiNoteFloat = 12.0 * log2(freq / 440.0) + 69.0
@@ -265,7 +344,10 @@ struct LFOAnimationView: View {
         return exactFreq
     }
     
+    
     private func frequencyToMusicalNote(_ frequency: Double) -> (description: String, cents: Double, midiNote: Int) {
+        print("\(#function)")
+        
         let noteNames = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
         let midiNoteFloat = 12.0 * log2(frequency / 440.0) + 69.0
         let midiNote = Int(round(midiNoteFloat))
@@ -285,6 +367,9 @@ struct LFOAnimationView: View {
 //    @Previewable @State var lfoShape: ProgramParameter = .init(type: .LFOShape)
     @Previewable @State var program: MiniWorksProgram = .init()
 
-    LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
+    LFOAnimationView(lfoSpeed: program.lfoSpeed,
+                     lfoShape: program.lfoShape,
+                     lfoModulationSource: program.lfoSpeedModulationSource,
+                     lfoModulationAmount: program.lfoSpeedModulationAmount)
         .frame(width: 800, height: 260)
 }
