@@ -17,39 +17,69 @@ struct LFOAnimationView: View {
     let minFrequency: Double = 0.008
     let maxFrequency: Double = 261.6
     
+    
     var body: some View {
-        VStack(spacing: 20) {
-            headerView
+//        VStack(spacing: 20) {
+        GeometryReader { geometry in
             
-                // The high-performance CALayer view
-            LFOLayerViewRepresentable(
-                lfoSpeed: lfoSpeed,
-                lfoShape: lfoShape,
-                isRunning: isRunning
-            )
-            .allowsHitTesting(true)
-            .frame(height: 250)
-            .cornerRadius(12)
-            .contextMenu {
-                ForEach(LFOType.allCases, id: \.self) { waveform in
-                    Button(action: {
-                        setWaveform(waveform)
-                    }) {
-                        HStack {
-                            Text(waveform.rawValue)
-                            if selectedWaveform == waveform {
-                                Image(systemName: "checkmark")
+            HStack {
+                GroupBox {
+                    VStack {
+                        Text("Amount")
+                        PercentageArrowView(rawValue: lfoSpeed.doubleBinding)
+                    }
+                    .padding(.horizontal, -20)
+                    
+                    Text("LFO Mod.")
+                        .bold()
+                    
+                    VStack(spacing: 0) {
+                        ArrowPickerGlowView(selection: lfoShape.modulationBinding,
+                                            direction: .right,
+                                            arrowColor: .green)
+                        Text("Source")
+                    }
+                    .padding(.horizontal, -20)
+                }
+                .frame(maxWidth: geometry.size.width * (1/5))
+                .foregroundStyle(Color.purple.opacity(0.6))
+//                .background(Color.purple.opacity(0.4))
+
+                
+                    //            headerView
+                
+                    // The high-performance CALayer view
+                VStack {
+                    LFOLayerViewRepresentable(
+                        lfoSpeed: lfoSpeed,
+                        lfoShape: lfoShape,
+                        isRunning: isRunning
+                    )
+                    .allowsHitTesting(true)
+                    .frame(height: 250)
+                    .cornerRadius(12)
+                    .contextMenu {
+                        ForEach(LFOType.allCases, id: \.self) { waveform in
+                            Button(action: {
+                                setWaveform(waveform)
+                            }) {
+                                HStack {
+                                    Text(waveform.rawValue)
+                                    if selectedWaveform == waveform {
+                                        Image(systemName: "checkmark")
+                                    }
+                                }
                             }
                         }
                     }
+                    
+                        //            waveformSelectorView
+                    frequencyControlView
+                        //            infoDisplayView
+                    
+                        //            Spacer()
                 }
             }
-            
-//            waveformSelectorView
-            frequencyControlView
-            infoDisplayView
-            
-            Spacer()
         }
         .padding()
     }
@@ -247,4 +277,14 @@ struct LFOAnimationView: View {
         let centsString = String(format: "%@%.0f¢", centsSign, cents)
         return ("\(noteName)\(octave) \(centsString)", cents, midiNote)
     }
+}
+
+
+#Preview {
+//    @Previewable @State var lfoSpeed: ProgramParameter = .init(type: .LFOSpeed)
+//    @Previewable @State var lfoShape: ProgramParameter = .init(type: .LFOShape)
+    @Previewable @State var program: MiniWorksProgram = .init()
+
+    LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
+        .frame(width: 800, height: 260)
 }

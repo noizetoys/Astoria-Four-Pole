@@ -42,54 +42,32 @@ struct LowPassFilterEditor: View {
 
     
     var body: some View {
-        VStack(spacing: 20) {
-                // CUSTOMIZATION: Change title text or styling here
-            Text("Low Pass Filter Editor")
-                .font(.title)
-                .fontWeight(.bold)
-                .padding(.top, 40)
-            
-                // Filter Visualization
-                // CUSTOMIZATION: Adjust .frame(height:) to change graph size
-            FilterResponseView(program: program, fillStyle: fillStyle)
-                .frame(height: 250)  // CUSTOMIZATION: Graph height in points
-                .background(Color.black)  // CUSTOMIZATION: Graph background color
-                .cornerRadius(10)  // CUSTOMIZATION: Corner rounding
-            
-                // Frequency Controls
-            HStack {
-                GroupBox(label: cutoffHeader) {
-                    VStack {
-                        cutoffModSource
-                            .padding(.bottom)
-                        
-                        HStack {
-                            cutoffModAmount
-                            cutoffFrequency
-                        }
-                    }
-                    .padding(.bottom)
-                }
-                .padding()
+        ZStack(alignment: .top) {
+            VStack(spacing: 20) {
+                    // CUSTOMIZATION: Change title text or styling here
+//                Text("Low Pass Filter Editor")
+//                    .fontWeight(.bold)
                 
-                    // Resonance Controls
-                GroupBox(label: resonanceHeader) {
-                    VStack {
-                        resonanceModSource
-                            .padding(.bottom)
-                        
-                        HStack {
-                            resonanceModAmount
-                            resonanceKnob
-                                //                            Text("(+) In Phase | (-) Out of Phase")
-                                //                                .font(.caption2)
-                                //                                .foregroundColor(.gray)
-                        }
-                    }
-                    .padding(.bottom)
-                }
-                .padding()
+                    // Filter Visualization
+                    // CUSTOMIZATION: Adjust .frame(height:) to change graph size
+                FilterResponseView(program: program, fillStyle: fillStyle)
+                    .frame(maxHeight: .infinity)
+                    //                .frame(height: 250)  // CUSTOMIZATION: Graph height in points
+                    .background(Color.black)  // CUSTOMIZATION: Graph background color
+                    .cornerRadius(10)  // CUSTOMIZATION: Corner rounding
             }
+            
+//            VStack {
+                    // Frequency Controls
+                HStack {
+                    cutoffFrequency
+                    Spacer()
+                    resonanceKnob
+                }
+//                .padding([.horizontal, .top])
+                
+//                Spacer()
+//            }
         }
     }
     
@@ -98,6 +76,7 @@ struct LowPassFilterEditor: View {
         Text("Cutoff Frequency")
             .font(.headline)
     }
+    
     
     var cutoffModSource: some View {
         VStack {
@@ -127,7 +106,7 @@ struct LowPassFilterEditor: View {
                                                negativeRange: 0..<64),
                           isActive: program.cutoffModulationSource.modulationSource?.id != 0)
             .frame(width: 60)
-
+            
             Text("\(modAmountToPercentage(program.cutoffModulationAmount.value), specifier: "%.0f")%")
                 .font(.caption)
                 .foregroundColor(.orange)
@@ -143,22 +122,28 @@ struct LowPassFilterEditor: View {
     
     var cutoffFrequency: some View {
         VStack {
-            Text("Cutoff:")
-                .font(.caption)
-            
             CircularFader(value: program.cutoff.knobBinding,
                           size: 40,
                           mode: .unidirectional(color: .blue))
-                .frame(width: 60)
-
-            Text("\(frequencyToHz(program.cutoff.value), specifier: "%.0f") Hz")
-                .font(.caption)
-                .foregroundColor(.blue)
+            .frame(width: 60)
+            .padding(.top)
+            .padding([.bottom, .horizontal], 10)
             
-            Text("[\(Int(program.cutoff.value))]")
+            Text("Cutoff:")
                 .font(.caption)
-                .foregroundColor(.gray)
+                .padding(.bottom, 10)
+            
+            
+                //            Text("\(frequencyToHz(program.cutoff.value), specifier: "%.0f") Hz")
+                //                .font(.caption)
+                //                .foregroundColor(.blue)
+            
+                //            Text("[\(Int(program.cutoff.value))]")
+                //                .font(.caption)
+                //                .foregroundColor(.gray)
         }
+        .background(Color.black.opacity(0.7))
+        .cornerRadius(10)
     }
     
     
@@ -222,24 +207,30 @@ struct LowPassFilterEditor: View {
     
     var resonanceKnob: some View {
         VStack {
-            Text("Resonance:")
-                .font(.caption)
-            
             CircularFader(value: program.resonance.knobBinding,
                           size: 40,
                           mode: .unidirectional(color: .pink))
             .frame(width: 60)
-            
-            Text("\(modAmountToPercentage(program.resonance.value), specifier: "%.0f")%")
-                .font(.caption)
-                .foregroundColor(.orange)
-                .frame(width: 50)
+            .padding(.top)
+            .padding([.bottom, .horizontal], 10)
 
-            
-            Text("[\(Int(program.resonance.value))]")
+            Text("Resonance:")
                 .font(.caption)
-                .foregroundColor(.gray)
+                .padding(.bottom, 10)
+
+
+//            Text("\(modAmountToPercentage(program.resonance.value), specifier: "%.0f")%")
+//                .font(.caption)
+//                .foregroundColor(.orange)
+//                .frame(width: 50)
+
+//            Text("[\(Int(program.resonance.value))]")
+//                .font(.caption)
+//                .foregroundColor(.gray)
         }
+        .background(Color.black.opacity(0.7))
+        .cornerRadius(10)
+
     }
     
     /*

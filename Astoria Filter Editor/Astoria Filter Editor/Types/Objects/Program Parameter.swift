@@ -34,6 +34,13 @@ final class ProgramParameter: Identifiable {
 
     
     var modulationSource: ModulationSource?
+    
+    var modulationBinding: Binding<ModulationSource> {
+        Binding<ModulationSource>(
+            get: { ModulationSource(rawValue: self._value) ?? .off },
+            set: { self._value = $0.rawValue }
+        )
+    }
     var containedParameter: ContainedParameter?
     
     var name: String { type.rawValue }

@@ -2,35 +2,6 @@ import SwiftUI
 
 // MARK: - Models
 
-/// Arrow color / mode selection.
-enum ArrowSelection: String, CaseIterable, Identifiable {
-    case none
-    case red
-    case green
-    case blue
-    
-    var id: String { rawValue }
-    
-    var label: String {
-        switch self {
-            case .none:  return "None"
-            case .red:   return "Red"
-            case .green: return "Green"
-            case .blue:  return "Blue"
-        }
-    }
-    
-    /// Base color for this selection (nil means "gray mode").
-    var color: Color? {
-        switch self {
-            case .none:  return nil
-            case .red:   return .red
-            case .green: return .green
-            case .blue:  return .blue
-        }
-    }
-}
-
 /// Direction the arrow should point. The base shapes are right-pointing;
 /// we rotate them by this angle.
 enum ArrowDirection: String, CaseIterable, Identifiable {
@@ -99,7 +70,7 @@ struct DoubleArrowShape: Shape {
         let h = rect.height
         
         let headWidth   = w * 0.25          // each head width
-        let shaftWidth  = w - 2 * headWidth
+//        let shaftWidth  = w - 2 * headWidth
         let shaftHeight = h * 0.45
         
         let shaftTopY    = rect.midY - shaftHeight / 2
@@ -129,8 +100,11 @@ struct DoubleArrowShape: Shape {
 
 struct ArrowPickerGlowView: View {
     // Selection & direction
-    @State private var selection: ArrowSelection = .none
-    @State private var direction: ArrowDirection = .right
+//    @State var selection: ArrowSelection = .none
+    @Binding var selection: ModulationSource
+    @State var direction: ArrowDirection
+    
+    let arrowColor: Color
     
     // Glow behavior
     /// Cycles per second: how many times per second the glow runs tail → tip.
@@ -138,43 +112,27 @@ struct ArrowPickerGlowView: View {
     /// Glow intensity (0–1) for the bright center of the band.
     @State private var glowIntensity: Double = 0.9
     
-    private var hasColor: Bool { selection != .none }
+    private var hasSelection: Bool { selection != .off }
     
     /// Base body fill color (gray when none, semi-transparent when colored).
     private var baseColor: Color {
-        guard let color = selection.color else {
-            return Color.gray.opacity(0.35)
-        }
-        return color.opacity(0.55)
+        .off == selection
+        ? Color.gray.opacity(0.35)
+        : arrowColor.opacity(0.55)
     }
     
     /// Outline color, same family as body.
     private var strokeColor: Color {
-        baseColor.opacity(hasColor ? 0.9 : 0.7)
+        baseColor.opacity(hasSelection ? 0.9 : 0.7)
     }
     
     var body: some View {
-        VStack(spacing: 24) {
-            // Direction control
-            HStack {
-                Text("Direction")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                Picker("Direction", selection: $direction) {
-                    ForEach(ArrowDirection.allCases) { dir in
-                        Text(dir.label).tag(dir)
-                    }
-                }
-                .pickerStyle(.segmented)
-            }
-            .padding(.horizontal)
-            
             // Arrow + picker
             GeometryReader { geo in
                 let arrowWidth  = min(geo.size.width * 0.7, 280)
-                let arrowHeight = arrowWidth * 0.35   // shallow arrow
-                
+                let arrowHeight = arrowWidth * 0.6   // shallow arrow
+//                let arrowHeight = arrowWidth * 0.35   // shallow arrow
+
                 ZStack {
                     // This ZStack holds arrow visuals + picker in one coordinate system.
                     ZStack {
@@ -182,7 +140,7 @@ struct ArrowPickerGlowView: View {
                             let now = timeline.date.timeIntervalSinceReferenceDate
                             
                             // phase in [0,1): fractional part of (time * cyclesPerSecond)
-                            let phase: Double = (hasColor && glowSpeedCPS > 0)
+                            let phase: Double = (hasSelection && glowSpeedCPS > 0)
                             ? (now * glowSpeedCPS).truncatingRemainder(dividingBy: 1.0)
                             : 0.0
                             
@@ -190,13 +148,17 @@ struct ArrowPickerGlowView: View {
                             // so the transition between double-ended ↔ single-ended is smooth.
                             ZStack {
                                 // --- Double-ended arrow (used for .none) ---
-                                DoubleArrowShape()
+                                SingleArrowShape()
                                     .fill(baseColor)
-                                    .overlay(
-                                        DoubleArrowShape()
-                                            .stroke(strokeColor, lineWidth: 2)
-                                    )
-                                    .opacity(selection == .none ? 1.0 : 0.0)
+                                    .opacity(selection == .off ? 1.0 : 0.0)
+
+//                                DoubleArrowShape()
+//                                    .fill(baseColor)
+//                                    .overlay(
+//                                        DoubleArrowShape()
+//                                            .stroke(strokeColor, lineWidth: 2)
+//                                    )
+//                                    .opacity(selection == .off ? 1.0 : 0.0)
                                 
                                 // --- Single-ended arrow (used when a color is selected) ---
                                 ZStack {
@@ -208,9 +170,7 @@ struct ArrowPickerGlowView: View {
                                         )
                                     
                                     // Glow only when we have a color and non-zero speed.
-                                    if let activeColor = selection.color,
-                                       selection != .none,
-                                       glowSpeedCPS > 0 {
+                                    if hasSelection, glowSpeedCPS > 0 {
                                         
                                         ZStack {
                                             let bandWidth = arrowWidth * 0.45
@@ -222,7 +182,7 @@ struct ArrowPickerGlowView: View {
                                             LinearGradient(
                                                 gradient: Gradient(colors: [
                                                     .clear,
-                                                    activeColor.opacity(glowIntensity),
+                                                    arrowColor.opacity(glowIntensity),
                                                     .clear
                                                 ]),
                                                 startPoint: .leading,
@@ -239,7 +199,7 @@ struct ArrowPickerGlowView: View {
                                         )
                                     }
                                 }
-                                .opacity(selection == .none ? 0.0 : 1.0)
+                                .opacity(selection == .off ? 0.0 : 1.0)
                             }
                             .frame(width: arrowWidth, height: arrowHeight)
                         }
@@ -248,64 +208,32 @@ struct ArrowPickerGlowView: View {
                         // then we rotate the whole container. We counter-rotate only
                         // for .left so the picker label is not upside-down.
                         Picker("", selection: $selection) {
-                            ForEach(ArrowSelection.allCases) { option in
-                                Text(option.label).tag(option)
+                            ForEach(ModulationSource.allCases) { option in
+                                Text(option.name).tag(option)
                             }
                         }
                         .labelsHidden()
                         .pickerStyle(.menu)
-                        .frame(width: arrowWidth * 0.7)
+                        .frame(width: arrowWidth * 0.8, alignment: .leading)
                         .rotationEffect(direction == .left ? .degrees(180) : .degrees(0))
                     }
-                    .frame(width: arrowWidth, height: arrowHeight)
                     .rotationEffect(direction.rotationAngle)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(height: 160)
-            .padding(.horizontal)
-            
-            // Glow controls
-            VStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Glow Speed (cycles per second)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    Slider(value: $glowSpeedCPS, in: 0.1...3.0, step: 0.05) {
-                        Text("Glow Speed")
-                    }
-                    
-                    Text(String(format: "%.2f cycles/s", glowSpeedCPS))
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                }
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Glow Intensity")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    Slider(value: $glowIntensity, in: 0.1...1.0, step: 0.05) {
-                        Text("Glow Intensity")
-                    }
-                    
-                    Text(String(format: "%.2f", glowIntensity))
-                        .font(.caption2)
-                        .foregroundColor(.secondary)
-                }
-            }
-            .padding(.horizontal)
-        }
-        .padding(.vertical, 30)
-        .background(Color.black.opacity(0.96).ignoresSafeArea())
-        // Animate shape cross-fade when selection changes.
         .animation(.easeInOut(duration: 0.25), value: selection)
     }
+    
 }
 
 
-
 #Preview {
-    ArrowPickerGlowView()
+    @Previewable @State var selection: ModulationSource = .off
+    
+    ArrowPickerGlowView(selection: $selection,
+                        direction: .right,
+                        arrowColor: .orange)
+        .frame(maxWidth: 160, maxHeight: 100)
+        .border(.red)
+
 }

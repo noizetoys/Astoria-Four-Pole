@@ -690,5 +690,5 @@ struct FilterResponseView: View {
 
 
 #Preview {
-    FilterResponseView(program: MiniWorksProgram(), fillStyle: .cutoffGlow)
+    FilterResponseView(program: MiniWorksProgram(), fillStyle: .strongGlow)
 }

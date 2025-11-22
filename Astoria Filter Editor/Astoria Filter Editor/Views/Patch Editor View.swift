@@ -27,7 +27,6 @@ struct Patch_Editor_View: View {
     
     
     var body: some View {
-//        GroupBox {
         GeometryReader { geometry in
             
             VStack{
@@ -36,44 +35,61 @@ struct Patch_Editor_View: View {
                                        decay: program.vcfEnvelopeDecay,
                                        sustain: program.vcfEnvelopeSustain,
                                        release: program.vcfEnvelopeRelease)
-                    .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
-                    
-                    Color.blue
-                        .cornerRadius(10)
-                        .overlay {
-                            Text(intThatThing(geometry, width: 3, height: 3))
-                        }
-                    
-                    
-                    LowPassFilterEditor(program: program)
-                        .frame(maxWidth: cut(geometry, by: 3), maxHeight: cut(geometry, by: 3, isWidth: false))
+                    .frame(maxWidth: cut(geometry, by: 3))
+
+                    LPF_Editor_View(program: program)
+//                        .frame(maxWidth: cut(geometry, by: (3/5)))
                 }
+//                .frame(maxHeight: cut(geometry, by: 3, isWidth: false))
+
+                
+                
                 
                 HStack {
-                    ADSREnvelopeEditor(attack: program.vcaEnvelopeAttack,
-                                       decay: program.vcaEnvelopeDecay,
-                                       sustain: program.vcaEnvelopeSustain,
-                                       release: program.vcaEnvelopeRelease)
-                        .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
-                    
-                    Color.red
-                        .cornerRadius(10)
-                        .overlay {
-                            Text(intThatThing(geometry, width: 3, height: 3))
-                        }
-                    
-                    LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
-                        .frame(maxWidth: cut(geometry, by: 3), maxHeight: cut(geometry, by: 3, isWidth: false))
-                    
-                }
-                
-                HStack {
-//                    Color.blue
+//                    ADSREnvelopeEditor(attack: program.vcaEnvelopeAttack,
+//                                       decay: program.vcaEnvelopeDecay,
+//                                       sustain: program.vcaEnvelopeSustain,
+//                                       release: program.vcaEnvelopeRelease)
+//                    .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
+                    MIDIMonitorView(editorViewModel: editorViewModel)
+                        .frame(maxWidth: geometry.size.width * (1/3))
+
+                    GroupBox {
+                        LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
+                    }
+                    .background(Color.purple.opacity(0.2))
+//                        .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
+//                        .frame(maxWidth: cut(geometry, by: (3/5)))
+
+//                    Color.red
 //                        .cornerRadius(10)
 //                        .overlay {
 //                            Text(intThatThing(geometry, width: 3, height: 3))
 //                        }
-                    MIDIMonitorView(editorViewModel: editorViewModel)
+//                    Color.red
+//                        .cornerRadius(10)
+//                        .overlay {
+//                            Text(intThatThing(geometry, width: 3, height: 3))
+//                        }
+                    
+                }
+                .frame(maxHeight: cut(geometry, by: 3, isWidth: false))
+                
+                
+                
+                
+                HStack {
+                        //                    Color.blue
+                        //                        .cornerRadius(10)
+                        //                        .overlay {
+                        //                            Text(intThatThing(geometry, width: 3, height: 3))
+                        //                        }
+//                    MIDIMonitorView(editorViewModel: editorViewModel)
+                                            ADSREnvelopeEditor(attack: program.vcaEnvelopeAttack,
+                                                               decay: program.vcaEnvelopeDecay,
+                                                               sustain: program.vcaEnvelopeSustain,
+                                                               release: program.vcaEnvelopeRelease)
+                                            .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
 
                     
                     Color.indigo
@@ -81,16 +97,16 @@ struct Patch_Editor_View: View {
                         .overlay {
                             Text(intThatThing(geometry, width: 3, height: 3))
                         }
-
+                    
                     
                     Color.purple
                         .cornerRadius(10)
                         .overlay {
                             Text(intThatThing(geometry, width: 3, height: 3))
                         }
-
+                    
                 }
-
+                
             }
         }
     }
@@ -99,7 +115,8 @@ struct Patch_Editor_View: View {
 
 #Preview {
     @Previewable @State var editorViewModel = EditorViewModel()
-//    @Previewable @State var program = MiniWorksProgram()
-
+        //    @Previewable @State var program = MiniWorksProgram()
+    
     Patch_Editor_View(editorViewModel: editorViewModel)
+        .frame(width: 1200, height: 800)
 }

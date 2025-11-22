@@ -443,4 +443,5 @@ class LFOLayerView: PlatformView {
     @Previewable @State var program = MiniWorksProgram()
     
     LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape)
+        .frame(width: 800, height: 260)
 }

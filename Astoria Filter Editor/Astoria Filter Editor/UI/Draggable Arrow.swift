@@ -1,9 +1,10 @@
 import SwiftUI
+import Foundation
 
 // MARK: - Arrow Shapes
 
 /// Single, right-pointing arrow (shaft + one head).
-struct SingleArrowShape: Shape {
+struct DragSingleArrowShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         
@@ -33,7 +34,7 @@ struct SingleArrowShape: Shape {
 /// Double-headed arrow (heads on both ends, shared shaft).
 /// Used for the neutral state in singleDirectional mode,
 /// and as the outline reference for dualTinted.
-struct DoubleArrowShape: Shape {
+struct DragDoubleArrowShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         
@@ -198,7 +199,7 @@ struct PercentageArrowView: View {
         baseColor.opacity(0.9)
     }
     
-    // Orientation-dependent base angles (SingleArrowShape and DoubleArrow* point "right" in local coords).
+    // Orientation-dependent base angles (DragSingleArrowShape and DoubleArrow* point "right" in local coords).
     // For vertical, we rotate so that:
     // - positiveAngle is up
     // - negativeAngle is down
@@ -250,16 +251,16 @@ struct PercentageArrowView: View {
                                 .foregroundColor(.white)
                                 .shadow(radius: 2)
                             
-                            Text("(\(mappedValue))")
-                                .font(.caption2)
-                                .foregroundColor(.white.opacity(0.7))
+//                            Text("(\(mappedValue))")
+//                                .font(.caption2)
+//                                .foregroundColor(.white.opacity(0.7))
                         }
                     }
                     .frame(width: arrowWidth, height: arrowHeight)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .contentShape(Rectangle())
+//            .contentShape(Rectangle())
             .gesture(
                 dragGesture(arrowWidth: arrowWidth, arrowHeight: arrowHeight)
             )
@@ -312,10 +313,10 @@ struct PercentageArrowView: View {
             let arrowRotation: Angle = isPositive ? positiveAngle : negativeAngle
             
             ZStack {
-                SingleArrowShape()
+                DragSingleArrowShape()
                     .fill(baseColor)
                     .overlay(
-                        SingleArrowShape()
+                        DragSingleArrowShape()
                             .stroke(strokeColor, lineWidth: 2)
                     )
                     .rotationEffect(arrowRotation)
@@ -328,7 +329,7 @@ struct PercentageArrowView: View {
                     )
                     // Mask to arrow shape in local coords, then rotate.
                     .mask(
-                        SingleArrowShape()
+                        DragSingleArrowShape()
                             .fill(style: FillStyle(eoFill: false, antialiased: true))
                     )
                     .rotationEffect(arrowRotation)
@@ -499,11 +500,11 @@ struct PercentageArrowView: View {
 
 // MARK: - Helpers & Demo
 
-//private extension Comparable {
-//    func clamped(to range: ClosedRange<Self>) -> Self {
-//        min(max(self, range.lowerBound), range.upperBound)
-//    }
-//}
+extension Comparable {
+    func clamped(to range: ClosedRange<Self>) -> Self {
+        min(max(self, range.lowerBound), range.upperBound)
+    }
+}
 
 struct PercentageArrowDemoView: View {
     @State private var rawValue: Double = 64
@@ -512,46 +513,54 @@ struct PercentageArrowDemoView: View {
     @State private var dragSensitivity: Double = 1.0
     
     var body: some View {
-        VStack(spacing: 24) {
-            VStack(spacing: 12) {
-                Toggle("Use Dual-Tinted Mode", isOn: $useDualMode)
-                Toggle("Vertical Orientation", isOn: $vertical)
+//        VStack(spacing: 24) {
+//            VStack(spacing: 12) {
+//                Toggle("Use Dual-Tinted Mode", isOn: $useDualMode)
+//                Toggle("Vertical Orientation", isOn: $vertical)
+//                
+//                HStack {
+//                    Text("Drag Sensitivity")
+//                    Slider(value: $dragSensitivity, in: 0.3...2.0)
+//                }
+//            }
+//            .padding(.horizontal)
+        VStack {
+            Spacer()
+            VStack {
+                Text("Amount")
                 
-                HStack {
-                    Text("Drag Sensitivity")
-                    Slider(value: $dragSensitivity, in: 0.3...2.0)
-                }
+                PercentageArrowView(
+                    rawValue: $rawValue,
+                    showGlow: true,
+                    mode: useDualMode ? .dualTinted : .singleDirectional,
+                    orientation: vertical ? .vertical : .horizontal,
+                    dragSensitivity: dragSensitivity
+                )
+                .border(.red)
             }
-            .padding(.horizontal)
-            
-            PercentageArrowView(
-                rawValue: $rawValue,
-                showGlow: true,
-                mode: useDualMode ? .dualTinted : .singleDirectional,
-                orientation: vertical ? .vertical : .horizontal,
-                dragSensitivity: dragSensitivity
-            )
-            .frame(height: 200)
-            .padding(.horizontal)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Value: \(Int(rawValue.rounded())) → mapped: \(Int(rawValue.rounded()) - 64)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                
-                Slider(value: $rawValue, in: 0...127, step: 1) {
-                    Text("Value")
-                }
-            }
-            .padding(.horizontal)
-            
-            Stepper("Adjust via Stepper (\(Int(rawValue)))",
-                    value: $rawValue,
-                    in: 0...127,
-                    step: 1)
-            .padding(.horizontal)
+            Spacer()
         }
-        .padding(.vertical, 30)
+//            .frame(height: 100)
+//            .padding(.horizontal)
+            
+//            VStack(alignment: .leading, spacing: 8) {
+//                Text("Value: \(Int(rawValue.rounded())) → mapped: \(Int(rawValue.rounded()) - 64)")
+//                    .font(.caption)
+//                    .foregroundColor(.secondary)
+//                
+//                Slider(value: $rawValue, in: 0...127, step: 1) {
+//                    Text("Value")
+//                }
+//            }
+//            .padding(.horizontal)
+//            
+//            Stepper("Adjust via Stepper (\(Int(rawValue)))",
+//                    value: $rawValue,
+//                    in: 0...127,
+//                    step: 1)
+//            .padding(.horizontal)
+//        }
+//        .padding(.vertical, 30)
         .background(Color.black.opacity(0.96).ignoresSafeArea())
     }
 }
@@ -559,5 +568,6 @@ struct PercentageArrowDemoView: View {
 struct PercentageArrowDemoView_Previews: PreviewProvider {
     static var previews: some View {
         PercentageArrowDemoView()
+            .frame(maxWidth: 160, maxHeight: 100)
     }
 }
