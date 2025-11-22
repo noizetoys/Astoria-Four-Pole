@@ -52,43 +52,42 @@ enum MiniWorksParameter: String, Codable {
     
     var ccValue: UInt8 {
         switch self {
-            case .VCFEnvelopeAttack: 0x0E           // CC#14
-            case .VCFEnvelopeDecay: 0x0F            // CC#15
-            case .VCFEnvelopeSustain: 0x10          // CC#16
-            case .VCFEnvelopeRelease: 0x11          // CC#17
+            case .VCFEnvelopeAttack:  ContinuousController.VCFEnvelopeAttack
+            case .VCFEnvelopeDecay:  ContinuousController.VCFEnvelopeDecay
+            case .VCFEnvelopeSustain:  ContinuousController.VCFEnvelopeSustain
+            case .VCFEnvelopeRelease:  ContinuousController.VCFEnvelopeRelease
                 
-            case .VCAEnvelopeAttack: 0x12           // CC#18
-            case .VCAEnvelopeDecay: 0x13            // CC#19
-            case .VCAEnvelopeSustain: 0x14          // CC#20
-            case .VCAEnvelopeRelease: 0x15          // CC#21
+            case .VCAEnvelopeAttack:  ContinuousController.VCAEnvelopeAttack
+            case .VCAEnvelopeDecay:  ContinuousController.VCAEnvelopeDecay
+            case .VCAEnvelopeSustain:  ContinuousController.VCAEnvelopeSustain
+            case .VCAEnvelopeRelease:  ContinuousController.VCAEnvelopeRelease
                 
-            case .VCFEnvelopeCutoffAmount: 0x16     // CC#22
-            case .VCAEnvelopeVolumeAmount: 0x17     // CC#23
+            case .VCFEnvelopeCutoffAmount:  ContinuousController.VCFEnvelopeCutoffAmount
+            case .VCAEnvelopeVolumeAmount:  ContinuousController.VCAEnvelopeVolumeAmount
                 
-            case .LFOSpeed: 0x18                    // CC#24
-            case .LFOShape: 0x19                    // CC#25
-            case .LFOSpeedModulationAmount: 0x1A    // CC#26
-            case .LFOSpeedModulationSource: 0x1B    // CC#27
+            case .LFOSpeed:  ContinuousController.LFOSpeed
+            case .LFOShape:  ContinuousController.LFOShape
+            case .LFOSpeedModulationAmount:  ContinuousController.LFOSpeedModulationAmount
+            case .LFOSpeedModulationSource:  ContinuousController.LFOSpeedModulationSource
                 
-            case .cutoffModulationAmount: 0x46      // CC#70
-            case .resonanceModulationAmount: 0x48   // CC#72
-            case .volumeModulationAmount: 0x4A      // CC#74
-            case .panningModulationAmount: 0x4C     // :#76
+            case .cutoffModulationAmount:  ContinuousController.cutoffModulationAmount
+            case .resonanceModulationAmount:  ContinuousController.resonanceModulationAmount
+            case .volumeModulationAmount:  ContinuousController.volumeModulationAmount
+            case .panningModulationAmount:  ContinuousController.panningModulationAmount
                 
-            case .cutoffModulationSource: 0x47      // CC#71
-            case .resonanceModulationSource: 0x49   // CC#73
-            case .volumeModulationSource: 0x2A      // CC#75
-            case .panningModulationSource: 0x4D     // :#77
+            case .cutoffModulationSource:  ContinuousController.cutoffModulationSource
+            case .resonanceModulationSource:  ContinuousController.resonanceModulationSource
+            case .volumeModulationSource:  ContinuousController.volumeModulationSource
+            case .panningModulationSource:  ContinuousController.panningModulationSource
                 
-            case .cutoff: 0x4E                      // CC#78
-            case .resonance: 0x4F                   // CC#79
-            case .volume: 0x09                      // CC#9
-            case .panning: 0x0A                     // :#10
+            case .cutoff:  ContinuousController.cutoff
+            case .resonance:  ContinuousController.resonance
+            case .volume:  ContinuousController.volume
+            case .panning:  ContinuousController.panning
                 
-            case .gateTime: 0x50                    // CC#80
-            case .triggerSource: 0x51               // CC#81
-            case .triggerMode: 0x52                 // CC#82
-                
+            case .gateTime:  ContinuousController.gateTime
+            case .triggerSource:  ContinuousController.triggerSource
+            case .triggerMode:  ContinuousController.triggerMode
         }
     }
     

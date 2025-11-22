@@ -24,7 +24,7 @@ import Foundation
 
 class MiniWorksGlobalData: Codable, Sendable {
     /// MIDI Channel for receiving and transmitting
-    var midiChannel: UInt8 = 1
+    var midiChannel: UInt8 = 0x01
     
     /// How controls are transmitted or received
     var midiControl: GlobalMIDIControl = .ctr
@@ -104,7 +104,6 @@ class MiniWorksGlobalData: Codable, Sendable {
     
     ///  Set Values to stored values (User Defaults)
     func loadFromDefaults() {
-        debugPrint(icon: "📚", message: "")
         midiChannel = UInt8(UserDefaults.standard.integer(forKey: SysExConstant.midiChannelKey))
         
         let control = UInt8(UserDefaults.standard.integer(forKey: SysExConstant.midiControlKey))
@@ -116,6 +115,8 @@ class MiniWorksGlobalData: Codable, Sendable {
         
         let knob = UInt8(UserDefaults.standard.integer(forKey: SysExConstant.knobModeKey))
         knobMode = GlobalKnobMode(rawValue: knob) ?? .relative
+        
+        debugPrint(icon: "📚", message: "channel: \(midiChannel), control: \(midiControl), noteNumber: \(noteNumber), deviceID: \(deviceID)")
     }
 }
 

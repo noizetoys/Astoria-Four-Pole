@@ -84,7 +84,7 @@ class MiniWorksProgram: Identifiable, Sendable {
             parameter.setValue(value)
         }
         else {
-            debugPrint(icon: "❌", message: "No parameter found for CC: \(cc)")
+            debugPrint(icon: "❌🎛️", message: "No parameter found for CC: \(cc)")
         }
     }
 }
@@ -95,9 +95,7 @@ extension MiniWorksProgram {
         /// Creates 'Program' from raw dump
     convenience init?(bytes: [UInt8]) throws {
         try MiniworksSysExCodec.validate(sysEx: bytes)
-        debugPrint(message: "byte count: \(bytes.count), \(bytes.hexString)")
-        
-//        let programData: [UInt8] = Array(bytes[6..<bytes.count])
+//        debugPrint(message: "byte count: \(bytes.count), \(bytes.hexString)")
         
             // Adjust the program number from 0 index
         self.init(bytes: bytes, number: bytes[5])
@@ -107,18 +105,17 @@ extension MiniWorksProgram {
         /// Creates 'Program' from  'Program' related bytes
         /// - Used by 'All Dump'
     convenience init(bytes: [UInt8], number: UInt8) {
-        debugPrint(message: "program #\(number + 1), byte count: \(bytes.count), \(bytes.hexString)")
+//        debugPrint(message: "program #\(number + 1), byte count: \(bytes.count), \(bytes.hexString)")
         self.init()
         
         programNumber = number
-        
         properties.forEach { $0.use(bytes: bytes) }
     }
     
     
     /// Creates Read Only copy of ROM program (21-40)
     convenience init(ROM bytes: SysExDump, number: UInt8) {
-        debugPrint(message: "program #\(number + 1), byte count: \(bytes.count), \(bytes.hexString)")
+//        debugPrint(message: "program #\(number + 1), byte count: \(bytes.count), \(bytes.hexString)")
         
         self.init(bytes: bytes, number: number)
         self.isReadOnly = true

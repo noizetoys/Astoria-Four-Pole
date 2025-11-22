@@ -11,7 +11,6 @@ import Foundation
 @MainActor
 @Observable
 final class EditorViewModel {
-    
     var availableSources: [MIDIDevice] = []
     var availableDestinations: [MIDIDevice] = []
     
@@ -22,6 +21,8 @@ final class EditorViewModel {
     
     var statusMessage: String = ""
     
+    var breathControllerValue: UInt8 = 0
+    
     // Default Program
     var program: MiniWorksProgram = MiniWorksProgram()
 //    var programs: [MiniWorksProgram] = []
@@ -30,12 +31,17 @@ final class EditorViewModel {
     
     var configuration: MiniworksDeviceProfile = .newMachineConfiguration()
     
+//    var currentMIDIChannel: UInt8 { configuration.globalSetup.midiChannel }
+//    var currentNoteNumber: UInt8 { configuration.globalSetup.noteNumber }
+    
     private let midiService: MIDIService = .shared
     private let codec: MiniworksSysExCodec = MiniworksSysExCodec()
 
     private var sysExListenerTask: Task<Void, Never>?
     private var ccListenerTask: Task<Void, Never>?
-    
+    private var noteListenerTask: Task<Void, Never>?
+    private var programChangeListenerTask: Task<Void, Never>?
+
     
     // MARK: - Lifecycle
     
@@ -67,6 +73,8 @@ final class EditorViewModel {
     // MARK: - Connection Management
     
     func connect() async {
+        debugPrint(message: "This is as far as it goes!!!!")
+        
         guard
             let source = selectedSource,
             let destination = selectedDestination
@@ -80,7 +88,7 @@ final class EditorViewModel {
             isConnected = true
             statusMessage = "Connected to \(source.name) and \(destination.name)."
             
-            startListening(from: source)
+//            startListening(from: source)
         }
         catch {
             statusMessage = "Failed to connect: \(error.localizedDescription)"
@@ -127,6 +135,23 @@ final class EditorViewModel {
             }
         }
         
+        
+        /* need to know which CC controller to monitor
+         should default to breath.
+         
+         */
+        
+        noteListenerTask = Task { [weak self] in
+            guard let self else { return }
+            
+            for await (isNoteOn, channel, note, velocity) in await self.midiService.noteStream(from: source) {
+                debugPrint(message: "Received: \(isNoteOn ? "Note On" : "Note off"), ch: \(channel), note: \(note), vel: \(velocity)")
+                
+                if self.isValidChannel(channel), note == configuration.noteNumber {
+                    self.handingIncomingNote(isNoteOn: isNoteOn, channel: channel, note: note, velocity: velocity)
+                }
+            }
+        }
     }
     
     
@@ -136,32 +161,90 @@ final class EditorViewModel {
         
         ccListenerTask?.cancel()
         ccListenerTask = nil
+        
+        noteListenerTask?.cancel()
+        noteListenerTask = nil
     }
     
     
     private func handleIncomingSysEx(_ sysexData: [UInt8]) {
-        debugPrint(icon: "📡", message: "Attempting to decode SysEx:  size: \(sysexData.count) \n\(sysexData.hexString)")
+        debugPrint(icon: "➡️📡", message: "Attempting to decode SysEx:  size: \(sysexData.count) \n\(sysexData.hexString)")
         
         do {
             if sysexData.count > 40 {
                 let receivedConfig = try MiniworksSysExCodec.decodeAllDump(bytes: sysexData)
                 configuration = receivedConfig
-                debugPrint(icon: "📡", message: "Config (All Dump) SysEx Decoded!!!!")
+                debugPrint(icon: "➡️📡", message: "Config (All Dump) SysEx Decoded!!!!")
             }
             else {
                 let receivedProgram = try MiniworksSysExCodec.decodeProgram(from: sysexData)
                 program = receivedProgram
-                debugPrint(icon: "📡", message: "Program SysEx Decoded!!!!")
+                debugPrint(icon: "➡️📡", message: "Program SysEx Decoded!!!!")
             }
         }
         catch {
-            debugPrint(icon: "📡", message: "Failed to decode SysEx: \n\(error.localizedDescription)")
+            debugPrint(icon: "➡️📡❌", message: "Failed to decode SysEx: \n\(error.localizedDescription)")
         }
     }
     
     
     private func handleIncomingCC(channel: UInt8, cc: UInt8, value: UInt8) {
-        program.updateFromCC(cc, value: value, onChannel: channel)
+        debugPrint(icon: "➡️🎛️", message: "Channel: \(channel), controller: \(cc), value: \(value)")
+        
+        if isValidChannel(channel), isValidCC(cc) {
+            if cc == ContinuousController.breathControl {
+                breathControllerValue = value
+            }
+            
+            // Program Change????
+            
+            program.updateFromCC(cc, value: value, onChannel: channel)
+        }
+    }
+    
+    
+    private func handingIncomingNote(isNoteOn: Bool, channel: UInt8, note: UInt8, velocity: UInt8) {
+        // Note On:  Triggers Envelope,
+        // Note Off: Trigger Sequence Ends
+        
+        guard
+            isValidChannel(channel),
+            isValidNote(note)
+        else {
+            return
+        }
+        
+        debugPrint(icon: "➡️♬", message: "Received: \(isNoteOn ? "Note On" : "Note off"), ch: \(channel), note: \(note), vel: \(velocity)")
+        
+        updateMIDIMonitorNote(note, velocity: velocity, type: isNoteOn ? .noteOn : .noteOff)
+    }
+    
+    
+    // MARK: - MIDI Property Validation
+    private func isValidCC(_ controller: UInt8) -> Bool {
+        ContinuousController.allControllers.contains(controller)
+    }
+
+    
+    private func isValidChannel(_ channel: UInt8) -> Bool {
+        channel == 0 || channel == configuration.midiChannel
+    }
+    
+    
+    private func isValidNote(_ note: UInt8) -> Bool {
+        note == configuration.noteNumber
+    }
+    
+    
+    // MARK: - MIDI Monitor
+    
+    private func updateMIDIMonitorCC(_ value: UInt8) {
+        
+    }
+    
+    
+    private func updateMIDIMonitorNote(_ value: UInt8, velocity: UInt8, type: NoteType) {
+        
     }
     
     

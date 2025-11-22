@@ -44,8 +44,10 @@ struct MainView: View {
                         .padding()
                     } label: {
                         Text("Connections")
+                            .font(.title)
                     }
-                    
+                    .padding()
+
                     
                     // Globals
                     DisclosureGroup {
@@ -55,7 +57,9 @@ struct MainView: View {
                         .padding()
                     } label: {
                         Text("Globals")
+                            .font(.title)
                     }
+                    .padding()
                     
                     
                         // Programs
@@ -82,7 +86,6 @@ struct MainView: View {
                             GroupBox {
                                 Program_Title_View(program: viewModel.program)
                             }
-                                //                            .frame(height: rowHeight(from: geometry) * 0.25)
                             
                             GroupBox {
                                 File_Management_View()
@@ -93,14 +96,14 @@ struct MainView: View {
                     
                         // Edit View
                     GroupBox {
-                        Patch_Editor_View(program: $viewModel.program)
+                        Patch_Editor_View(editorViewModel: viewModel)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
             }
         }
-//        .padding()
+        
     }
     
     

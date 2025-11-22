@@ -7,6 +7,14 @@
 
 import SwiftUI
 
+
+nonisolated
+extension Notification.Name {
+    static let midiSourceDisconnected = Notification.Name("midiSourceDisconnected")
+    static let midiSourceConnected = Notification.Name("midiSourceConnected")
+}
+
+
 struct ConnectionsBox: View {
     @Binding var viewModel: EditorViewModel
     
@@ -36,7 +44,8 @@ struct ConnectionsBox: View {
                             Task {
                                 if viewModel.isConnected {
                                     await viewModel.disconnect()
-                                } else {
+                                }
+                                else {
                                     await viewModel.connect()
                                 }
                             }

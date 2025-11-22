@@ -39,14 +39,14 @@ struct FilterResponseView: View {
                 
                 // Frequency modulation arrow (horizontal, just above the line)
                 let cutoffModAmount = abs(program.cutoffModulationAmount.doubleValue - 64) / 63.5
-                let _ = debugPrint(message: "cutoffModAmount == \(cutoffModAmount)")
+//                let _ = debugPrint(message: "cutoffModAmount == \(cutoffModAmount)")
                 if program.cutoffModulationSource.modulationSource?.id != 0 && cutoffModAmount > 0.01 {
                     frequencyModArrow(geometry: geometry)
                 }
                 
                 // Resonance modulation arrow (vertical, to the right of peak)
                 let resModAmount = abs(program.resonanceModulationAmount.doubleValue - 64) / 63.5
-                let _ = debugPrint(message: "resModAmount == \(resModAmount)")
+//                let _ = debugPrint(message: "resModAmount == \(resModAmount)")
                     if program.resonanceModulationSource.modulationSource?.id != 0 && resModAmount > 0.01 {
                     resonanceModArrow(geometry: geometry)
                 }
