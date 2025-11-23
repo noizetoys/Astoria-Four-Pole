@@ -1,5 +1,5 @@
 import SwiftUI
-//import PlaygroundSupport
+
 
 struct PanIndicator: View {
     @State private var panValue: Double = 64.0
@@ -8,6 +8,7 @@ struct PanIndicator: View {
     let dotCount = 7
     let minValue: Double = 0
     let maxValue: Double = 127
+    
     
     var body: some View {
         VStack(spacing: 40) {
@@ -22,15 +23,10 @@ struct PanIndicator: View {
             }
             .padding()
             
-            // Rotary knob control
-            VStack(spacing: 16) {
-                RotaryKnob(value: $panValue, range: minValue...maxValue)
-                    .frame(width: 120, height: 120)
-                
-                Text("Pan: \(Int(panValue))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
+            Slider(value: $panValue,
+                   in: 0...127,
+                   step: 1)
+                .padding(.horizontal)
         }
         .padding()
     }

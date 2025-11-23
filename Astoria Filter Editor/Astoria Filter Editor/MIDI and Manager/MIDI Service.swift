@@ -38,7 +38,7 @@ final actor MIDIService {
     
     
     func initializeMIDI() throws {
-//        debugPrint(icon: "🆕🎹", message: "Initializing MIDI")
+        debugPrint(icon: "🆕🎹", message: "Initializing MIDI")
         
         try createMIDIClient()
         try createInputPort()
@@ -50,7 +50,9 @@ final actor MIDIService {
         // Can't call 'disconnectAll()' from here
         // Have to duplicate the code
         for (_, connection) in connections {
-            MIDIPortDisconnectSource(inputPort, connection.source.endpoint)
+            if let source = connection.source {
+                MIDIPortDisconnectSource(inputPort, source.endpoint)
+            }
         }
         
         connections.removeAll()
@@ -222,12 +224,23 @@ final actor MIDIService {
     
         // MARK: Connect/Disconnect
     
-    func connect(source: MIDIDevice, destination: MIDIDevice) throws {
+    func connect(source: MIDIDevice?, destination: MIDIDevice) throws {
 //        debugPrint(icon: "🔌", message: "Connecting \(source.name) to \(destination.name)")
         
-        connections[source.id] = DeviceConnection(source: source,
-                                                  destination: destination)
+        let id: MIDIUniqueID = source?.id ?? destination.id
+        
+        connections[id] = DeviceConnection(source: source, destination: destination)
 
+        guard
+            let source
+        else {
+            Task { @MainActor in
+                NotificationCenter.default.post(name: .midiSourceConnected, object: nil)
+            }
+
+            return
+        }
+        
         let status = MIDIPortConnectSource(inputPort, source.endpoint, nil)
         
         guard status == noErr
@@ -237,9 +250,9 @@ final actor MIDIService {
             throw MIDIError.connectionFailed(status)
         }
         
-        Task { @MainActor in
-            NotificationCenter.default.post(name: .midiSourceConnected, object: nil)
-        }
+//        Task { @MainActor in
+//            NotificationCenter.default.post(name: .midiSourceConnected, object: nil)
+//        }
         
         debugPrint(icon: "🔌👍🏻", message: "\(source.name) now connected to \(destination.name)\nconnections count: \(connections.count)")
     }
@@ -263,7 +276,9 @@ final actor MIDIService {
         debugPrint(icon: "🔌", message: "Disconnecting all devices")
         
         for (_, connection) in connections {
-            MIDIPortDisconnectSource(inputPort, connection.source.endpoint)
+            if let source = connection.source {
+            MIDIPortDisconnectSource(inputPort, source.endpoint)
+            }
         }
         
         connections.removeAll()
@@ -276,10 +291,10 @@ final actor MIDIService {
     
 
     private func handleIncomingPacketData(_ packets: [[UInt8]]) {
-//        debugPrint(icon: "🔄", message: "Enumerating MIDI devices...")
+        debugPrint(icon: "🔄", message: "Enumerating MIDI devices...")
         
         for (i, bytes) in packets.enumerated() {
-//            debugPrint(icon: "🔄", message: "Handling \(bytes.count) byte packet \(i + 1)")
+            debugPrint(icon: "🔄", message: "Handling \(bytes.count) byte packet \(i + 1)")
             
             processPacketBytes(bytes)
         }
@@ -653,52 +668,17 @@ final actor MIDIService {
     }
     
     
-//    private func sendRawBytes(_ bytes: [UInt8], to destination: MIDIDevice) throws -> OSStatus {
-//        var packetList = MIDIPacketList()
-//        var packet = MIDIPacketListInit(&packetList)
-//        
-//        packet = MIDIPacketListAdd(&packetList, 1024, packet, 0, bytes.count, bytes)
-//        
-//        let status = MIDISend(outputPort, destination.endpoint, &packetList)
-//        
-//        return status
-//    }
-    
-    private func sendRawBytes(_ bytes: [UInt8], to destination: MIDIDevice) -> OSStatus {
-        let packetList = UnsafeMutablePointer<MIDIPacketList>.allocate(capacity: 1)
-//        var packetList = MIDIPacketList()
-        var packet = MIDIPacketListInit(packetList)
+    private func sendRawBytes(_ bytes: [UInt8], to destination: MIDIDevice) throws -> OSStatus {
+        var packetList = MIDIPacketList()
+        var packet = MIDIPacketListInit(&packetList)
         
-//        bytes.withUnsafeBufferPointer { buffer in
-            packet = MIDIPacketListAdd(
-                packetList,
-                1024,
-                packet,
-                0,
-                bytes.count,
-//                buffer.baseAddress!
-                bytes
-            )
-//        }
+        packet = MIDIPacketListAdd(&packetList, 1024, packet, 0, bytes.count, bytes)
         
-        guard let out = connections.first?.value else {
-            print("\n\n\n\n\n\nNo Desitnations\n\n\n\n\n")
-            return OSStatus(-1)
-        }
-        
-        let status = MIDISend(outputPort, out.destination.endpoint, packetList)
-        
-        if status != noErr {
-            print("❌ MIDISend failed: \(status)")
-        } else {
-            print("✅ Sent \(bytes.count) bytes to \(out.destination.name)")
-        }
-        
-        packetList.deallocate()
+        let status = MIDISend(outputPort, destination.endpoint, &packetList)
         
         return status
     }
-
+    
     
     // MARK: - Receiving MIDI Streams
 
@@ -708,7 +688,6 @@ final actor MIDIService {
             debugPrint(icon: "💾", message: "Creating SysEx Stream for \(source.name)")
             
             if var connection = self.connections[source.id] {
-//                connection.sysexContinuation = continuation
                 connection.sysexContinuations.append(continuation)
                 self.connections[source.id] = connection
                 debugPrint(icon: "💾👍🏻", message: "SysEx Stream for \(source.name) was created")

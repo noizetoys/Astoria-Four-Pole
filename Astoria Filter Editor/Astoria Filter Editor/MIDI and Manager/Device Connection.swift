@@ -16,7 +16,7 @@ typealias ProgramChangeEvent = (channel: UInt8, program: UInt8)
 
 /// Represents a connection with endpoints and continuations
 struct DeviceConnection {
-    let source: MIDIDevice
+    let source: MIDIDevice?
     let destination: MIDIDevice
     
 //    var sysexContinuation: AsyncStream<[UInt8]>.Continuation?

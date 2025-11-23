@@ -13,22 +13,22 @@ struct PanControl: View {
     @Binding var value: Double
     
     /// Visual style of the control
-    var style: PanVisualStyle = .circles
+    var style: PanVisualStyle = .squares
     
     /// Color of the main indicator
-    var indicatorColor: Color = .cyan
+    var indicatorColor: Color = .blue
     
     /// Color of the glow (can be different from indicator color)
-    var glowColor: Color = .cyan
+    var glowColor: Color = .teal
     
     /// 0.0 = no glow, 1.0 = strong, wide glow
-    var glowIntensity: Double = 0.8
+    var glowIntensity: Double = 0.5
     
     /// Desired number of items for circles/squares (auto-coerced to odd >= 3)
-    var itemCount: Int = 21
+    var itemCount: Int = 13
     
     /// How many neighbors (in index steps) are affected by glow / size / brightness
-    var neighborGlowRadius: Double = 2.0
+    var neighborGlowRadius: Double = 1.2
     
     /// How fast glow/size falls off from the center. 1 = slow, 2 = faster, etc.
     var glowFalloffExponent: Double = 2.0
@@ -63,12 +63,15 @@ struct PanControl: View {
             .frame(height: 44)
             
             // Slider from -1...1 mirrored to 0...1
-            Slider(
-                value: Binding(
-                    get: { (value + 1) / 2 },
-                    set: { value = $0 * 2 - 1 }
-                )
-            )
+//            Slider(
+//                value: Binding(
+//                    get: { value },
+//                    set: { value = $0 }
+////                    get: { (value + 1) / 2 },
+////                    set: { value = $0 * 2 - 1 }
+//                )
+//            )
+//            .padding(.vertical)
         }
         .padding(.horizontal)
     }
@@ -78,29 +81,34 @@ struct PanControl: View {
 
 private extension PanControl {
     func dragGesture(width: CGFloat) -> some Gesture {
-        DragGesture(minimumDistance: 0)
+        DragGesture(minimumDistance: 3)
             .onChanged { gesture in
                 // Lock axis to horizontal
-                let clampedX = min(max(0, gesture.location.x), width)
-                let normalized = clampedX / width          // 0...1
-                value = normalized * 2 - 1                 // -1...1
+//                let clampedX = min(max(0, gesture.location.x), width)
+                let clampedX = gesture.location.x / width
+//                let normalized = clampedX / width          // 0...1
+//                value = ((normalized * 2) - 1)                 // -1...1
+                value = clampedX
             }
     }
+    
     
     var doubleTapResetGesture: some Gesture {
         TapGesture(count: 2)
             .onEnded {
-                value = 0
+                value = 0.5
             }
     }
+    
     
     var longPressResetGesture: some Gesture {
         LongPressGesture(minimumDuration: 0.5)
             .onEnded { _ in
-                value = 0
+                value = 0.5
             }
     }
 }
+
 
 // MARK: - Glow / size weighting
 
@@ -111,7 +119,7 @@ private extension PanControl {
         let count = effectiveItemCount
         guard count > 1 else { return (1.0, true) }
         
-        let position = (value + 1) / 2 // 0...1
+        let position = value //(value + 1) / 2 // 0...1
         let currentIndex = position * Double(count - 1)
         let distance = abs(Double(index) - currentIndex) // in item steps
         
@@ -289,22 +297,15 @@ private extension PanControl {
 
 struct PanControl_Previews: PreviewProvider {
     struct Demo: View {
-        @State private var panValue: Double = 0.0
-        @State private var style: PanVisualStyle = .circles
-        @State private var glowIntensity: Double = 0.8
-        @State private var items: Double = 19
-        @State private var neighborRadius: Double = 2.0
-        @State private var indicatorColor: Color = .cyan
+        @State private var panValue: Double = 1
+        @State private var style: PanVisualStyle = .squares
+        @State private var glowIntensity: Double = 0.5
+        @State private var items: Double = 15
+        @State private var neighborRadius: Double = 1.2
+        @State private var indicatorColor: Color = .red
         
         var body: some View {
             VStack(spacing: 24) {
-                Picker("Style", selection: $style) {
-                    ForEach(PanVisualStyle.allCases) { s in
-                        Text(s.rawValue.capitalized).tag(s)
-                    }
-                }
-                .pickerStyle(.segmented)
-                
                 PanControl(
                     value: $panValue,
                     style: style,
@@ -315,32 +316,6 @@ struct PanControl_Previews: PreviewProvider {
                     neighborGlowRadius: neighborRadius,
                     glowFalloffExponent: 2.0
                 )
-                
-                HStack {
-                    Text(String(format: "Pan: %.2f", panValue))
-                    Spacer()
-                }
-                
-                HStack {
-                    Text("Glow")
-                    Slider(value: $glowIntensity, in: 0...1)
-                }
-                
-                HStack {
-                    Text("Neighbors")
-                    Slider(value: $neighborRadius, in: 0.5...5, step: 0.1)
-                }
-                
-                HStack {
-                    Text("Items (odd)")
-                    Slider(value: $items, in: 3...31, step: 2)
-                }
-                
-                HStack {
-                    Text("Dot / Glow Color")
-                    ColorPicker("", selection: $indicatorColor)
-                        .labelsHidden()
-                }
             }
             .padding()
             .preferredColorScheme(.dark)
@@ -349,5 +324,6 @@ struct PanControl_Previews: PreviewProvider {
     
     static var previews: some View {
         Demo()
+            .frame(maxWidth: 450)
     }
 }

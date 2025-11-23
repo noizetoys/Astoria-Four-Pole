@@ -95,7 +95,9 @@ struct Patch_Editor_View: View {
                             .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
             
 //            colorthing(color: .red, geometry: geometry, width: 1/3, height: 1/3)
-            colorthing(color: .green, geometry: geometry, width: 1/3, height: 1/3)
+            Pan_Editor(program: program)
+                .frame(maxWidth: cut(geometry, by: 1/3))
+//            colorthing(color: .green, geometry: geometry, width: 1/3, height: 1/3)
             colorthing(color: .blue, geometry: geometry, width: 1/3, height: 1/3)
                 .padding(.trailing)
         }

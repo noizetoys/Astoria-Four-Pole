@@ -85,15 +85,12 @@ struct ADSREnvelopeEditor: View {
             
             // Sliders + readouts (each tinted to match its stage color)
 //            HStack(spacing: 40) {
-            HStack {
+            HStack(spacing: 40) {
                 VStack(alignment: .center, spacing: 20) {
                     Text("\(attack.value)")
                     CircularFader(value: attack.knobBinding,
                                   size: 40,
                                   mode: .unidirectional(color: ADSRStageColors.attack))
-//                    CircularFader(value: attack.knobBinding,
-//                                  size: 40,
-//                                  ringColor: ADSRStageColors.attack)
                     Text("Attack")
                 }
                 
@@ -122,6 +119,7 @@ struct ADSREnvelopeEditor: View {
                 }
 
             }
+            .padding(.horizontal)
         }
     }
     

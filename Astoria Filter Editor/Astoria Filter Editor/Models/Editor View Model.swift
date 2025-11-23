@@ -25,14 +25,12 @@ final class EditorViewModel {
     
     // Default Program
     var program: MiniWorksProgram = MiniWorksProgram()
-//    var programs: [MiniWorksProgram] = []
+    // A Default device has the ROMs copied into User Programs 1-20
     var programs: [MiniWorksProgram] = MiniworksROMPrograms.copyOfROMPrograms()
     let ROMPrograms: [MiniWorksProgram] = MiniworksROMPrograms.programs()
     
     var configuration: MiniworksDeviceProfile = .newMachineConfiguration()
     
-//    var currentMIDIChannel: UInt8 { configuration.globalSetup.midiChannel }
-//    var currentNoteNumber: UInt8 { configuration.globalSetup.noteNumber }
     
     private let midiService: MIDIService = .shared
     private let codec: MiniworksSysExCodec = MiniworksSysExCodec()
@@ -68,7 +66,7 @@ final class EditorViewModel {
                 do {
                     try await MIDIService.shared.send(.controlChange(channel: 1,
                                                                      cc: type.ccValue,
-                                                                     value: value), to: self.selectedSource)
+                                                                     value: value), to: self.selectedDestination)
                 }
                 catch {
                     debugPrint(message: "Could not send control change message: type: \(type), value: \(value)", type: .trace)
@@ -103,19 +101,21 @@ final class EditorViewModel {
         debugPrint(message: "This is as far as it goes!!!!")
         
         guard
-            let source = selectedSource,
             let destination = selectedDestination
         else {
-            statusMessage = "Please select a source and a destination."
+            statusMessage = "Must choose at least destination."
             return
         }
         
+        
         do {
-            try await midiService.connect(source: source, destination: destination)
+            try await midiService.connect(source: selectedSource, destination: destination)
             isConnected = true
-            statusMessage = "Connected to \(source.name) and \(destination.name)."
+            statusMessage = "Connected to \(selectedSource?.name ?? "No Source") and \(destination.name)."
             
-                //            startListening(from: source)
+            if let selectedSource {
+                startListening(from: selectedSource)
+            }
         }
         catch {
             statusMessage = "Failed to connect: \(error.localizedDescription)"
