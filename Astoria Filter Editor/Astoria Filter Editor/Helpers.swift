@@ -27,10 +27,9 @@ func debugPrint(_ file: StaticString = #file,
     else { return }
     
     let fileName = file.description.components(separatedBy: "/").last ?? "Unknown"
-    print("\n\(String(repeating: icon, count: 10))")
-    print("[\(fileName)] --->  \(function) [line: \(line), column: \(column)]")
+    print("\n\(String(repeating: icon, count: 10))\t\t[\(fileName)] --->  \(function) [line: \(line), column: \(column)]")
     if !message.isEmpty {
-        print("\n\"\(message)\"\n")
+        print("\"\(message)\"")
     }
     print("\(String(repeating: icon, count: 10))")
 #endif

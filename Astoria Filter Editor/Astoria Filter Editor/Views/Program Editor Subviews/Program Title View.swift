@@ -7,32 +7,51 @@
 import SwiftUI
 
 struct Program_Title_View: View {
-    let program: MiniWorksProgram
+    let program: MiniWorksProgram?
     
     // TODO: Add 'tags' to Program
     let sampleTags = ["Guitar", "Compressed", "Bright"]
     
+    private var programText: String {
+        guard let program else { return "No Program Selected"}
+        
+        return "[\(program.programNumber)] \(program.programName)"
+    }
+    
+    
+    init(program: MiniWorksProgram?) {
+        self.program = program
+    }
+    
+    
     
     var programNameView: some View {
         HStack {
-            Text("[\(program.programNumber)] \(program.programName)")
+            Text(programText)
                 .font(.title)
             
-            Text("- Edited")
-                .font(.title)
-                .foregroundStyle(.gray)
+            if program != nil {
+                Text("- Edited")
+                    .font(.title)
+                    .foregroundStyle(.gray)
+            }
             
             Spacer()
         }
     }
     
-    
+    @ViewBuilder
     var tagsView: some View {
-        HStack {
-            ForEach(sampleTags, id: \.self) { tag in
-                tagView(for: tag)
+        if program != nil {
+            HStack {
+                ForEach(sampleTags, id: \.self) { tag in
+                    tagView(for: tag)
+                }
+                Spacer()
             }
-            Spacer()
+        }
+        else {
+            EmptyView()
         }
     }
     

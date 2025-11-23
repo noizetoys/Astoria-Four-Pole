@@ -709,22 +709,19 @@ struct ADSREnvelopeEditor: View {
 
 #Preview {
     @Previewable @State var viewModel: EditorViewModel = .init()
-    viewModel.program.vcfEnvelopeAttack._value = 64
-    viewModel.program.vcfEnvelopeDecay._value = 64
-    viewModel.program.vcfEnvelopeSustain._value = 64
-    viewModel.program.vcfEnvelopeRelease._value = 64
+    viewModel.program?.vcfEnvelopeAttack._value = 64
+    viewModel.program?.vcfEnvelopeDecay._value = 64
+    viewModel.program?.vcfEnvelopeSustain._value = 64
+    viewModel.program?.vcfEnvelopeRelease._value = 64
 
+    guard let program = viewModel.program else { fatalError() }
+    
     return VStack {
-        ADSREnvelopeEditor(attack: viewModel.program.vcfEnvelopeAttack,
-                           decay: viewModel.program.vcfEnvelopeDecay,
-                           sustain: viewModel.program.vcfEnvelopeSustain,
-                           release: viewModel.program.vcfEnvelopeRelease)
-//        .frame(width: 400, height: 300)
-//        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        ADSREnvelopeEditor(attack: program.vcfEnvelopeAttack,
+                           decay: program.vcfEnvelopeDecay,
+                           sustain: program.vcfEnvelopeSustain,
+                           release: program.vcfEnvelopeRelease)
     }
     .frame(width: 400, height: 300)
     .padding(.top, 30)
-//    .frame(maxWidth: .infinity, maxHeight: .infinity)
-//    .padding()
-    
 }

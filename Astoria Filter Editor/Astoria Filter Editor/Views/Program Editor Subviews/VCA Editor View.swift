@@ -27,7 +27,7 @@ struct VCA_Editor_View: View {
                                 .padding(.top, 30)
                     
                     
-                    Modulation_Destination_View()
+                    Modulation_Destination_View(type: .vcaEnvelope)
                         .frame(maxWidth: geometry.size.width / 5)
                 }
             }

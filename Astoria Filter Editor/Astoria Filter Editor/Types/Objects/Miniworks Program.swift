@@ -122,7 +122,6 @@ extension MiniWorksProgram {
     }
     
     
-    
     static func copyROM(_ data: [UInt8]) -> MiniWorksProgram {
         if let program = try? MiniWorksProgram(bytes: data) {
             return program
@@ -144,7 +143,6 @@ extension MiniWorksProgram {
         
         return bytes
     }
-    
 }
 
 

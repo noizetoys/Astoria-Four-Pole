@@ -88,7 +88,7 @@ struct LFOAnimationView: View {
                 }
 //                .frame(maxWidth: geometry.size.width * (4/5))
                 
-                Modulation_Destination_View()
+                Modulation_Destination_View(type: .lfo)
                     .frame(maxWidth: geometry.size.width * (1/5))
             }
         }

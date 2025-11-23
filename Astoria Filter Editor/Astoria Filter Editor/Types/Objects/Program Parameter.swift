@@ -11,6 +11,7 @@ import SwiftUI
 
 extension Notification.Name {
     static let programParameterUpdated = Notification.Name("programParameterUpdated")
+    static let programParameterModSourceUpdated = Notification.Name("programParameterModSourceUpdated")
 }
 
 
@@ -24,7 +25,7 @@ final class ProgramParameter: Identifiable {
         didSet {
             if shouldSendCC {
                 Task { @MainActor in
-                    debugPrint(message: "posting notification for: \(type), value: \(_value)", type: .trace)
+                    debugPrint(message: "posting notification for: \(type), value: \(_value)", type: .info)
                     NotificationCenter.default.post(name: .programParameterUpdated,
                                                     object: self,
                                                     userInfo: [SysExConstant.parameterType: type,

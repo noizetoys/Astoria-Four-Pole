@@ -24,7 +24,18 @@ final class EditorViewModel {
     var breathControllerValue: UInt8 = 0
     
     // Default Program
-    var program: MiniWorksProgram = MiniWorksProgram()
+//    var program: MiniWorksProgram = MiniWorksProgram()
+    var program: MiniWorksProgram? {
+        didSet {
+            if program == nil {
+                self.deRegisterForNotifications()
+            }
+            else {
+                self.registerForNotifications()
+            }
+        }
+    }
+    
     // A Default device has the ROMs copied into User Programs 1-20
     var programs: [MiniWorksProgram] = MiniworksROMPrograms.copyOfROMPrograms()
     let ROMPrograms: [MiniWorksProgram] = MiniworksROMPrograms.programs()
@@ -47,7 +58,10 @@ final class EditorViewModel {
         Task {
             await refreshDevices()
         }
-        
+    }
+    
+    
+    private func registerForNotifications() {
         NotificationCenter.default.addObserver(forName: .programParameterUpdated,
                                                object: nil,
                                                queue: .main) { notification in
@@ -75,6 +89,10 @@ final class EditorViewModel {
         }
     }
     
+    
+    private func deRegisterForNotifications() {
+        NotificationCenter.default.removeObserver(self)
+    }
     
     
         // MARK: - Device Discovery
@@ -225,7 +243,7 @@ final class EditorViewModel {
             
             // Program Change????
             
-            program.updateFromCC(cc, value: value, onChannel: channel)
+            program?.updateFromCC(cc, value: value, onChannel: channel)
         }
     }
     
@@ -290,7 +308,9 @@ final class EditorViewModel {
         debugPrint(icon: "🎛️", message: "Selecting program: \(program)")
         
         Task {
-            try await midiService.send(.programChange(program: UInt8(program)), to: selectedDestination)
+            // TODO: - Update to Data Service
+            self.program = try MiniworksROMPrograms.program(program + 21)
+//            try await midiService.send(.programChange(program: UInt8(program)), to: selectedDestination)
         }
     }
     

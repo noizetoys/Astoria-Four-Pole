@@ -11,7 +11,6 @@ import Foundation
 enum ModulationSource: UInt8, Codable, CaseIterable, Identifiable {
     var id: UInt8 { self.rawValue }
     
-    
     case off = 0 // Selection/Option number
     
     case lfo = 1                // Low Frequency Oscillator
@@ -36,6 +35,17 @@ enum ModulationSource: UInt8, Codable, CaseIterable, Identifiable {
         // MIDI Controller #2 -> Best used with Sequencer
     case breathControl = 14
     case footcontroller = 15    // MIDI Controller #4
+    
+    
+    var relatedSources: [ModulationSource] {
+        switch self {
+            case .lfo: [.lfo, .lfo_ModWheel, .lfo_Aftertouch, .lfo_VCAEnvelope]
+            case .vcfEnvelope: [.vcfEnvelope]
+            case .vcaEnvelope: [.vcaEnvelope, .velocity_VCAEnvelope]
+                
+            default: []
+        }
+    }
     
     
     var shortName: String {

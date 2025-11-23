@@ -10,7 +10,7 @@ import SwiftUI
 struct Program_Editor_View: View {
     var editorViewModel: EditorViewModel
     
-    private var program: MiniWorksProgram { editorViewModel.program }
+    private var program: MiniWorksProgram { editorViewModel.program ?? MiniWorksProgram() }
 
     
         // For Debugging

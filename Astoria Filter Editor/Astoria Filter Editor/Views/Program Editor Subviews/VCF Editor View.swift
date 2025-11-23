@@ -25,7 +25,7 @@ struct VCF_Editor_View: View {
                                 .padding(.top, 30)
                     
                     
-                    Modulation_Destination_View()
+                    Modulation_Destination_View(type: .vcfEnvelope)
                         .frame(maxWidth: geometry.size.width / 5)
                 }
             }
