@@ -34,6 +34,9 @@ struct CircularFader: View {
     @State private var axisLock: AxisLock?
     @State private var startValue: Double = 0
     @State private var longPressTimer: Timer?
+    
+    let primaryColor: Color
+    
     enum AxisLock { case horizontal, vertical }
     
     var body: some View {
@@ -46,8 +49,9 @@ struct CircularFader: View {
                 .fill(
                     RadialGradient(
                         gradient: Gradient(colors: [
-                            Color(white: 0.95),
-                            Color(white: 0.28)
+                            primaryColor,
+//                            Color(white: 0.95),
+//                            Color(white: 0.28)
                         ]),
                         center: .center,
                         startRadius: 0,
@@ -55,17 +59,14 @@ struct CircularFader: View {
                     )
                 )
                 .frame(width: diameter, height: diameter)
-                .shadow(color: .black.opacity(0.25), radius: 8, x: 0, y: 6)
+                .shadow(color: .white.opacity(0.25), radius: 8, x: 0, y: 6)
             
-                // Rim
-            Circle()
-                .stroke(Color.black.opacity(0.35), lineWidth: 1)
-                .frame(width: diameter, height: diameter)
             
                 // Render based on mode
             switch mode {
                 case .unidirectional(let color):
                     unidirectionalRing(color: color, diameter: diameter)
+                    
                 case .bidirectional(let positiveColor, let negativeColor, let center, let positiveRange, let negativeRange):
                     bidirectionalRing(
                         positiveColor: positiveColor,
@@ -85,12 +86,13 @@ struct CircularFader: View {
         .accessibilityValue(accessibilityString())
     }
     
+    
         // MARK: - Unidirectional Ring (Original)
     @ViewBuilder
     private func unidirectionalRing(color: Color, diameter: CGFloat) -> some View {
             // OUTSIDE LINE (Background)
         ArcCW_Polyline(startCW: startCW, sweepCW: sweepCW)
-            .stroke(Color.black.opacity(0.15), style: StrokeStyle(lineWidth: outsideLineWidth, lineCap: .round))
+            .stroke(color.opacity(0.15), style: StrokeStyle(lineWidth: outsideLineWidth, lineCap: .round))
             .modifier(OutsideArcFrameModifier(
                 knobSize: diameter,
                 lineWidth: outsideLineWidth,
@@ -100,8 +102,11 @@ struct CircularFader: View {
             // OUTSIDE LINE (Active) — tracks value clockwise
             // Lower values = dimmer (0.3 at minimum), higher values = brighter (1.0 at maximum)
         let brightness = 0.3 + (value.clamped01() * 0.7)
+        
+//        let ringGradient: LinearGradient = LinearGradient.init(colors: [color], startPoint: .bottom, endPoint: .top)
         ArcCW_Polyline(startCW: startCW, sweepCW: sweepCW * value.clamped01())
-            .stroke(color.opacity(brightness), style: StrokeStyle(lineWidth: outsideLineWidth, lineCap: .round))
+            .stroke(.white.opacity(brightness),
+                style: StrokeStyle(lineWidth: outsideLineWidth, lineCap: .round))
             .shadow(color: color.opacity(0.35), radius: 3)
             .modifier(OutsideArcFrameModifier(
                 knobSize: diameter,
@@ -113,10 +118,11 @@ struct CircularFader: View {
         IndicatorDotInside(
             angleCW: angleForValue(value.clamped01()),
             diameter: dotDiameter,
-            insetFromOuterEdge: dotDiameter
+            insetFromOuterEdge: dotDiameter, dotColor: color
         )
         .frame(width: diameter, height: diameter)
     }
+    
     
         // MARK: - Bidirectional Ring (New)
     @ViewBuilder
@@ -187,7 +193,8 @@ struct CircularFader: View {
                     lineWidth: outsideLineWidth,
                     gap: outsideLineGap
                 ))
-        } else {
+        }
+        else {
                 // Negative: sweep CCW from center (draw from center backwards)
             let fraction = abs(displayValue) / negRange
             let startAngle = centerDetent - (maxCCWSweep * fraction)
@@ -210,7 +217,7 @@ struct CircularFader: View {
                 negativeRange: negativeRange
             ),
             diameter: dotDiameter,
-            insetFromOuterEdge: dotDiameter
+            insetFromOuterEdge: dotDiameter, dotColor: positiveColor
         )
         .frame(width: diameter, height: diameter)
     }
@@ -227,6 +234,7 @@ enum FaderMode {
         negativeRange: Range<UInt8> = 0..<64     // Display range below center (e.g., 0..<64 means 0 to 63)
     )
 }
+
 
     // MARK: - Value conversion for bidirectional mode
 private extension CircularFader {
@@ -271,12 +279,14 @@ private extension CircularFader {
     }
 }
 
+
     // MARK: - Value <-> angle (unidirectional)
 private extension CircularFader {
     func angleForValue(_ value: Double) -> Double {
         fmod(startCW + sweepCW * value.clamped01(), 360)
     }
 }
+
 
     // MARK: - Gesture (axis lock + linear delta mapping)
 private extension CircularFader {
@@ -286,7 +296,7 @@ private extension CircularFader {
                 guard isActive else { return }
                 
                     // Only reset for bidirectional mode
-                if case .bidirectional(_, _, let center, let positiveRange, let negativeRange) = mode {
+                if case .bidirectional(_, _, _ , let positiveRange, let negativeRange) = mode {
                         // Reset to center (display value = 0)
                     let posRange = Double(positiveRange.upperBound - positiveRange.lowerBound)
                     let negRange = Double(negativeRange.upperBound - negativeRange.lowerBound)
@@ -422,6 +432,8 @@ struct IndicatorDotInside: View {
     let angleCW: Double
     let diameter: CGFloat
     let insetFromOuterEdge: CGFloat
+    let dotColor: Color
+    
     
     var body: some View {
         GeometryReader { geo in
@@ -436,7 +448,7 @@ struct IndicatorDotInside: View {
             let y = c.y + CGFloat(sin(θ)) * r
             
             Circle()
-                .fill(Color.white)
+//                .fill(dotColor)
                 .overlay(Circle().stroke(Color.black.opacity(0.3), lineWidth: 1))
                 .frame(width: diameter, height: diameter)
                 .position(x: x, y: y)
@@ -467,7 +479,7 @@ struct CircularFaderDemo: View {
                         CircularFader(
                             value: $uniValue,
                             size: 200,
-                            mode: .unidirectional(color: .blue)
+                            mode: .unidirectional(color: .blue), primaryColor: .red
                         )
                         Text(String(format: "Value: %.1f", uniValue * 127))
                         Text("Drag or move up/down to adjust")
@@ -479,7 +491,7 @@ struct CircularFaderDemo: View {
                         CircularFader(
                             value: $uniValue,
                             size: 100,
-                            mode: .unidirectional(color: .purple)
+                            mode: .unidirectional(color: .purple), primaryColor: .green
                         )
                         Text(String(format: "Value: %.1f", uniValue * 127))
                     }
@@ -511,7 +523,7 @@ struct CircularFaderDemo: View {
                                 center: 64,
                                 positiveRange: 0..<63,   // 0 to 62 inclusive
                                 negativeRange: 0..<64    // 0 to 63 inclusive (negative)
-                            )
+                            ), primaryColor: .blue
                         )
                             // Convert to display value
                         let displayVal = (biValue * 127) - 64
@@ -532,7 +544,7 @@ struct CircularFaderDemo: View {
                                 center: 64,
                                 positiveRange: 0..<63,
                                 negativeRange: 0..<64
-                            )
+                            ), primaryColor: .yellow
                         )
                         let displayVal = (biValue * 127) - 64
                         Text(String(format: "Display: %.0f", displayVal))
@@ -556,7 +568,7 @@ struct CircularFaderDemo: View {
                                 center: 100,
                                 positiveRange: 0..<100,
                                 negativeRange: 0..<100
-                            )
+                            ), primaryColor: .orange
                         )
                         let displayVal = (biValue * 200) - 100
                         Text(String(format: "Display: %.0f", displayVal))
@@ -581,7 +593,7 @@ struct CircularFaderDemo: View {
                                     center: 64,
                                     positiveRange: 0..<63,
                                     negativeRange: 0..<64
-                                )
+                                ), primaryColor: .white
                             )
                             Text("\(size)pt")
                                 .font(.caption2)
@@ -610,4 +622,6 @@ struct CircularFaderDemo: View {
     }
 }
 
-#Preview { CircularFaderDemo() }
+#Preview {
+    CircularFaderDemo()
+}
