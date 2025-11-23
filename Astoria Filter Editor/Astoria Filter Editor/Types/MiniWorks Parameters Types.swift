@@ -165,8 +165,9 @@ enum MiniWorksParameter: String, Codable {
             .VCAEnvelopeSustain,
             .VCAEnvelopeRelease: 64
                 
-            case .VCFEnvelopeCutoffAmount, .VCAEnvelopeVolumeAmount: 0
-                
+            case .VCFEnvelopeCutoffAmount: 0
+            case .VCAEnvelopeVolumeAmount: 64
+
             case .LFOSpeed: 40
             case .LFOSpeedModulationAmount: 64
             case .LFOShape: 0

@@ -188,9 +188,11 @@ struct PercentageArrowView: View {
     private var baseColor: Color {
         if mappedValue == 0 {
             return Color.gray.opacity(0.35)
-        } else if mappedValue > 0 {
+        }
+        else if mappedValue > 0 {
             return Color.green.opacity(0.55)
-        } else {
+        }
+        else {
             return Color.red.opacity(0.55)
         }
     }

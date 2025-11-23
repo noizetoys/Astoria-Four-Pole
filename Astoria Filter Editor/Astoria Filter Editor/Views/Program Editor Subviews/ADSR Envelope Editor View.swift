@@ -65,6 +65,7 @@ struct ADSREnvelopeEditor: View {
                         points: points,
                         attackValue: attack.value
                     )
+                    
                     coloredEnvelope(in: rect, points: points)
                 }
                 .contentShape(Rectangle())
@@ -86,41 +87,46 @@ struct ADSREnvelopeEditor: View {
             // Sliders + readouts (each tinted to match its stage color)
 //            HStack(spacing: 40) {
             HStack(spacing: 40) {
-                VStack(alignment: .center, spacing: 20) {
-                    Text("\(attack.value)")
+                VStack(alignment: .center, spacing: 10) {
+//                    Text("\(attack.value)")
                     CircularFader(value: attack.knobBinding,
                                   size: 40,
                                   mode: .unidirectional(color: ADSRStageColors.attack))
                     Text("Attack")
+                        .foregroundStyle(ADSRStageColors.attack)
                 }
                 
-                VStack(alignment: .center, spacing: 20) {
-                    Text("\(decay.value)")
+                VStack(alignment: .center, spacing: 10) {
+//                    Text("\(decay.value)")
                     CircularFader(value: decay.knobBinding,
                                   size: 40,
                                   mode: .unidirectional(color: ADSRStageColors.decay))
                     Text("Decay")
+                        .foregroundStyle(ADSRStageColors.decay)
                 }
 
-                VStack(alignment: .center, spacing: 20) {
-                    Text("\(sustain.value)")
+                VStack(alignment: .center, spacing: 10) {
+//                    Text("\(sustain.value)")
                     CircularFader(value: sustain.knobBinding,
                                   size: 40,
                                   mode: .unidirectional(color: ADSRStageColors.sustain))
                     Text("Sustain")
+                        .foregroundStyle(ADSRStageColors.sustain)
                 }
 
-                VStack(alignment: .center, spacing: 20) {
-                    Text("\(release.value)")
+                VStack(alignment: .center, spacing: 10) {
+//                    Text("\(release.value)")
                     CircularFader(value: release.knobBinding,
                                   size: 40,
                                   mode: .unidirectional(color: ADSRStageColors.release))
                     Text("Release")
+                        .foregroundStyle(ADSRStageColors.release)
                 }
 
             }
             .padding(.horizontal)
         }
+        .frame(maxWidth: .infinity)
     }
     
     // MARK: - Drag Handling (no tap-only changes)
@@ -471,6 +477,7 @@ struct ADSREnvelopeEditor: View {
             } else {
                 label = "\(Int(ms / 1000))s"
             }
+            
             return Marker(ms: ms, midi: midi, x: x, label: label)
         }
         
@@ -708,7 +715,6 @@ struct ADSREnvelopeEditor: View {
     viewModel.program.vcfEnvelopeRelease._value = 64
 
     return VStack {
-//        Spacer(minLength: 30)
         ADSREnvelopeEditor(attack: viewModel.program.vcfEnvelopeAttack,
                            decay: viewModel.program.vcfEnvelopeDecay,
                            sustain: viewModel.program.vcfEnvelopeSustain,
@@ -716,7 +722,8 @@ struct ADSREnvelopeEditor: View {
 //        .frame(width: 400, height: 300)
 //        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    .frame(width: 350, height: 350)
+    .frame(width: 400, height: 300)
+    .padding(.top, 30)
 //    .frame(maxWidth: .infinity, maxHeight: .infinity)
 //    .padding()
     

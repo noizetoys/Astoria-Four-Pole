@@ -112,7 +112,7 @@ struct MainView: View {
                     
                         // Edit View
                     GroupBox {
-                        Patch_Editor_View(editorViewModel: viewModel)
+                        Program_Editor_View(editorViewModel: viewModel)
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -1,5 +1,5 @@
 //
-//  Patch Editor View.swift
+//  Program Editor View.swift
 //  Astoria Filter Editor
 //
 //  Created by James B. Majors on 11/20/25.
@@ -7,8 +7,7 @@
 
 import SwiftUI
 
-struct Patch_Editor_View: View {
-//    @Binding var program: MiniWorksProgram
+struct Program_Editor_View: View {
     var editorViewModel: EditorViewModel
     
     private var program: MiniWorksProgram { editorViewModel.program }
@@ -52,16 +51,11 @@ struct Patch_Editor_View: View {
     
     private func topViews(_ geometry: GeometryProxy) -> some View {
         HStack {
-            ADSREnvelopeEditor(attack: program.vcfEnvelopeAttack,
-                               decay: program.vcfEnvelopeDecay,
-                               sustain: program.vcfEnvelopeSustain,
-                               release: program.vcfEnvelopeRelease)
+            VCF_Editor_View(program: program)
             .frame(maxWidth: cut(geometry, by: 1/3))
+//            .padding(.top, 30)
             
             LPF_Editor_View(program: program)
-            
-//            colorthing(color: .red, geometry: geometry, width: 1/3, height: 1/3)
-//            colorthing(color: .blue, geometry: geometry, width: 2/3, height: 1/3)
         }
         
     }
@@ -69,10 +63,8 @@ struct Patch_Editor_View: View {
     
     private func middleViews(_ geometry: GeometryProxy) -> some View {
         HStack {
-            
-//            colorthing(color: .blue, geometry: geometry, width: 1/3, height: 1/3)
-                                    MIDIMonitorView(editorViewModel: editorViewModel)
-                                        .frame(maxWidth: geometry.size.width * (1/3))
+            MIDIMonitorView(editorViewModel: editorViewModel)
+                .frame(maxWidth: geometry.size.width * (1/3))
             
             GroupBox {
                 LFOAnimationView(lfoSpeed: program.lfoSpeed,
@@ -82,24 +74,21 @@ struct Patch_Editor_View: View {
             }
             .background(Color.blue.opacity(0.2))
         }
-
+        
     }
     
     
     private func bottomViews(_ geometry: GeometryProxy) -> some View {
         HStack {
-                            ADSREnvelopeEditor(attack: program.vcaEnvelopeAttack,
-                                               decay: program.vcaEnvelopeDecay,
-                                               sustain: program.vcaEnvelopeSustain,
-                                               release: program.vcaEnvelopeRelease)
-                            .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
-            
+            VCA_Editor_View(program: program)
+//                            .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
+//                            .padding(.top, 30)
+
 //            colorthing(color: .red, geometry: geometry, width: 1/3, height: 1/3)
             Pan_Editor(program: program)
                 .frame(maxWidth: cut(geometry, by: 1/3))
-//            colorthing(color: .green, geometry: geometry, width: 1/3, height: 1/3)
-            colorthing(color: .blue, geometry: geometry, width: 1/3, height: 1/3)
-                .padding(.trailing)
+            
+            Volume_Editor(program: program)
         }
     }
     
@@ -124,6 +113,6 @@ struct Patch_Editor_View: View {
     @Previewable @State var editorViewModel = EditorViewModel()
         //    @Previewable @State var program = MiniWorksProgram()
     
-    Patch_Editor_View(editorViewModel: editorViewModel)
+    Program_Editor_View(editorViewModel: editorViewModel)
         .frame(width: 1200, height: 800)
 }

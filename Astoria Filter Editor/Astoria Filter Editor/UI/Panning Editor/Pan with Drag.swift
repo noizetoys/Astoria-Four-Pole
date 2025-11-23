@@ -16,10 +16,10 @@ struct PanControl: View {
     var style: PanVisualStyle = .squares
     
     /// Color of the main indicator
-    var indicatorColor: Color = .blue
+    var indicatorColor: Color = .red
     
     /// Color of the glow (can be different from indicator color)
-    var glowColor: Color = .teal
+    var glowColor: Color = .pink
     
     /// 0.0 = no glow, 1.0 = strong, wide glow
     var glowIntensity: Double = 0.5

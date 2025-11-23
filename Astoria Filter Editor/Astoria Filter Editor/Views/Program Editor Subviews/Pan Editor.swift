@@ -13,10 +13,13 @@ struct Pan_Editor: View {
     var body: some View {
         VStack {
             Text("Panning")
-                .font(.title)
+                .bold()
+            
+//                .font(.title)
             
             PanControl(value: program.panning.knobBinding)
-                .padding()
+                .padding(.top, 30)
+                .padding(.horizontal)
             
             GroupBox {
                 
@@ -32,7 +35,7 @@ struct Pan_Editor: View {
                         
                         VStack(spacing: 0) {
                             ArrowPickerGlowView(selection: program.panningModulationSource.modulationBinding,
-                                                direction: .right,
+                                                direction: .left,
                                                 arrowColor: .green)
                             Text("Modulation Source")
                         }
@@ -41,6 +44,7 @@ struct Pan_Editor: View {
                     
                 }
             }
+            .foregroundStyle(.red)
             .padding()
             //            PanControl(
             //                value: program.panning.knobBinding,

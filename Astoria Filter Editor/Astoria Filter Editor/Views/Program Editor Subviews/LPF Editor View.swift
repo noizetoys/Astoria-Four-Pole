@@ -65,6 +65,7 @@ struct LPF_Editor_View: View {
                 
                 
             }
+            .foregroundStyle(.blue)
         } // Geo
     }
     

@@ -52,7 +52,7 @@ struct LFOAnimationView: View {
                     .padding(.horizontal, -20)
                 }
                 .frame(maxWidth: geometry.size.width * (1/5))
-                .foregroundStyle(Color.purple.opacity(0.6))
+                .foregroundStyle(Color.green)
 
                 
                     //            headerView
@@ -65,7 +65,6 @@ struct LFOAnimationView: View {
                         isRunning: isRunning
                     )
                     .allowsHitTesting(true)
-//                    .frame(height: 250)
                     .cornerRadius(12)
                     .contextMenu {
                         ForEach(LFOType.allCases, id: \.self) { waveform in
@@ -89,7 +88,7 @@ struct LFOAnimationView: View {
                 }
 //                .frame(maxWidth: geometry.size.width * (4/5))
                 
-                modulationDestinationsView
+                Modulation_Destination_View()
                     .frame(maxWidth: geometry.size.width * (1/5))
             }
         }
@@ -97,29 +96,6 @@ struct LFOAnimationView: View {
     }
     
         // MARK: - View Components
-    
-    
-    var modulationDestinationsView: some View {
-        let destinations = ["Cutoff", "Resonance", "Panning"]
-//        let destinations = ["Cutoff", "Resonance", "Panning", "Volume", ]
-
-        return VStack {
-            Text("Mod Destinations")
-            
-            ForEach(destinations, id: \.self) { mod in
-                Color
-                    .green
-                    .cornerRadius(5)
-//                    .padding(.horizontal, 5)
-                    .overlay {
-                        Text(mod)
-                    }
-            }
-            .background(.orange)
-            .cornerRadius(10)
-        }
-        .frame(maxHeight: .infinity)
-    }
     
     private var headerView: some View {
         HStack {

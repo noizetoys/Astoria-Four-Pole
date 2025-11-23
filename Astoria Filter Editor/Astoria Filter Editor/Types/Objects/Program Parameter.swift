@@ -47,12 +47,24 @@ final class ProgramParameter: Identifiable {
         )
     }
     
+    
     var knobBinding: Binding<Double> {
         Binding<Double>(
             get: { Double(self._value) / 127 },
-            set: { self._value = UInt8($0 * 127) }
+            set: {
+                if $0 <= 0 {
+                    self._value = UInt8.min
+                }
+                else if $0 >= 1 {
+                    self._value = 127
+                }
+                else {
+                    self._value = UInt8($0 * 127)
+                }
+            }
         )
     }
+    
     
     var modulationBinding: Binding<ModulationSource> {
         Binding<ModulationSource>(

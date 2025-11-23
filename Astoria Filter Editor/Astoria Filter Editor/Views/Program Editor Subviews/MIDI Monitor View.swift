@@ -86,6 +86,9 @@ struct MIDIMonitorView: View {
     var body: some View {
         VStack(spacing: 0) {
             
+            Text("Envelope Monitor")
+                .bold()
+            
             HStack {
                 
                 onOffButton
