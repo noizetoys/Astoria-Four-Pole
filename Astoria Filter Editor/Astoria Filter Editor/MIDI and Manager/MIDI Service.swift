@@ -38,7 +38,7 @@ final actor MIDIService {
     
     
     func initializeMIDI() throws {
-        debugPrint(icon: "🆕🎹", message: "Initializing MIDI")
+//        debugPrint(icon: "🆕🎹", message: "Initializing MIDI")
         
         try createMIDIClient()
         try createInputPort()
@@ -118,7 +118,7 @@ final actor MIDIService {
             default: message = "Some other MIDI System Notification: \(notification.pointee.messageID.rawValue)"
         }
         
-        debugPrint(icon: "📡", message: "MIDI Notifcation recieved!  \(id) --> \(message)")
+//        debugPrint(icon: "📡", message: "MIDI Notifcation recieved!  \(id) --> \(message)")
     }
     
     
@@ -207,9 +207,12 @@ final actor MIDIService {
         for i in 0..<destinationCount {
             let endpoint = MIDIGetDestination(i)
             
+                // If not a valid endpoint, move on to next 'i'
+            if endpoint == 0 { continue }
+            
             if let device = try? MIDIDevice(endpoint: endpoint, type: .destination) {
                 devices.append(device)
-//                debugPrint(icon: "📦", message: "Destination: \(device.name) by \(device.manufacturer)")
+                debugPrint(icon: "📦", message: "Destination: \(device.name) by \(device.manufacturer)", type: .trace)
             }
         }
         
@@ -220,14 +223,8 @@ final actor MIDIService {
         // MARK: Connect/Disconnect
     
     func connect(source: MIDIDevice, destination: MIDIDevice) throws {
-        debugPrint(icon: "🔌", message: "Connecting \(source.name) to \(destination.name)")
+//        debugPrint(icon: "🔌", message: "Connecting \(source.name) to \(destination.name)")
         
-//        connections[source.id] = DeviceConnection(source: source,
-//                                                  destination: destination,
-//                                                  sysexContinuation: nil,
-//                                                  ccContinuation: nil,
-//                                                  noteContinuation: nil,
-//                                                  programChangeContinuation: nil)
         connections[source.id] = DeviceConnection(source: source,
                                                   destination: destination)
 
@@ -528,6 +525,8 @@ final actor MIDIService {
 // MARK: - Sending MIDI
     
     func send(_ message: MIDIMessageType, to destination: MIDIDevice?) throws {
+        debugPrint(message: "Attempting to send \(message) to \(destination?.name)", type: .trace)
+        
         guard
             let destination
         else {
@@ -536,29 +535,36 @@ final actor MIDIService {
         
         let bytes = try encodeMessage(message)
         
-        debugPrint(icon: "📤", message: "Sending \(bytes.count) to \(destination.name): \(bytes.hexString)")
+        debugPrint(icon: "📤", message: "Sending \(bytes.count) to \(destination.name): \(bytes.hexString)", type: .trace)
         
         var status: OSStatus = noErr
         
         do {
             status = try sendRawBytes(bytes, to: destination)
-            debugPrint(icon: "📤", message: "\(bytes.count) bytes sent to \(destination.name)")
+            
+            if status != noErr {
+                throw MIDIError.sendFailed(status.text)
+            }
+            else {
+                debugPrint(icon: "📤", message: "\(bytes.count) bytes sent to \(destination.name), status: \(status.text)", type: .trace)
+            }
         }
         catch {
-            debugPrint(icon: "❌📤", message: "Status Error: \(status.description)")
+            debugPrint(icon: "❌📤", message: "Status Error: \(status.description)", type: .error)
             throw MIDIError.sendFailed(status.text)
         }
     }
     
     
     func encodeMessage(_ message: MIDIMessageType) throws -> [UInt8] {
+        debugPrint(icon: "⁉️", message: "Attempting to encode \(message)", type: .trace)
         switch message {
             case .sysex(let data):
                 guard
                     data.first == 0xF0,
                     data.last == 0xF7
                 else {
-                    debugPrint(icon: "❌💾", message: "SysEx must start with 0xF0 and end with 0xF7")
+                    debugPrint(icon: "❌💾", message: "SysEx must start with 0xF0 and end with 0xF7", type: .error)
                     throw MIDIError.invalidSysEx("SysEx must start with 0xF0 and end with 0xF7")
                 }
                 
@@ -570,7 +576,7 @@ final actor MIDIService {
                     note < 128,
                     velocity < 128
                 else {
-                    debugPrint(icon: "❌♫🔈", message: "Invalid Note On parameters")
+                    debugPrint(icon: "❌♫🔈", message: "Invalid Note On parameters", type: .error)
                     throw MIDIError.invalidMIDIMessage("Invalid Note On parameters")
                 }
                 
@@ -581,7 +587,7 @@ final actor MIDIService {
                       note < 128,
                       velocity < 128
                 else {
-                    debugPrint(icon: "❌♫🔇", message: "Invalid Note Off parameters")
+                    debugPrint(icon: "❌♫🔇", message: "Invalid Note Off parameters", type: .error)
                     throw MIDIError.invalidMIDIMessage("Invalid Note Off parameters")
                 }
                 
@@ -592,7 +598,7 @@ final actor MIDIService {
                       cc < 128,
                       value < 128
                 else {
-                    debugPrint(icon: "❌🎛️", message: "Invalid CC parameters")
+                    debugPrint(icon: "❌🎛️", message: "Invalid CC parameters", type: .error)
                     throw MIDIError.invalidMIDIMessage("Invalid CC parameters")
                 }
                 
@@ -627,7 +633,7 @@ final actor MIDIService {
                     channel < 16,
                     pressure < 128
                 else {
-                    debugPrint(icon: "❌🎛️", message: "Invalid Aftertouch parameters")
+                    debugPrint(icon: "❌🎛️", message: "Invalid Aftertouch parameters", type: .error)
                     throw MIDIError.invalidMIDIMessage("Invalid Aftertouch parameters")
                 }
                 
@@ -638,7 +644,7 @@ final actor MIDIService {
                       note < 128,
                       pressure < 128
                 else {
-                    debugPrint(icon: "❌🎛️", message: "Invalid Poly Aftertouch parameters")
+                    debugPrint(icon: "❌🎛️", message: "Invalid Poly Aftertouch parameters", type: .error)
                     throw MIDIError.invalidMIDIMessage("Invalid Poly Aftertouch parameters")
                 }
                 
@@ -647,18 +653,53 @@ final actor MIDIService {
     }
     
     
-    private func sendRawBytes(_ bytes: [UInt8], to destination: MIDIDevice) throws -> OSStatus {
-        var packetList = MIDIPacketList()
-        var packet = MIDIPacketListInit(&packetList)
+//    private func sendRawBytes(_ bytes: [UInt8], to destination: MIDIDevice) throws -> OSStatus {
+//        var packetList = MIDIPacketList()
+//        var packet = MIDIPacketListInit(&packetList)
+//        
+//        packet = MIDIPacketListAdd(&packetList, 1024, packet, 0, bytes.count, bytes)
+//        
+//        let status = MIDISend(outputPort, destination.endpoint, &packetList)
+//        
+//        return status
+//    }
+    
+    private func sendRawBytes(_ bytes: [UInt8], to destination: MIDIDevice) -> OSStatus {
+        let packetList = UnsafeMutablePointer<MIDIPacketList>.allocate(capacity: 1)
+//        var packetList = MIDIPacketList()
+        var packet = MIDIPacketListInit(packetList)
         
-        packet = MIDIPacketListAdd(&packetList, 1024, packet, 0, bytes.count, bytes)
+//        bytes.withUnsafeBufferPointer { buffer in
+            packet = MIDIPacketListAdd(
+                packetList,
+                1024,
+                packet,
+                0,
+                bytes.count,
+//                buffer.baseAddress!
+                bytes
+            )
+//        }
         
-        let status = MIDISend(outputPort, destination.endpoint, &packetList)
+        guard let out = connections.first?.value else {
+            print("\n\n\n\n\n\nNo Desitnations\n\n\n\n\n")
+            return OSStatus(-1)
+        }
+        
+        let status = MIDISend(outputPort, out.destination.endpoint, packetList)
+        
+        if status != noErr {
+            print("❌ MIDISend failed: \(status)")
+        } else {
+            print("✅ Sent \(bytes.count) bytes to \(out.destination.name)")
+        }
+        
+        packetList.deallocate()
         
         return status
     }
 
-
+    
     // MARK: - Receiving MIDI Streams
 
         /// Create and hold on to the AsyncStream for receiveing SysEx data

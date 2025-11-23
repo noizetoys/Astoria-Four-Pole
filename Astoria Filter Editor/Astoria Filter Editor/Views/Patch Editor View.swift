@@ -52,16 +52,16 @@ struct Patch_Editor_View: View {
     
     private func topViews(_ geometry: GeometryProxy) -> some View {
         HStack {
-//            ADSREnvelopeEditor(attack: program.vcfEnvelopeAttack,
-//                               decay: program.vcfEnvelopeDecay,
-//                               sustain: program.vcfEnvelopeSustain,
-//                               release: program.vcfEnvelopeRelease)
-//            .frame(maxWidth: cut(geometry, by: 3))
-//            
-//            LPF_Editor_View(program: program)
+            ADSREnvelopeEditor(attack: program.vcfEnvelopeAttack,
+                               decay: program.vcfEnvelopeDecay,
+                               sustain: program.vcfEnvelopeSustain,
+                               release: program.vcfEnvelopeRelease)
+            .frame(maxWidth: cut(geometry, by: 1/3))
             
-            colorthing(color: .red, geometry: geometry, width: 1/3, height: 1/3)
-            colorthing(color: .blue, geometry: geometry, width: 2/3, height: 1/3)
+            LPF_Editor_View(program: program)
+            
+//            colorthing(color: .red, geometry: geometry, width: 1/3, height: 1/3)
+//            colorthing(color: .blue, geometry: geometry, width: 2/3, height: 1/3)
         }
         
     }
@@ -70,9 +70,9 @@ struct Patch_Editor_View: View {
     private func middleViews(_ geometry: GeometryProxy) -> some View {
         HStack {
             
-            colorthing(color: .blue, geometry: geometry, width: 1/3, height: 1/3)
-                //                    MIDIMonitorView(editorViewModel: editorViewModel)
-                //                        .frame(maxWidth: geometry.size.width * (1/3))
+//            colorthing(color: .blue, geometry: geometry, width: 1/3, height: 1/3)
+                                    MIDIMonitorView(editorViewModel: editorViewModel)
+                                        .frame(maxWidth: geometry.size.width * (1/3))
             
             GroupBox {
                 LFOAnimationView(lfoSpeed: program.lfoSpeed,
@@ -88,13 +88,13 @@ struct Patch_Editor_View: View {
     
     private func bottomViews(_ geometry: GeometryProxy) -> some View {
         HStack {
-                //            ADSREnvelopeEditor(attack: program.vcaEnvelopeAttack,
-                //                               decay: program.vcaEnvelopeDecay,
-                //                               sustain: program.vcaEnvelopeSustain,
-                //                               release: program.vcaEnvelopeRelease)
-                //            .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
+                            ADSREnvelopeEditor(attack: program.vcaEnvelopeAttack,
+                                               decay: program.vcaEnvelopeDecay,
+                                               sustain: program.vcaEnvelopeSustain,
+                                               release: program.vcaEnvelopeRelease)
+                            .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
             
-            colorthing(color: .red, geometry: geometry, width: 1/3, height: 1/3)
+//            colorthing(color: .red, geometry: geometry, width: 1/3, height: 1/3)
             colorthing(color: .green, geometry: geometry, width: 1/3, height: 1/3)
             colorthing(color: .blue, geometry: geometry, width: 1/3, height: 1/3)
                 .padding(.trailing)

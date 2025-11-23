@@ -9,14 +9,36 @@ import Foundation
 import SwiftUI
 
 
+extension Notification.Name {
+    static let programParameterUpdated = Notification.Name("programParameterUpdated")
+}
+
+
 @Observable
 final class ProgramParameter: Identifiable {
     let id: UUID = UUID()
     
     let type: MiniWorksParameter
     
-    var _value: UInt8 = 64
-    var doubleValue: Double { Double(_value) }
+    var _value: UInt8 = 64 {
+        didSet {
+            if shouldSendCC {
+                Task { @MainActor in
+                    debugPrint(message: "posting notification for: \(type), value: \(_value)", type: .trace)
+                    NotificationCenter.default.post(name: .programParameterUpdated,
+                                                    object: self,
+                                                    userInfo: [SysExConstant.parameterType: type,
+                                                               SysExConstant.parameterValue: _value])
+                }
+            }
+        }
+    }
+    
+    var modulationSource: ModulationSource?
+    var containedParameter: ContainedParameter?
+    
+    
+    // MARK: - Bindings
     
     var doubleBinding: Binding<Double> {
         Binding<Double>(
@@ -31,9 +53,6 @@ final class ProgramParameter: Identifiable {
             set: { self._value = UInt8($0 * 127) }
         )
     }
-
-    
-    var modulationSource: ModulationSource?
     
     var modulationBinding: Binding<ModulationSource> {
         Binding<ModulationSource>(
@@ -41,7 +60,11 @@ final class ProgramParameter: Identifiable {
             set: { self._value = $0.rawValue }
         )
     }
-    var containedParameter: ContainedParameter?
+
+    
+        // MARK: - Computed
+    
+    var doubleValue: Double { Double(_value) }
     
     var name: String { type.rawValue }
     var ccValue: UInt8 { type.ccValue }
@@ -86,10 +109,13 @@ final class ProgramParameter: Identifiable {
         return []
     }
 
+    private var shouldSendCC = false
     
     // MARK: - Lifecycle
     
     init(type: MiniWorksParameter, initialValue startingValue: UInt8? = nil) {
+        shouldSendCC = false
+        
         self.type = type
         self._value = startingValue ?? type.initialValue
         
@@ -100,6 +126,8 @@ final class ProgramParameter: Identifiable {
         if type.containedOptions != nil {
             self.containedParameter = type.containedOptions?.first(where: { $0.value == startingValue ??  type.initialValue })
         }
+        
+        shouldSendCC = true
     }
     
     

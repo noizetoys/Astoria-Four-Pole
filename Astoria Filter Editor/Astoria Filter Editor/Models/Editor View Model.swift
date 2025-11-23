@@ -49,10 +49,37 @@ final class EditorViewModel {
         Task {
             await refreshDevices()
         }
+        
+        NotificationCenter.default.addObserver(forName: .programParameterUpdated,
+                                               object: nil,
+                                               queue: .main) { notification in
+            
+            debugPrint(message: "received notification: data: \(notification.userInfo?.debugDescription)", type: .trace)
+            guard
+                let data = notification.userInfo,
+                let type = data[SysExConstant.parameterType] as? MiniWorksParameter,
+                let value = data[SysExConstant.parameterValue] as? UInt8
+            else {
+                debugPrint(message: "Issue trying to send Midi message: data: \(notification.userInfo?.debugDescription)", type: .trace)
+                return
+            }
+            
+            Task {
+                do {
+                    try await MIDIService.shared.send(.controlChange(channel: 1,
+                                                                     cc: type.ccValue,
+                                                                     value: value), to: self.selectedSource)
+                }
+                catch {
+                    debugPrint(message: "Could not send control change message: type: \(type), value: \(value)", type: .trace)
+                }
+            }
+        }
     }
     
     
-    // MARK: - Device Discovery
+    
+        // MARK: - Device Discovery
     
     func refreshDevices() async {
         availableSources = await midiService.availableSources()
@@ -70,7 +97,7 @@ final class EditorViewModel {
     }
     
     
-    // MARK: - Connection Management
+        // MARK: - Connection Management
     
     func connect() async {
         debugPrint(message: "This is as far as it goes!!!!")
@@ -88,7 +115,7 @@ final class EditorViewModel {
             isConnected = true
             statusMessage = "Connected to \(source.name) and \(destination.name)."
             
-//            startListening(from: source)
+                //            startListening(from: source)
         }
         catch {
             statusMessage = "Failed to connect: \(error.localizedDescription)"
@@ -269,6 +296,9 @@ final class EditorViewModel {
     
     
     func requestLoadProgram(_ number: Int, isROM: Bool) {
+        Task {
+            try await midiService.send(.programChange(channel: 1, program: UInt8(number)), to: selectedDestination)
+        }
         debugPrint(icon: "👇🏻", message: "Loading \(isROM ? "ROM" : "") Program #\(number + 1)")
     }
 }

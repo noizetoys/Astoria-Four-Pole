@@ -10,7 +10,7 @@ import Foundation
 
 nonisolated
 enum SysExConstant {
-    static let appName: String = "4 Pole for the Win"
+//    static let appName: String = ""
     
     static let messageStart: UInt8 = 0xF0   // [0]
     static let manufacturerID: UInt8 = 0x3E // [1]
@@ -30,6 +30,8 @@ enum SysExConstant {
     
     static let header: [UInt8] = [messageStart, manufacturerID, machineID]
     
+    
+    // Globals User Defaults
     static let midiChannelKey = "MIDI_CHANNEL"
     static let midiControlKey = "MIDI_CONTROL"
     static let deviceIDKey = "DEVICE_ID"
@@ -37,6 +39,9 @@ enum SysExConstant {
     static let noteNumberKey = "NOTE_NUMBER"
     static let knobModeKey = "KNOB_MODE"
     
+    // Notification
+    static let parameterType = "parameterType"
+    static let parameterValue = "parameterValue"
 
 }
 
