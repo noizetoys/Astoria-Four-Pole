@@ -85,46 +85,46 @@ struct ADSREnvelopeEditor: View {
             .padding(.horizontal, 12)
             
             // Sliders + readouts (each tinted to match its stage color)
-            HStack(spacing: 40) {
-                ZStack {
-                    VStack(alignment: .center, spacing: 10) {
-                        CircularFader(value: attack.knobBinding,
-                                      size: 40,
-                                      mode: .unidirectional(color: ADSRStageColors.attack), primaryColor: ADSRStageColors.attack)
-                        Text("Attack")
-                    }
-                    
-                }
-                
-                VStack(alignment: .center, spacing: 10) {
-//                    Text("\(decay.value)")
-                    CircularFader(value: decay.knobBinding,
-                                  size: 40,
-                                  mode: .unidirectional(color: ADSRStageColors.decay), primaryColor: ADSRStageColors.decay)
-                    Text("Decay")
-                        .foregroundStyle(ADSRStageColors.decay)
-                }
-
-                VStack(alignment: .center, spacing: 10) {
-//                    Text("\(sustain.value)")
-                    CircularFader(value: sustain.knobBinding,
-                                  size: 40,
-                                  mode: .unidirectional(color: ADSRStageColors.sustain), primaryColor: ADSRStageColors.sustain)
-                    Text("Sustain")
-                        .foregroundStyle(ADSRStageColors.sustain)
-                }
-
-                VStack(alignment: .center, spacing: 10) {
-//                    Text("\(release.value)")
-                    CircularFader(value: release.knobBinding,
-                                  size: 40,
-                                  mode: .unidirectional(color: ADSRStageColors.release), primaryColor: ADSRStageColors.release)
-                    Text("Release")
-                        .foregroundStyle(ADSRStageColors.release)
-                }
-
-            }
-            .padding(.horizontal)
+//            HStack(spacing: 40) {
+//                ZStack {
+//                    VStack(alignment: .center, spacing: 10) {
+//                        CircularFader(value: attack.knobBinding,
+//                                      size: 40,
+//                                      mode: .unidirectional(color: ADSRStageColors.attack), primaryColor: ADSRStageColors.attack)
+//                        Text("Attack")
+//                    }
+//                    
+//                }
+//                
+//                VStack(alignment: .center, spacing: 10) {
+////                    Text("\(decay.value)")
+//                    CircularFader(value: decay.knobBinding,
+//                                  size: 40,
+//                                  mode: .unidirectional(color: ADSRStageColors.decay), primaryColor: ADSRStageColors.decay)
+//                    Text("Decay")
+//                        .foregroundStyle(ADSRStageColors.decay)
+//                }
+//
+//                VStack(alignment: .center, spacing: 10) {
+////                    Text("\(sustain.value)")
+//                    CircularFader(value: sustain.knobBinding,
+//                                  size: 40,
+//                                  mode: .unidirectional(color: ADSRStageColors.sustain), primaryColor: ADSRStageColors.sustain)
+//                    Text("Sustain")
+//                        .foregroundStyle(ADSRStageColors.sustain)
+//                }
+//
+//                VStack(alignment: .center, spacing: 10) {
+////                    Text("\(release.value)")
+//                    CircularFader(value: release.knobBinding,
+//                                  size: 40,
+//                                  mode: .unidirectional(color: ADSRStageColors.release), primaryColor: ADSRStageColors.release)
+//                    Text("Release")
+//                        .foregroundStyle(ADSRStageColors.release)
+//                }
+//
+//            }
+//            .padding(.horizontal)
         }
         .frame(maxWidth: .infinity)
     }
@@ -708,13 +708,7 @@ struct ADSREnvelopeEditor: View {
 
 
 #Preview {
-    @Previewable @State var viewModel: EditorViewModel = .init()
-    viewModel.program?.vcfEnvelopeAttack._value = 64
-    viewModel.program?.vcfEnvelopeDecay._value = 64
-    viewModel.program?.vcfEnvelopeSustain._value = 64
-    viewModel.program?.vcfEnvelopeRelease._value = 64
-
-    guard let program = viewModel.program else { fatalError() }
+    @Previewable @State var program: MiniWorksProgram = .init()
     
     return VStack {
         ADSREnvelopeEditor(attack: program.vcfEnvelopeAttack,

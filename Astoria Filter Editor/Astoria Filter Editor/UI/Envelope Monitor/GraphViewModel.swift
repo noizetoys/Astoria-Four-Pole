@@ -85,15 +85,15 @@ class GraphViewModel: ObservableObject {
     @Published var noteValue: UInt8 = 0
     
     private var midiService: MIDIService = .shared
-    private var config: MiniworksDeviceProfile
+//    private var config: MiniworksDeviceProfile
     
     private var cancellables = Set<AnyCancellable>()
     
     
-    init(configuration: MiniworksDeviceProfile ) {
-        debugPrint(message: "Creating with \(configuration)")
-        
-        self.config = configuration
+    init() {
+//        debugPrint(message: "Creating with \(configuration)")
+//        
+//        self.config = configuration
         
         // Publisher way
         NotificationCenter.default.publisher(for: .midiSourceConnected)

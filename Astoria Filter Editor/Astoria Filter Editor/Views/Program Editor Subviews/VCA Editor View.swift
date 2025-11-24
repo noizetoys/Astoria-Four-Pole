@@ -9,36 +9,48 @@ import SwiftUI
 
 struct VCA_Editor_View: View {
     var program: MiniWorksProgram
-    
+    let showControls: Bool
+
     
     var body: some View {
-        GeometryReader { geometry in
+        GroupBox {
             
-            GroupBox {
-                Text("Voltage Controlled Amplifier")
-                    .bold()
+            VStack {
+            Text("Voltage Controlled Amplifier")
+                .bold()
+            
+                ADSREnvelopeEditor(attack: program.vcaEnvelopeAttack,
+                                   decay: program.vcaEnvelopeDecay,
+                                   sustain: program.vcaEnvelopeSustain,
+                                   release: program.vcaEnvelopeRelease)
+                .padding(.vertical)
                 
-                HStack {
-                    ADSREnvelopeEditor(attack: program.vcaEnvelopeAttack,
+                
+                if showControls {
+                    ADSR_Controls_View(attack: program.vcaEnvelopeAttack,
                                        decay: program.vcaEnvelopeDecay,
                                        sustain: program.vcaEnvelopeSustain,
-                                       release: program.vcaEnvelopeRelease)
-                    //            .frame(maxWidth: cut(geometry, by: 1/3))
-                                .padding(.top, 30)
-                    
-                    
-                    Modulation_Destination_View(type: .vcaEnvelope)
-                        .frame(maxWidth: geometry.size.width / 5)
+                                       release: program.vcaEnvelopeRelease,
+                                       size: 40)
+                    .padding(.bottom, 10)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        
     }
+    
 }
 
 
 #Preview {
     @Previewable @State var progam: MiniWorksProgram = MiniWorksProgram()
     
-    VCA_Editor_View(program: progam)
+    VStack {
+        VCA_Editor_View(program: progam, showControls: true)
+//            .frame(maxHeight: 267)
+        
+        VCA_Editor_View(program: progam, showControls: false)
+//            .frame(maxHeight: 267)
+    }
+    .frame(maxWidth: 400, maxHeight: .infinity)
 }

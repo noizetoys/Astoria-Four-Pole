@@ -18,12 +18,11 @@ import SwiftUI
 
 
 struct MainView: View {
-    @State private var viewModel = EditorViewModel()
-    @State private var program: Int = 0
+    @State private var viewModel = MainViewModel()
     
     @State private var showConnections: Bool = false
     @State private var showGlobals: Bool = false
-    @State private var showROMPrograms: Bool = false
+//    @State private var showROMPrograms: Bool = false
 
     private func columnWidth(from proxy: GeometryProxy) -> CGFloat {
         proxy.size.width / 5
@@ -79,19 +78,19 @@ struct MainView: View {
                     
                     
                         // Programs
-                    Button {
-                        withAnimation {
-                            showROMPrograms.toggle()
-                        }
-                    } label: {
-                        Text("Show \(showROMPrograms ? "User" : "ROM") Programs")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                    }
-                    .padding()
+//                    Button {
+//                        withAnimation {
+//                            showROMPrograms.toggle()
+//                        }
+//                    } label: {
+//                        Text("Show \(showROMPrograms ? "User" : "ROM") Programs")
+//                            .frame(maxWidth: .infinity)
+//                            .padding()
+//                    }
+//                    .padding()
                     
                     
-                    Program_Matrix(viewModel: viewModel, isROMPrograms: showROMPrograms)
+                    Program_Matrix(viewModel: viewModel)
                         .frame(maxHeight: rowHeight(from: geometry) * 2.5)
                         .padding([.horizontal, .bottom])
                 }
@@ -111,8 +110,18 @@ struct MainView: View {
                     .frame(width: columnWidth(from: geometry) * 4, height: rowHeight(from: geometry) / 4)
                     
                         // Edit View
-                    GroupBox {
-                        Program_Editor_View(editorViewModel: viewModel)
+                    if let program = viewModel.program {
+                        GroupBox {
+                            Program_Editor_View(program: program)
+                        }
+                    }
+                    else {
+                        RoundedRectangle(cornerRadius: 10)
+                            .foregroundStyle(.blue.opacity(0.5))
+                            .overlay {
+                                Text("Select a program to edit")
+                                    .font(.title)
+                            }
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -122,23 +131,6 @@ struct MainView: View {
         
     }
     
-    
-//    func slider(for parameter: ProgramParameter) -> some View {
-//        Slider(value: parameter.doubleBinding, in: parameter.doubleRange, step: 1) {
-//            Text("Current Value: \(parameter.value)")
-//        } onEditingChanged: { isEditing in
-//            viewModel.updateCC(from: parameter)
-//        }
-//    }
-    
-    
-//    var programChangeStepper: some View {
-//        Stepper(value: $program, in: 0...39, step: 1) {
-//            Text("Current Value: \(program + 1)")
-//        } onEditingChanged: { isEditing in
-//            viewModel.selectProgram(program)
-//        }
-//    }
     
 }
 

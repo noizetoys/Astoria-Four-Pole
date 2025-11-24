@@ -31,27 +31,28 @@ struct Volume_Editor: View {
                             Text("VCA Env. Amount")
                             PercentageArrowView(rawValue: program.vcaEnvelopeVolumeAmount.doubleBinding)
                                 .padding(.horizontal, -20)
-                                .padding(.top, -20)
+                                .padding(.top, -10)
                         }
                     }
                     .foregroundStyle(.orange)
                     
                     GroupBox {
-                        Text("Volume")
-                            .bold()
-                            .padding(.bottom)
+                        VStack {
+                            Text("Volume")
+                                .bold()
+                                .padding(.bottom)
                             
-                        
-                        CircularFader(value: program.volume.knobBinding,
-                                      size: 40,
-                                      mode: .unidirectional(color: .orange), primaryColor: .orange)
-                        .padding(.horizontal, -20)
-                        .padding(.bottom, 50)
+                            CircularFader(value: program.volume.knobBinding,
+                                          size: 40,
+                                          mode: .unidirectional(color: .white),
+                                          primaryColor: .orange)
+                            
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
                     .foregroundStyle(.orange)
                 } // VCA & Volume
-                .frame(maxWidth: .infinity)
-
+                
                 GroupBox {
                     VStack {
                         Text("Amount")
@@ -71,7 +72,7 @@ struct Volume_Editor: View {
                     .padding(.horizontal, -20)
                 }
                 .foregroundStyle(.orange)
-                //            .frame(maxWidth: geometry.size.width * (1/5))
+                    //            .frame(maxWidth: geometry.size.width * (1/5))
                 
             }
         }

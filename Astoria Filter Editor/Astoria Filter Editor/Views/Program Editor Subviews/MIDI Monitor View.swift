@@ -77,9 +77,9 @@ struct MIDIMonitorView: View {
     @State private var showNotes: Bool = true
 
     
-    init(editorViewModel: EditorViewModel) {
+    init() {
         debugPrint(message: "Creating.....")
-        viewModel = GraphViewModel(configuration: editorViewModel.configuration)
+        viewModel = GraphViewModel()
     }
     
     

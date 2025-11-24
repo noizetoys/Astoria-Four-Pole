@@ -9,34 +9,51 @@ import SwiftUI
 
 struct VCF_Editor_View: View {
     var program: MiniWorksProgram
+    let showControls: Bool
+    
     
     var body: some View {
-        GeometryReader { geometry in
-            GroupBox {
+        GroupBox {
+            
+            VStack {
                 Text("Voltage Controlled Filter")
                     .bold()
                 
-                HStack {
-                    ADSREnvelopeEditor(attack: program.vcfEnvelopeAttack,
+                ADSREnvelopeEditor(attack: program.vcfEnvelopeAttack,
+                                   decay: program.vcfEnvelopeDecay,
+                                   sustain: program.vcfEnvelopeSustain,
+                                   release: program.vcfEnvelopeRelease)
+                .padding(.vertical)
+                
+                
+                if showControls {
+                    ADSR_Controls_View(attack: program.vcfEnvelopeAttack,
                                        decay: program.vcfEnvelopeDecay,
                                        sustain: program.vcfEnvelopeSustain,
-                                       release: program.vcfEnvelopeRelease)
-//                                .frame(maxWidth: cut(geometry, by: 1/3))
-                                .padding(.top, 30)
-                    
-                    
-                    Modulation_Destination_View(type: .vcfEnvelope)
-                        .frame(maxWidth: geometry.size.width / 5)
+                                       release: program.vcfEnvelopeRelease,
+                                       size: 40)
+                    .padding(.bottom, 10)
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-            
     }
+    
 }
 
 
 #Preview {
     @Previewable @State var progam: MiniWorksProgram = MiniWorksProgram()
     
-    VCF_Editor_View(program: progam)
+    VStack {
+        VCF_Editor_View(program: progam, showControls: true)
+//            .frame(maxHeight: 267)
+
+        VCF_Editor_View(program: progam, showControls: false)
+//            .frame(maxHeight: 267)
+
+    }
+    .frame(maxWidth: 400, maxHeight: .infinity)
+//    .frame(maxWidth: 400)
+    
 }

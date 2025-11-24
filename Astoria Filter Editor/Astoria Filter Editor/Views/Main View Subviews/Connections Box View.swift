@@ -16,7 +16,7 @@ extension Notification.Name {
 
 
 struct ConnectionsBox: View {
-    @Binding var viewModel: EditorViewModel
+    @Binding var viewModel: MainViewModel
     
     
     var body: some View {
@@ -98,7 +98,7 @@ struct ConnectionsBox: View {
 
 
 #Preview {
-    @Previewable @State var vm = EditorViewModel()
+    @Previewable @State var vm = MainViewModel()
     
     ConnectionsBox(viewModel: $vm)
 }

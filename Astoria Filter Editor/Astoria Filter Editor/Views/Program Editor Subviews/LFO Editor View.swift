@@ -65,6 +65,7 @@ struct LFOAnimationView: View {
                         isRunning: isRunning
                     )
                     .allowsHitTesting(true)
+//                    .padding(.horizontal, -20)
                     .cornerRadius(12)
                     .contextMenu {
                         ForEach(LFOType.allCases, id: \.self) { waveform in
@@ -88,8 +89,8 @@ struct LFOAnimationView: View {
                 }
 //                .frame(maxWidth: geometry.size.width * (4/5))
                 
-                Modulation_Destination_View(type: .lfo)
-                    .frame(maxWidth: geometry.size.width * (1/5))
+//                Modulation_Destination_View(type: .lfo)
+//                    .frame(maxWidth: geometry.size.width * (1/5))
             }
         }
         .padding()

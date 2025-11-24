@@ -113,4 +113,5 @@ struct Modulation_Destination_View: View {
 
 #Preview {
     Modulation_Destination_View(type: .lfo)
+        .frame(maxWidth: 200, maxHeight: 267)
 }

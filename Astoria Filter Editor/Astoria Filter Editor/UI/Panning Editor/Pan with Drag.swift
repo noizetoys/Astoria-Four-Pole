@@ -54,27 +54,17 @@ struct PanControl: View {
                             lineStyle(width: width, height: height)
                     }
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
                 .highPriorityGesture(dragGesture(width: width))   // horizontal drag
                 .simultaneousGesture(doubleTapResetGesture)       // double tap -> center
                 .simultaneousGesture(longPressResetGesture)       // long press -> center
             }
-            .frame(height: 44)
-            
-            // Slider from -1...1 mirrored to 0...1
-//            Slider(
-//                value: Binding(
-//                    get: { value },
-//                    set: { value = $0 }
-////                    get: { (value + 1) / 2 },
-////                    set: { value = $0 * 2 - 1 }
-//                )
-//            )
-//            .padding(.vertical)
+            .frame(height: 40)
         }
-        .padding(.horizontal)
+//        .padding(.horizontal)
     }
+    
 }
 
 // MARK: - Gestures
@@ -186,8 +176,11 @@ private extension PanControl {
     func squaresStyle(width: CGFloat, height: CGFloat) -> some View {
         let count = effectiveItemCount
         let slotWidth = width / CGFloat(max(count, 1))
-        let baseHeight = height * 0.4
-        let extraHeight = baseHeight * 0.7
+//        let slotWidth = height
+//        let baseHeight = height * 0.4
+        let baseHeight = height
+//        let extraHeight = baseHeight * 0.7
+        let extraHeight = baseHeight * 0.5
         let centerY = height / 2
         
         ZStack {
@@ -206,7 +199,7 @@ private extension PanControl {
                 
                 RoundedRectangle(cornerRadius: 3)
                     .fill(indicatorColor.opacity(opacity))
-                    .frame(width: slotWidth, height: rectHeight)
+                    .frame(width: slotWidth * 0.9, height: rectHeight)
                     .position(x: x, y: centerY)
                     .shadow(
                         color: glowColor.opacity(glowAlpha),
@@ -220,8 +213,10 @@ private extension PanControl {
     // Slot with strong glow + orb
     @ViewBuilder
     func lineStyle(width: CGFloat, height: CGFloat) -> some View {
-        let slotHeight: CGFloat = max(10, height * 0.28)
-        let baseOrbSize: CGFloat = min(20, height * 0.8)
+//        let slotHeight: CGFloat = max(10, height * 0.28)
+        let slotHeight: CGFloat = height
+        let baseOrbSize: CGFloat = height
+//        let baseOrbSize: CGFloat = min(20, height * 0.8)
         let centerY = height / 2
         
         let normalized = (value + 1) / 2 // 0...1
@@ -297,7 +292,7 @@ private extension PanControl {
 
 struct PanControl_Previews: PreviewProvider {
     struct Demo: View {
-        @State private var panValue: Double = 1
+        @State private var panValue: Double = 0.5
         @State private var style: PanVisualStyle = .squares
         @State private var glowIntensity: Double = 0.5
         @State private var items: Double = 15

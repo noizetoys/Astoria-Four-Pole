@@ -12,7 +12,7 @@ import SwiftUI
 enum ContainedParameter: Codable, Equatable {
     case lfo(LFOType)
     case trigger(TriggerSource)
-    case mode(Mode)
+    case mode(TriggerMode)
     
     
     var name: String {
@@ -57,6 +57,7 @@ enum LFOType: String, Codable, CaseIterable {
             case .sampleHold: 4
         }
     }
+    
 }
 
 
@@ -77,7 +78,7 @@ enum TriggerSource: String, Codable, CaseIterable {
 
 
     // MARK: - Trigger Modes
-enum Mode: String, Codable, CaseIterable {
+enum TriggerMode: String, Codable, CaseIterable {
     case multi = "Multi"
     case single = "Single"
     
@@ -108,7 +109,7 @@ extension ContainedParameter {
                 let value = try container.decode(TriggerSource.self, forKey: .trigger)
                 self = .trigger(value)
             case .mode:
-                let value = try container.decode(Mode.self, forKey: .mode)
+                let value = try container.decode(TriggerMode.self, forKey: .mode)
                 self = .mode(value)
         }
     }
@@ -159,10 +160,10 @@ extension Binding where Value == ContainedParameter {
         }
     }
     
-    var modeBinding: Binding<Mode>? {
+    var modeBinding: Binding<TriggerMode>? {
         switch wrappedValue {
             case .mode(let current):
-                return Binding<Mode>(
+                return Binding<TriggerMode>(
                     get: { current },
                     set: { newValue in
                         wrappedValue = .mode(newValue)

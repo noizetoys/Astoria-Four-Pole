@@ -167,7 +167,7 @@ struct Globals_View: View {
 
 
 #Preview {
-    let viewModel = EditorViewModel()
+    let viewModel = MainViewModel()
     
     Globals_View(globals: viewModel.configuration.globalSetup)
 }

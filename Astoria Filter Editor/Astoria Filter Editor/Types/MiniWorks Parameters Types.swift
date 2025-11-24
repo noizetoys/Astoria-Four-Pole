@@ -292,7 +292,7 @@ enum MiniWorksParameter: String, Codable {
         switch self {
             case .LFOShape: LFOType.allCases.map { .lfo($0) }
             case .triggerSource: TriggerSource.allCases.map { .trigger($0) }
-            case .triggerMode: Mode.allCases.map { .mode($0) }
+            case .triggerMode: TriggerMode.allCases.map { .mode($0) }
                 
             // All other 21 parameters (Envelopes, Cutoff, Volume, etc.)
             default: nil

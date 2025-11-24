@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct Program_Editor_View: View {
-    var editorViewModel: EditorViewModel
+//    var editorViewModel: EditorViewModel
     
-    private var program: MiniWorksProgram { editorViewModel.program ?? MiniWorksProgram() }
+    var program: MiniWorksProgram
 
     
         // For Debugging
@@ -29,6 +29,17 @@ struct Program_Editor_View: View {
     }
     
     
+    init(program: MiniWorksProgram?) {
+        guard let program
+        else {
+            self.program = MiniWorksProgram()
+            return
+        }
+        
+        self.program = program
+    }
+    
+    
     var body: some View {
         GeometryReader { geometry in
             
@@ -37,11 +48,11 @@ struct Program_Editor_View: View {
                 topViews(geometry)
                 
                 // Middle
-                middleViews(geometry)
                 
-                
-               // Bottom
                 bottomViews(geometry)
+
+               // Bottom
+                middleViews(geometry)
             }
             .padding(.horizontal)
         }
@@ -51,7 +62,9 @@ struct Program_Editor_View: View {
     
     private func topViews(_ geometry: GeometryProxy) -> some View {
         HStack {
-            VCF_Editor_View(program: program)
+//            colorthing(color: .orange, geometry: geometry, width: 1/3, height: 1/3)
+
+            VCF_Editor_View(program: program, showControls: true)
             .frame(maxWidth: cut(geometry, by: 1/3))
 //            .padding(.top, 30)
             
@@ -63,7 +76,7 @@ struct Program_Editor_View: View {
     
     private func middleViews(_ geometry: GeometryProxy) -> some View {
         HStack {
-            MIDIMonitorView(editorViewModel: editorViewModel)
+            MIDIMonitorView()
                 .frame(maxWidth: geometry.size.width * (1/3))
             
             GroupBox {
@@ -73,6 +86,13 @@ struct Program_Editor_View: View {
                                  lfoModulationAmount: program.lfoSpeedModulationAmount)
             }
             .background(Color.blue.opacity(0.2))
+            
+            
+            colorthing(color: .orange, geometry: geometry, width: 1/6, height: 1/3)
+//            Color.orange.cornerRadius(10)
+//            Modulation_Destination_View(type: .aftertouch)
+//                .frame(maxWidth: geometry.size.width * (1/6))
+            
         }
         
     }
@@ -80,15 +100,16 @@ struct Program_Editor_View: View {
     
     private func bottomViews(_ geometry: GeometryProxy) -> some View {
         HStack {
-            VCA_Editor_View(program: program)
-//                            .frame(maxWidth: cut(geometry, by: 2), maxHeight: cut(geometry, by: 3, isWidth: false))
-//                            .padding(.top, 30)
-
-//            colorthing(color: .red, geometry: geometry, width: 1/3, height: 1/3)
-            Pan_Editor(program: program)
+            VCA_Editor_View(program: program, showControls: false)
                 .frame(maxWidth: cut(geometry, by: 1/3))
             
-            Volume_Editor(program: program)
+//            colorthing(color: .orange, geometry: geometry, width: 1/3, height: 1/3)
+                Pan_Editor(program: program)
+//                    .frame(maxWidth: cut(geometry, by: 1/3) - 20)
+                    .padding(.horizontal)
+//
+                Volume_Editor(program: program)
+                    .frame(maxWidth: cut(geometry, by: 1/3))
         }
     }
     
@@ -110,9 +131,10 @@ struct Program_Editor_View: View {
 
 
 #Preview {
-    @Previewable @State var editorViewModel = EditorViewModel()
-        //    @Previewable @State var program = MiniWorksProgram()
+//    @Previewable @State var editorViewModel = EditorViewModel()
+    @Previewable @State var program = MiniWorksProgram()
     
-    Program_Editor_View(editorViewModel: editorViewModel)
+    
+    Program_Editor_View(program: program)
         .frame(width: 1200, height: 800)
 }
