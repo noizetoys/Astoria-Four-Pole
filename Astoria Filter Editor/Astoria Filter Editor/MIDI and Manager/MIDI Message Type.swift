@@ -21,7 +21,7 @@ enum MIDIMessageType: Sendable {
     
     case controlChange(channel: UInt8 = defaultMidiChannel, cc: UInt8, value: UInt8)
     case programChange(channel: UInt8 = defaultMidiChannel, program: UInt8)
-
+    
     case pitchBend(channel: UInt8 = defaultMidiChannel, value: UInt16)
     
     case aftertouch(channel: UInt8 = defaultMidiChannel, pressure: UInt8)

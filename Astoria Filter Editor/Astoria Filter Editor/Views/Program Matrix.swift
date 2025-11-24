@@ -124,7 +124,7 @@ struct Program_Matrix: View {
             ForEach(range, id: \.self) { num in
                 ProgramCellView(program: programs[num], backgroundColor: cellColor)
                     .onTapGesture {
-                        viewModel.requestLoadProgram(num, isROM: isROMPrograms)
+                        try? viewModel.requestLoadProgram(num, isROM: isROMPrograms)
                     }
             }
             

@@ -75,13 +75,16 @@ enum ContinuousController {
     static let sustainSwitch: UInt8 = 0x40               // CC#64
     
     static let cutoffModulationAmount: UInt8 = 0x46      // CC#70
-    static let resonanceModulationAmount: UInt8 = 0x48   // CC#72
-    static let volumeModulationAmount: UInt8 = 0x4A      // CC#74
-    static let panningModulationAmount: UInt8 = 0x4C     // CC#76
-    
     static let cutoffModulationSource: UInt8 = 0x47      // CC#71
+    
+    static let resonanceModulationAmount: UInt8 = 0x48   // CC#72
     static let resonanceModulationSource: UInt8 = 0x49   // CC#73
-    static let volumeModulationSource: UInt8 = 0x2A      // CC#75
+    
+// Manual state '2B', it should be '4B'
+    static let volumeModulationSource: UInt8 = 0x4B      // CC#75
+    static let volumeModulationAmount: UInt8 = 0x4A      // CC#74
+    
+    static let panningModulationAmount: UInt8 = 0x4C     // CC#76
     static let panningModulationSource: UInt8 = 0x4D     // CC#77
     
     static let cutoff: UInt8 = 0x4E                      // CC#78

@@ -213,7 +213,7 @@ final class EditorViewModel {
     
     
     private func handleIncomingSysEx(_ sysexData: [UInt8]) {
-        debugPrint(icon: "➡️📡", message: "Attempting to decode SysEx:  size: \(sysexData.count) \n\(sysexData.hexString)")
+        debugPrint(icon: "➡️📡", message: "Attempting to decode SysEx:  size: \(sysexData.count) \n\(sysexData.hexString)", type: .trace)
         
         do {
             if sysexData.count > 40 {
@@ -224,6 +224,7 @@ final class EditorViewModel {
             else {
                 let receivedProgram = try MiniworksSysExCodec.decodeProgram(from: sysexData)
                 program = receivedProgram
+                debugPrint(icon: "🎹", message: "Received Program: \(receivedProgram)", type: .trace)
                 debugPrint(icon: "➡️📡", message: "Program SysEx Decoded!!!!")
             }
         }
@@ -266,6 +267,7 @@ final class EditorViewModel {
     
     
     // MARK: - MIDI Property Validation
+    
     private func isValidCC(_ controller: UInt8) -> Bool {
         ContinuousController.allControllers.contains(controller)
     }
@@ -315,10 +317,35 @@ final class EditorViewModel {
     }
     
     
-    func requestLoadProgram(_ number: Int, isROM: Bool) {
+    func requestLoadProgram(_ number: Int, isROM: Bool) throws {
         Task {
             try await midiService.send(.programChange(channel: 1, program: UInt8(number)), to: selectedDestination)
+            
+            do {
+                let sysExData = try SysExMessageType.programDumpRequest(UInt8(number)).requestMessage()
+                try await MIDIService.shared.sendSysEx(sysExData, to: selectedDestination)
+            }
+            catch {
+                throw MIDIError.sendFailed("Status Error: \(error.localizedDescription)")
+            }
+            
         }
-        debugPrint(icon: "👇🏻", message: "Loading \(isROM ? "ROM" : "") Program #\(number + 1)")
+        debugPrint(icon: "👇🏻", message: "Loading \(isROM ? "ROM" : "") Program #\(number + 1)", type: .trace)
+    }
+    
+    
+    func requestLoadAllPrograms() throws {
+        debugPrint(icon: "👇🏻", message: "Requestion All Dump", type: .trace)
+
+        Task {
+            do {
+                let sysExData = try SysExMessageType.allDumpRequest.requestMessage()
+                try await MIDIService.shared.sendSysEx(sysExData, to: selectedDestination)
+            }
+            catch {
+                throw MIDIError.sendFailed("Status Error: \(error.localizedDescription)")
+            }
+
+        }
     }
 }

@@ -8,6 +8,8 @@
 import Foundation
 
 /// Used to encode and decode Sys Ex to Programs or Cofigurations
+//nonisolated
+@MainActor
 final class MiniworksSysExCodec {
     
     static private var currentDeviceID: UInt8 {
@@ -15,10 +17,11 @@ final class MiniworksSysExCodec {
     }
     
     /// Returns a synchronous snapshot of the current device ID by reading on the main actor.
-    static func currentDeviceIDSnapshot() -> UInt8 {
-        @MainActor @inline(__always) func read() -> UInt8 { currentDeviceID }
-        return read()
-    }
+//    static func currentDeviceIDSnapshot() -> UInt8 {
+//        @MainActor @inline(__always) func read() -> UInt8 { currentDeviceID }
+//        return read()
+        
+//    }
     
         /// Provides the type of (validated) message and the data
         /// - Object creation is done elsewhere
@@ -168,20 +171,21 @@ final class MiniworksSysExCodec {
     }
 
 
-    // MARK: - Program (Patch)
+    // MARK: - Program (Patch) -
     
     // MARK: Encode
     
     /// Produce Byte stream of all properties of a Program or Dump Sys Ex message
     /// - Provides complete message
     /// - Containing header, data, checksum, EOD
+    @MainActor
     static func encodeToSysExMessage(program: MiniWorksProgram) -> [UInt8] {
         let programData: [UInt8] = program.encodeToBytes()
         let programChecksum: UInt8 = checksum(from: programData)
         
         let message = SysExConstant.header
 //        + [MiniWorksUserDefaults.shared.deviceID, SysExConstant.programDumpMessage]
-        + [currentDeviceIDSnapshot(), SysExConstant.programDumpMessage]
+        + [currentDeviceID, SysExConstant.programDumpMessage]
         + programData
         + [programChecksum, SysExConstant.endOfMessage]
         
@@ -194,9 +198,10 @@ final class MiniworksSysExCodec {
     
     /// Takes Program/Bulk Dump
     static func decodeProgram(from data: [UInt8]) throws -> MiniWorksProgram {
-        debugPrint(message: "Size of Data: \(data.count)\ndata: \(data.hexString)")
+        debugPrint(message: "Size of Data: \(data.count)\ndata: \(data.hexString)", type: .trace)
         
         if let program = try? MiniWorksProgram(bytes: data) {
+            debugPrint(icon: "🎹", message: "Received Program: \(program)", type: .trace)
             return program
         }
         else {
@@ -217,7 +222,7 @@ final class MiniworksSysExCodec {
         let checksumData = checksum(from: configurationBytes)
         
         return SysExConstant.header
-        + [currentDeviceIDSnapshot(), SysExConstant.allDumpMessage]
+        + [currentDeviceID, SysExConstant.allDumpMessage]
         + configurationBytes
         + [checksumData, SysExConstant.endOfMessage]
     }

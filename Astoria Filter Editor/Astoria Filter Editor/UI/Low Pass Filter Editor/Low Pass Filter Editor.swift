@@ -104,7 +104,7 @@ struct LowPassFilterEditor: View {
                                                center: 64,
                                                positiveRange: 64..<128,
                                                negativeRange: 0..<64),
-                          isActive: program.cutoffModulationSource.modulationSource?.id != 0)
+                          isActive: program.cutoffModulationSource.modulationSource?.id != 0, primaryColor: .orange)
             .frame(width: 60)
             
             Text("\(modAmountToPercentage(program.cutoffModulationAmount.value), specifier: "%.0f")%")
@@ -124,7 +124,7 @@ struct LowPassFilterEditor: View {
         VStack {
             CircularFader(value: program.cutoff.knobBinding,
                           size: 40,
-                          mode: .unidirectional(color: .blue))
+                          mode: .unidirectional(color: .blue), primaryColor: .yellow)
             .frame(width: 60)
             .padding(.top)
             .padding([.bottom, .horizontal], 10)
@@ -189,7 +189,7 @@ struct LowPassFilterEditor: View {
                                                center: 64,
                                                positiveRange: 64..<128,
                                                negativeRange: 0..<64),
-                          isActive: program.resonanceModulationSource.modulationSource?.id != 0)
+                          isActive: program.resonanceModulationSource.modulationSource?.id != 0, primaryColor: .green)
             .frame(width: 60)
 
             Text("\(modAmountToPercentage(program.resonanceModulationAmount.value), specifier: "%.0f")%")
@@ -209,7 +209,7 @@ struct LowPassFilterEditor: View {
         VStack {
             CircularFader(value: program.resonance.knobBinding,
                           size: 40,
-                          mode: .unidirectional(color: .pink))
+                          mode: .unidirectional(color: .pink), primaryColor: .red)
             .frame(width: 60)
             .padding(.top)
             .padding([.bottom, .horizontal], 10)

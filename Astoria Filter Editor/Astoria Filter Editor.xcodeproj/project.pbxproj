@@ -33,6 +33,7 @@
 		85BD425B2ECAB2A3006875F3 /* Exceptions for "Astoria Filter Editor" folder in "Astoria Filter Editor" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"UI/ADSR Envelope Editor/ADSR Envelope Editor.swift",
 				"UI/DNU/ADSR Ed close.swift",
 				UI/DNU/ADSRRRR.swift,
 				UI/DNU/Arrow.swift,

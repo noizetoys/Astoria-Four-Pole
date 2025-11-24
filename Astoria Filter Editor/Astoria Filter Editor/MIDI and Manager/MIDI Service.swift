@@ -540,7 +540,7 @@ final actor MIDIService {
 // MARK: - Sending MIDI
     
     func send(_ message: MIDIMessageType, to destination: MIDIDevice?) throws {
-        debugPrint(message: "Attempting to send \(message) to \(destination?.name)", type: .trace)
+        debugPrint(message: "Attempting to send \(message) to \(destination?.name)", type: .info)
         
         guard
             let destination
@@ -550,7 +550,35 @@ final actor MIDIService {
         
         let bytes = try encodeMessage(message)
         
-        debugPrint(icon: "📤", message: "Sending \(bytes.count) to \(destination.name): \(bytes.hexString)", type: .trace)
+        debugPrint(icon: "📤", message: "Sending \(bytes.count) to \(destination.name): \(bytes.hexString)", type: .info)
+        
+        var status: OSStatus = noErr
+        
+        do {
+            status = try sendRawBytes(bytes, to: destination)
+            
+            if status != noErr {
+                throw MIDIError.sendFailed(status.text)
+            }
+            else {
+                debugPrint(icon: "📤", message: "\(bytes.count) bytes sent to \(destination.name), status: \(status.text)", type: .error)
+            }
+        }
+        catch {
+            debugPrint(icon: "❌📤", message: "Status Error: \(status.description)", type: .error)
+            throw MIDIError.sendFailed(status.text)
+        }
+    }
+    
+    
+    func sendSysEx(_ bytes: [UInt8], to destination: MIDIDevice?) throws {
+        debugPrint(message: "Attempting to send \(bytes.hexString) to \(destination?.name)", type: .trace)
+        
+        guard
+            let destination
+        else {
+            throw MIDIError.sendFailed("Invalid Destination")
+        }
         
         var status: OSStatus = noErr
         
@@ -568,6 +596,7 @@ final actor MIDIService {
             debugPrint(icon: "❌📤", message: "Status Error: \(status.description)", type: .error)
             throw MIDIError.sendFailed(status.text)
         }
+
     }
     
     
@@ -664,7 +693,25 @@ final actor MIDIService {
                 }
                 
                 return [0xA0 | channel, note, pressure]
+                
+                /*
+                 Start of SysEx
+                 */
+//            case .sysExProgramRequest(let channel, let program):
+//                guard channel < 17,
+//                      (0..<40).contains(program)
+//                else {
+//                    debugPrint(icon: "❌🎛️", message: "Invalid SysEx Message", type: .error)
+//                    throw MIDIError.invalidSysEx("Invalid Channel \(channel) or program \(program)")
+//                }
+//                
+//                return [SysExConstant.header, ]
+//                
+//            case .sysExAllDumpRequest(let channel):
+                
         }
+        
+        
     }
     
     

@@ -30,29 +30,28 @@ struct Volume_Editor: View {
                         VStack {
                             Text("VCA Env. Amount")
                             PercentageArrowView(rawValue: program.vcaEnvelopeVolumeAmount.doubleBinding)
-                                .padding(.top, -10)
+                                .padding(.horizontal, -20)
+                                .padding(.top, -20)
                         }
-                        .padding(.horizontal, -20)
                     }
-                    //                .tint(.orange)
                     .foregroundStyle(.orange)
                     
                     GroupBox {
                         Text("Volume")
                             .bold()
                             .padding(.bottom)
+                            
                         
                         CircularFader(value: program.volume.knobBinding,
                                       size: 40,
-                                      mode: .unidirectional(color: .orange))
+                                      mode: .unidirectional(color: .orange), primaryColor: .orange)
+                        .padding(.horizontal, -20)
                         .padding(.bottom, 50)
                     }
-                    //                .background(.orange)
                     .foregroundStyle(.orange)
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, -20)
                 } // VCA & Volume
-                
+                .frame(maxWidth: .infinity)
+
                 GroupBox {
                     VStack {
                         Text("Amount")

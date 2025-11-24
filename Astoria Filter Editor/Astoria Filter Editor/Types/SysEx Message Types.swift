@@ -76,12 +76,12 @@ enum SysExMessageType: Codable, Equatable {
     
     static func type(from num: UInt8, bytes: [UInt8]) -> Self {
         switch num {
-            case SysExConstant.programDumpMessage: return .programDumpMessage(bytes)
-            case SysExConstant.programDumpRequest: return .programDumpRequest(bytes.first ?? 00)
-            case SysExConstant.programBulkDumpMessage: return .programBulkDumpMessage(bytes)
-            case SysExConstant.programBulkDumpRequest: return .programBulkDumpRequest(bytes.first ?? 00)
-            case SysExConstant.allDumpMessage: return .allDumpMessage(bytes)
-            case SysExConstant.allDumpRequest: return .allDumpRequest
+            case SysExConstant.programDumpMessage:  .programDumpMessage(bytes)
+            case SysExConstant.programDumpRequest:  .programDumpRequest(bytes.first ?? 00)
+            case SysExConstant.programBulkDumpMessage:  .programBulkDumpMessage(bytes)
+            case SysExConstant.programBulkDumpRequest:  .programBulkDumpRequest(bytes.first ?? 00)
+            case SysExConstant.allDumpMessage:  .allDumpMessage(bytes)
+            case SysExConstant.allDumpRequest:  .allDumpRequest
             default: fatalError("Unhandled SysExMessageType raw value: \(num)")
         }
     }

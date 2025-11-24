@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LPF_Editor_View: View {
-    @State var program: MiniWorksProgram
+    var program: MiniWorksProgram
     
     
     var body: some View {
