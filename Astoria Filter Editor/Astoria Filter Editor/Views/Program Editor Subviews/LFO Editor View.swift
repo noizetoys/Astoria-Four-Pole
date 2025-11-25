@@ -16,10 +16,10 @@ struct MusicalNote {
 
     /// SwiftUI wrapper for the high-performance CALayer-based LFO view
 struct LFOAnimationView: View {
-//    var lfoSpeed: ProgramParameter
-//    var lfoShape: ProgramParameter
-//    var lfoModulationSource: ProgramParameter
-//    var lfoModulationAmount: ProgramParameter
+        //    var lfoSpeed: ProgramParameter
+        //    var lfoShape: ProgramParameter
+        //    var lfoModulationSource: ProgramParameter
+        //    var lfoModulationAmount: ProgramParameter
     var program: MiniWorksProgram
     @State private var isRunning: Bool = true
     @State private var snapToNote: Bool = false
@@ -54,9 +54,7 @@ struct LFOAnimationView: View {
                 }
                 .frame(maxWidth: geometry.size.width * (1/5))
                 .foregroundStyle(Color.green)
-
                 
-                    //            headerView
                 
                     // The high-performance CALayer view
                 VStack {
@@ -120,30 +118,29 @@ struct LFOAnimationView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 VStack {
-                    Text("Frequency")
+                    Text("Freq.")
                         .font(.headline)
                         //                Spacer()
-                    Text(String(format: "%.3f Hz", frequency))
+                    Text(String(format: "%.1f Hz", frequency))
                         .font(.system(.body, design: .monospaced))
                         .foregroundColor(.blue)
                 }
                 .frame(maxWidth: .infinity)
-
+                
                 VStack {
                     Text("Period:")
                         .font(.headline)
                     
-                    Text("\(String(format: "%.3f s", 1.0 / max(frequency, 0.001)))")
+                    Text("\(String(format: "%.1f s", 1.0 / max(frequency, 0.001)))")
                         .foregroundColor(.blue)
                 }
                 .frame(maxWidth: .infinity)
-
+                
                 let musicalNote = frequencyToMusicalNote(frequency)
                 VStack {
-                    Text("Musical Note:")
+                    Text("Note:")
                         .font(.headline)
-                        //                        .foregroundColor(.gray)
-                        //                Spacer()
+                    
                     Text(musicalNote.description)
                         .font(.system(.caption, design: .monospaced))
                         .foregroundColor(.cyan)
@@ -155,11 +152,11 @@ struct LFOAnimationView: View {
                     }
                 }
                 .frame(maxWidth: .infinity)
-
+                
                 
                 GroupBox {
                     VStack {
-                        Text("MIDI Note #:")
+                        Text("MIDI #:")
                             .font(.headline)
                         
                         Text("\(musicalNote.midiNote)")
@@ -169,7 +166,7 @@ struct LFOAnimationView: View {
                 .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity)
-
+            
             
             HStack {
                 snapToNoteToggle
@@ -220,7 +217,7 @@ struct LFOAnimationView: View {
                 Text("Period: \(String(format: "%.3f s", 1.0 / max(frequency, 0.001)))")
                     .font(.caption)
                     .foregroundColor(.gray)
-//                Spacer()
+                    //                Spacer()
             }
             
             let musicalNote = frequencyToMusicalNote(frequency)
@@ -280,14 +277,6 @@ struct LFOAnimationView: View {
     }
     
     
-//    private func waveformBinding() -> Binding<LFOType> {
-//        Binding(
-//            get: { selectedWaveform },
-//            set: { setWaveform($0) }
-//        )
-//    }
-    
-    
     private func frequencySliderBinding() -> Binding<Double> {
         Binding(
             get: { log10(frequency) },
@@ -331,18 +320,13 @@ struct LFOAnimationView: View {
         let centsString = String(format: "%@%.0f¢", centsSign, cents)
         return ("\(noteName)\(octave) \(centsString)", cents, midiNote)
     }
+    
 }
 
 
 #Preview {
-//    @Previewable @State var lfoSpeed: ProgramParameter = .init(type: .LFOSpeed)
-//    @Previewable @State var lfoShape: ProgramParameter = .init(type: .LFOShape)
     @Previewable @State var program: MiniWorksProgram = .init()
 
     LFOAnimationView(program: program)
-//    LFOAnimationView(lfoSpeed: program.lfoSpeed,
-//                     lfoShape: program.lfoShape,
-//                     lfoModulationSource: program.lfoSpeedModulationSource,
-//                     lfoModulationAmount: program.lfoSpeedModulationAmount)
         .frame(width: 800, height: 260)
 }

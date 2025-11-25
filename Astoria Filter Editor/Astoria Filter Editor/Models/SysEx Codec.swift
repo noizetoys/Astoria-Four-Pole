@@ -76,26 +76,26 @@ final class MiniworksSysExCodec {
             // Errors broken out to help identify issue
         guard firstByte == SysExConstant.messageStart
         else { throw SysExError.sysExStartInvalid(byte: firstByte) }
-        print("✅ Message Start Valid")
+//        print("✅ Message Start Valid")
         
         guard manufacturerID == SysExConstant.manufacturerID
         else { throw SysExError.invalidManufacturerID(byte: manufacturerID) }
-        print("✅ Manufacturer ID Valid")
+//        print("✅ Manufacturer ID Valid")
 
         guard machineID == SysExConstant.machineID
         else { throw SysExError.invalidMachineID(byte: machineID) }
-        print("✅ Machine ID Valid")
+//        print("✅ Machine ID Valid")
 
         guard (0...126).contains(deviceID)
         else { throw SysExError.invalidDeviceID(byte: deviceID) }
-        print("✅ Device ID Valid (0-126)")
+//        print("✅ Device ID Valid (0-126)")
 
         try validate(command: command)
-        print("✅ Command Valid")
+//        print("✅ Command Valid")
 
         guard lastByte == SysExConstant.endOfMessage
         else { throw SysExError.sysExEndInvalid(byte: lastByte) }
-        print("✅ End of Message Valid")
+//        print("✅ End of Message Valid")
 
         debugPrint(icon: "🔍", message: "SysEx Header Valid")
     }
@@ -198,10 +198,10 @@ final class MiniworksSysExCodec {
     
     /// Takes Program/Bulk Dump
     static func decodeProgram(from data: [UInt8]) throws -> MiniWorksProgram {
-        debugPrint(message: "Size of Data: \(data.count)\ndata: \(data.hexString)", type: .trace)
+        debugPrint(message: "Size of Data: \(data.count)\ndata: \(data.hexString)", type: .info)
         
         if let program = try? MiniWorksProgram(bytes: data) {
-            debugPrint(icon: "🎹", message: "Received Program: \(program)", type: .trace)
+            debugPrint(icon: "🎹", message: "Received Program: \(program)", type: .info)
             return program
         }
         else {

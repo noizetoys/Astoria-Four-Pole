@@ -214,7 +214,7 @@ final actor MIDIService {
             
             if let device = try? MIDIDevice(endpoint: endpoint, type: .destination) {
                 devices.append(device)
-                debugPrint(icon: "📦", message: "Destination: \(device.name) by \(device.manufacturer)", type: .trace)
+                debugPrint(icon: "📦", message: "Destination: \(device.name) by \(device.manufacturer)", type: .info)
             }
         }
         
@@ -557,11 +557,11 @@ final actor MIDIService {
         do {
             status = try sendRawBytes(bytes, to: destination)
             
-            if status != noErr {
-                throw MIDIError.sendFailed(status.text)
+            if status == noErr {
+                debugPrint(icon: "📤", message: "\(bytes.count) bytes sent to \(destination.name), status: \(status.text)", type: .info)
             }
             else {
-                debugPrint(icon: "📤", message: "\(bytes.count) bytes sent to \(destination.name), status: \(status.text)", type: .error)
+                throw MIDIError.sendFailed(status.text)
             }
         }
         catch {
@@ -572,7 +572,7 @@ final actor MIDIService {
     
     
     func sendSysEx(_ bytes: [UInt8], to destination: MIDIDevice?) throws {
-        debugPrint(message: "Attempting to send \(bytes.hexString) to \(destination?.name)", type: .trace)
+        debugPrint(message: "Attempting to send \(bytes.hexString) to \(destination?.name)", type: .info)
         
         guard
             let destination
@@ -589,7 +589,7 @@ final actor MIDIService {
                 throw MIDIError.sendFailed(status.text)
             }
             else {
-                debugPrint(icon: "📤", message: "\(bytes.count) bytes sent to \(destination.name), status: \(status.text)", type: .trace)
+                debugPrint(icon: "📤", message: "\(bytes.count) bytes sent to \(destination.name), status: \(status.text)", type: .error)
             }
         }
         catch {
@@ -601,7 +601,7 @@ final actor MIDIService {
     
     
     func encodeMessage(_ message: MIDIMessageType) throws -> [UInt8] {
-        debugPrint(icon: "⁉️", message: "Attempting to encode \(message)", type: .trace)
+        debugPrint(icon: "⁉️", message: "Attempting to encode \(message)", type: .info)
         switch message {
             case .sysex(let data):
                 guard

@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct Program_Editor_View: View {
-//    var editorViewModel: EditorViewModel
-    
     var program: MiniWorksProgram
 
     
@@ -62,8 +60,6 @@ struct Program_Editor_View: View {
     
     private func topViews(_ geometry: GeometryProxy) -> some View {
         HStack {
-//            colorthing(color: .orange, geometry: geometry, width: 1/3, height: 1/3)
-
             VCF_Editor_View(program: program, showControls: true)
             .frame(maxWidth: cut(geometry, by: 1/3))
             
@@ -80,17 +76,11 @@ struct Program_Editor_View: View {
             
             GroupBox {
                 LFOAnimationView(program: program)
-//                LFOAnimationView(lfoSpeed: program.lfoSpeed,
-//                                 lfoShape: program.lfoShape,
-//                                 lfoModulationSource: program.lfoSpeedModulationSource,
-//                                 lfoModulationAmount: program.lfoSpeedModulationAmount)
             }
             .background(Color.blue.opacity(0.2))
             
             
-//            colorthing(color: .orange, geometry: geometry, width: 1/6, height: 1/3)
-            
-                            Modulation_Destination_View(type: .aftertouch)
+            Modulation_Destination_View(type: .aftertouch)
                 .frame(maxWidth: geometry.size.width * (1/6))
             
         }
@@ -101,14 +91,15 @@ struct Program_Editor_View: View {
     private func bottomViews(_ geometry: GeometryProxy) -> some View {
         HStack {
             VCA_Editor_View(program: program, showControls: true)
-                .frame(maxWidth: cut(geometry, by: 1/3))
+//                .frame(maxWidth: cut(geometry, by: 1/3))
             
-                Pan_Editor(program: program)
-//                    .frame(maxWidth: cut(geometry, by: 1/3) - 20)
-                    .padding(.horizontal)
-//
-                Volume_Editor(program: program)
-                    .frame(maxWidth: cut(geometry, by: 1/3))
+            Volume_Editor(program: program)
+//                .frame(maxWidth: cut(geometry, by: 1/3))
+            
+            Pan_Editor(program: program)
+//                .padding(.horizontal)
+                .frame(maxWidth: cut(geometry, by: 1/3))
+
         }
     }
     

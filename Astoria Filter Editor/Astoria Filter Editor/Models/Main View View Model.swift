@@ -67,13 +67,13 @@ final class MainViewModel {
                                                object: nil,
                                                queue: .main) { notification in
             
-            debugPrint(message: "received notification: data: \(notification.userInfo?.debugDescription)", type: .trace)
+            debugPrint(message: "received notification: data: \(notification.userInfo?.debugDescription)", type: .info)
             guard
                 let data = notification.userInfo,
                 let type = data[SysExConstant.parameterType] as? MiniWorksParameter,
                 let value = data[SysExConstant.parameterValue] as? UInt8
             else {
-                debugPrint(message: "Issue trying to send Midi message: data: \(notification.userInfo?.debugDescription)", type: .trace)
+                debugPrint(message: "Issue trying to send Midi message: data: \(notification.userInfo?.debugDescription)", type: .error)
                 return
             }
             
@@ -84,7 +84,7 @@ final class MainViewModel {
                                                                      value: value), to: self.selectedDestination)
                 }
                 catch {
-                    debugPrint(message: "Could not send control change message: type: \(type), value: \(value)", type: .trace)
+                    debugPrint(message: "Could not send control change message: type: \(type), value: \(value)", type: .error)
                 }
             }
         }
@@ -214,7 +214,7 @@ final class MainViewModel {
     
     
     private func handleIncomingSysEx(_ sysexData: [UInt8]) {
-        debugPrint(icon: "➡️📡", message: "Attempting to decode SysEx:  size: \(sysexData.count) \n\(sysexData.hexString)", type: .trace)
+        debugPrint(icon: "➡️📡", message: "Attempting to decode SysEx:  size: \(sysexData.count) \n\(sysexData.hexString)", type: .info)
         
         do {
             if sysexData.count > 40 {
@@ -225,7 +225,7 @@ final class MainViewModel {
             else {
                 let receivedProgram = try MiniworksSysExCodec.decodeProgram(from: sysexData)
                 program = receivedProgram
-                debugPrint(icon: "🎹", message: "Received Program: \(receivedProgram)", type: .trace)
+                debugPrint(icon: "🎹", message: "Received Program: \(receivedProgram)", type: .info)
                 debugPrint(icon: "➡️📡", message: "Program SysEx Decoded!!!!")
             }
         }

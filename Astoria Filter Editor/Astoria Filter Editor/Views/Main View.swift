@@ -15,14 +15,11 @@ import SwiftUI
 //
 
 
-
-
 struct MainView: View {
     @State private var viewModel = MainViewModel()
     
     @State private var showConnections: Bool = false
     @State private var showGlobals: Bool = false
-//    @State private var showROMPrograms: Bool = false
 
     private func columnWidth(from proxy: GeometryProxy) -> CGFloat {
         proxy.size.width / 5
@@ -38,43 +35,43 @@ struct MainView: View {
                 
                 // Left Side Controls
                 VStack {
-                    Button {
-                        withAnimation {
-                            showConnections.toggle()
-                        }
-                    } label: {
-                        Text("Connections")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                    }
-                    .padding([.horizontal, .top])
-
-                    if showConnections {
+//                    Button {
+//                        withAnimation {
+//                            showConnections.toggle()
+//                        }
+//                    } label: {
+//                        Text("Connections")
+//                            .frame(maxWidth: .infinity)
+//                            .padding()
+//                    }
+//                    .padding([.horizontal, .top])
+//
+//                    if showConnections {
                         GroupBox {
                             ConnectionsBox(viewModel:  $viewModel)
                         }
                         .padding(.horizontal)
-                    }
+//                    }
 
                     
                     // Globals
-                    Button {
-                        withAnimation {
-                            showGlobals.toggle()
-                        }
-                    } label: {
-                        Text("Globals")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                    }
-                    .padding([.horizontal, .top])
-                    
-                    if showGlobals {
-                        GroupBox {
-                            Globals_View(globals: viewModel.configuration.globalSetup)
-                        }
-                        .padding(.horizontal)
-                    }
+//                    Button {
+//                        withAnimation {
+//                            showGlobals.toggle()
+//                        }
+//                    } label: {
+//                        Text("Globals")
+//                            .frame(maxWidth: .infinity)
+//                            .padding()
+//                    }
+//                    .padding([.horizontal, .top])
+//                    
+//                    if showGlobals {
+//                        GroupBox {
+//                            Globals_View(globals: viewModel.configuration.globalSetup)
+//                        }
+//                        .padding(.horizontal)
+//                    }
                     
                     
                         // Programs

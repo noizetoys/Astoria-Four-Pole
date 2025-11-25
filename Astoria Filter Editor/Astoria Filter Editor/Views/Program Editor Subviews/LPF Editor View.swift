@@ -15,24 +15,37 @@ struct LPF_Editor_View: View {
         GeometryReader { geometry in
             HStack {
                 
-                    // Cutoff Mod
-                GroupBox {
-                    VStack {
-                        Text("Amount")
-                        PercentageArrowView(rawValue: program.cutoffModulationAmount.doubleBinding)
+                
+                VStack {
+                    GroupBox {
+                        VStack(spacing: 0) {
+                            Text("VCF Amount")
+                            PercentageArrowView(rawValue: program.vcfEnvelopeCutoffAmount.doubleBinding)
+                        }
+                        .padding(.horizontal, -20)
                     }
-                    .padding(.horizontal, -20)
+                    .frame(maxHeight: geometry.size.height / 3)
                     
-                    Text("Cutoff Mod.")
-                        .bold()
-                    
-                    VStack(spacing: 0) {
-                        ArrowPickerGlowView(selection: program.cutoffModulationSource.modulationBinding,
-                                            direction: .right,
-                                            arrowColor: .blue)
-                        Text("Source")
+                        // Cutoff Mod
+                    GroupBox {
+                        VStack(spacing: 0) {
+                            Text("Amount")
+                            PercentageArrowView(rawValue: program.cutoffModulationAmount.doubleBinding)
+                        }
+                        .padding(.horizontal, -20)
+                        
+                        Text("Cutoff Mod.")
+                            .bold()
+                        
+                        VStack(spacing: 0) {
+                            ArrowPickerGlowView(selection: program.cutoffModulationSource.modulationBinding,
+                                                direction: .right,
+                                                arrowColor: .blue)
+                            .padding(.top, -10)
+                            Text("Source")
+                        }
+                        .padding(.horizontal, -20)
                     }
-                    .padding(.horizontal, -20)
                 }
                 .frame(maxWidth: geometry.size.width * (1/5))
                 
