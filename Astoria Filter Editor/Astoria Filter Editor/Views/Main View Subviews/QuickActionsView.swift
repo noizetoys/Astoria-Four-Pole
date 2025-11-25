@@ -1,5 +1,5 @@
 //
-//  File Management View.swift
+//  QuickActionsView.swift
 //  Astoria Filter Editor
 //
 //  Created by James B. Majors on 11/20/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct File_Management_View: View {
+struct QuickActionsView: View {
     @Binding var showSettings: Bool
     @Binding var showFileManager: Bool
     @Binding var requestAll: Bool
@@ -29,10 +29,10 @@ struct File_Management_View: View {
                     button(for: "Programs", property: $showFileManager, color: .yellow)
                 }
 
-                VStack {
-                    button(for: "Settings", property: $showSettings, color: .green)
-                    button(for: "Programs", property: $showFileManager, color: .blue, lightText: true)
-                }
+//                VStack {
+//                    button(for: "Settings", property: $showSettings, color: .green)
+//                    button(for: "Programs", property: $showFileManager, color: .blue, lightText: true)
+//                }
                 
             }
 //            .padding()
@@ -64,7 +64,7 @@ struct File_Management_View: View {
     @Previewable @State var requestAll: Bool = false
     @Previewable @State var sendAll: Bool = false
 
-    File_Management_View(showSettings: $showSettings,
+    QuickActionsView(showSettings: $showSettings,
                          showFileManager: $showFileManager,
                          requestAll: $requestAll,
                          sendAll: $sendAll)

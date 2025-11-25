@@ -69,7 +69,7 @@ struct MainView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
 
                         GroupBox {
-                            File_Management_View(showSettings: $showSettings,
+                            QuickActionsView(showSettings: $showSettings,
                                                  showFileManager: $showFileManager,
                                                  requestAll: $requestAll,
                                                  sendAll: $sendAll)

@@ -6,15 +6,27 @@
 //
 
 import Foundation
+import SwiftUI
+
+
 
 
 @Observable
 class MiniWorksProgram: Identifiable, Sendable {
-    var id: UUID = UUID()
-    private(set) var isReadOnly: Bool = false
+    var id: String { "program-\(programNumber)" }
     
-    var programNumber: UInt8 = 1
+    private(set) var isReadOnly: Bool = false
+//    var creationDate: Date = .now
+//    var lastEditDate: Date = .now
+    
+    // Not part of SysEx
     var programName: String = "New Program"
+    var tags: [ProgramTag] = []
+    var isFavorite: Bool = false
+    
+    
+    // Included in SysEx
+    var programNumber: UInt8 = 1
     
     var vcfEnvelopeAttack = ProgramParameter(type: .VCFEnvelopeAttack)
     var vcfEnvelopeDecay = ProgramParameter(type: .VCFEnvelopeDecay)
@@ -156,6 +168,23 @@ extension MiniWorksProgram: CustomStringConvertible {
 }
 
 
+extension MiniWorksProgram: Equatable {
+    static func == (lhs: MiniWorksProgram, rhs: MiniWorksProgram) -> Bool {
+        let lhsChecksum = MiniworksSysExCodec.checksum(from: lhs.encodeToBytes())
+        let rhsChecksum = MiniworksSysExCodec.checksum(from: rhs.encodeToBytes())
+        
+        return lhsChecksum == rhsChecksum
+    }
+}
+
+
+extension MiniWorksProgram: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(encodeToBytes())
+    }
+}
+
+
 /*
  Byte order in Program and Bulk Dump
  
@@ -171,6 +200,7 @@ extension MiniWorksProgram: CustomStringConvertible {
  
  -> ??? Add Dump ??? <-
  -> Subtract 1 from index below <-
+ -> Data does not include Program # <-
  
  vcfEnvelopeAttack = bytes[6]
  vcfEnvelopeDecay = bytes[7]
