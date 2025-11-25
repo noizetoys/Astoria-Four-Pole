@@ -58,35 +58,30 @@ struct Program_Title_View: View {
     
     
     var body: some View {
-//        GroupBox {
-            
-            HStack(spacing: 0) {
-                    // Top
-                VStack {
-                    programNameView
-                     
-                        // Tags
-                    tagsView
-                    
-                    Spacer()
-                }
+        HStack(spacing: 0) {
+                // Top
+            VStack {
+                programNameView
                 
-                    // Buttons (Reset/Save)
-                HStack(spacing: 20) {
-                    bigButton("Save", color: .blue)
-                    bigButton("Cancel", color: .red)
-                    bigButton("Compare", color: .green)
-                }
+                tagsView
                 
-            } // VStack
+                Spacer()
+            }
             
-//        }  GroupBox
+                // Buttons (Reset/Save)
+            HStack(spacing: 20) {
+                    //                    bigButton("Save", color: .blue)
+                    //                    bigButton("Cancel", color: .red)
+                bigButton("Compare", color: .green)
+            }
+            
+        } // VStack
     }
     
     
     func bigButton(_ text: String, color: Color) -> some View {
         Text(text)
-            .font(.title)
+            .font(.title3)
             .bold()
             .padding(.horizontal)
             .frame(maxHeight: .infinity)
@@ -103,7 +98,7 @@ struct Program_Title_View: View {
             .foregroundStyle(.white)
             .font(.footnote)
             .bold()
-            .padding(.vertical, 10)
+            .padding(.vertical, 5)
             .padding(.horizontal)
             .background(
                 RoundedRectangle(cornerRadius: 6)
@@ -118,6 +113,7 @@ struct Program_Title_View: View {
 #Preview {
     GeometryReader { proxy in
         Program_Title_View(program: MiniWorksProgram())
-            .frame(maxWidth: proxy.size.width * (4/5), maxHeight: proxy.size.height * 1/6)
+            .frame(maxWidth: 600, maxHeight: 100)
+//            .frame(maxWidth: proxy.size.width * (4/5), maxHeight: proxy.size.height * 1/6)
     }
 }

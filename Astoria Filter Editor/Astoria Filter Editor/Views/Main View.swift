@@ -13,13 +13,23 @@ import SwiftUI
 // Program editor
 // Device Profile (Programs & Globals)
 //
+import SwiftUI
+
+
+
 
 
 struct MainView: View {
     @State private var viewModel = MainViewModel()
     
     @State private var showConnections: Bool = false
-    @State private var showGlobals: Bool = false
+    @State private var showSettings: Bool = false
+    
+    @State private var showFileManager: Bool = false
+    @State private var requestAll: Bool = false
+    @State private var sendAll: Bool = false
+
+    
 
     private func columnWidth(from proxy: GeometryProxy) -> CGFloat {
         proxy.size.width / 5
@@ -29,49 +39,18 @@ struct MainView: View {
         proxy.size.height / 3
     }
     
+    
     var body: some View {
         GeometryReader { geometry in
+            
             HStack {
                 
-                // Left Side Controls
+                    // Left Side Controls
                 VStack {
-//                    Button {
-//                        withAnimation {
-//                            showConnections.toggle()
-//                        }
-//                    } label: {
-//                        Text("Connections")
-//                            .frame(maxWidth: .infinity)
-//                            .padding()
-//                    }
-//                    .padding([.horizontal, .top])
-//
-//                    if showConnections {
-                        GroupBox {
-                            ConnectionsBox(viewModel:  $viewModel)
-                        }
-                        .padding(.horizontal)
-//                    }
-
-                    
-                    // Globals
-//                    Button {
-//                        withAnimation {
-//                            showGlobals.toggle()
-//                        }
-//                    } label: {
-//                        Text("Globals")
-//                            .frame(maxWidth: .infinity)
-//                            .padding()
-//                    }
-//                    .padding([.horizontal, .top])
-//                    
-//                    if showGlobals {
-//                        GroupBox {
-//                            Globals_View(globals: viewModel.configuration.globalSetup)
-//                        }
-//                        .padding(.horizontal)
-//                    }
+                    GroupBox {
+                        ConnectionsBox(viewModel:  $viewModel)
+                    }
+                    .padding(.horizontal)
                     
                     
                         // Programs
@@ -82,18 +61,27 @@ struct MainView: View {
                 
                 
                 VStack {
-                        HStack {
-                            GroupBox {
-                                Program_Title_View(program: viewModel.program)
-                            }
-                            
-                            GroupBox {
-                                File_Management_View()
-                                    .frame(maxWidth: columnWidth(from: geometry))
-                            }
+                    HStack {
+                        GroupBox {
+                            Program_Title_View(program: viewModel.program)
+                        }
+                        .background(.gray.opacity(05))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                        GroupBox {
+                            File_Management_View(showSettings: $showSettings,
+                                                 showFileManager: $showFileManager,
+                                                 requestAll: $requestAll,
+                                                 sendAll: $sendAll)
+                                .frame(maxWidth: columnWidth(from: geometry))
+                        }
+                        .background(.gray.opacity(05))
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     .frame(width: columnWidth(from: geometry) * 4, height: rowHeight(from: geometry) / 4)
-                    
+//                    .background(.gray.opacity(05))
+//                    .clipShape(RoundedRectangle(cornerRadius: 10))
+
                         // Edit View
                     if let program = viewModel.program {
                         GroupBox {
@@ -111,11 +99,9 @@ struct MainView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
-            }
-        }
-        
+            } // Stack
+        } // Geometry 
     }
-    
     
 }
 
