@@ -170,7 +170,7 @@ struct ButtonMatrix: View {
 
 
 #Preview {
-    @Previewable @State var vm: MainViewModel = .init()
+    @Previewable @State var vm: MainViewModel = .init(profile: MiniworksDeviceProfile.newMachineConfiguration())
     
     VStack {
         Program_Matrix(viewModel: vm)

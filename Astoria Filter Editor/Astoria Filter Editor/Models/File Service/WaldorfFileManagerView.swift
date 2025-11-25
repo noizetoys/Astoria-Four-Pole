@@ -349,3 +349,12 @@ struct WaldorfFileManagerView: View {
         isShowingErrorAlert = true
     }
 }
+
+
+
+#Preview {
+    WaldorfFileManagerView(provideCurrentProgram: { WaldorfProgram(programNumber: 1, name: "New", parameters: [:]) },
+                           provideCurrentConfiguration: { WaldorfDeviceConfiguration.empty() },
+                           applyLoadedProgram: { _ in },
+                           applyLoadedConfiguration: { _ in })
+}

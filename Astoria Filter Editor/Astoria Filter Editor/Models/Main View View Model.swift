@@ -23,8 +23,8 @@ final class MainViewModel {
     
     var breathControllerValue: UInt8 = 0
     
-        // Default Program
-        //    var program: MiniWorksProgram = MiniWorksProgram()
+    // Passed in from App
+    var deviceProfile: MiniworksDeviceProfile
     var program: MiniWorksProgram? {
         didSet {
             if program == nil {
@@ -40,7 +40,6 @@ final class MainViewModel {
     var programs: [MiniWorksProgram] = MiniworksROMPrograms.copyOfROMPrograms()
     let ROMPrograms: [MiniWorksProgram] = MiniworksROMPrograms.programs()
     
-    var configuration: MiniworksDeviceProfile = .newMachineConfiguration()
     
    // MARK: - Private
     
@@ -55,7 +54,9 @@ final class MainViewModel {
     
         // MARK: - Lifecycle
     
-    init() {
+    init(profile: MiniworksDeviceProfile) {
+        self.deviceProfile = profile
+        
         Task {
             await refreshDevices()
         }
@@ -193,7 +194,7 @@ final class MainViewModel {
             for await (isNoteOn, channel, note, velocity) in await self.midiService.noteStream(from: source) {
                 debugPrint(message: "Received: \(isNoteOn ? "Note On" : "Note off"), ch: \(channel), note: \(note), vel: \(velocity)")
                 
-                if self.isValidChannel(channel), note == configuration.noteNumber {
+                if self.isValidChannel(channel), note == deviceProfile.noteNumber {
                     self.handingIncomingNote(isNoteOn: isNoteOn, channel: channel, note: note, velocity: velocity)
                 }
             }
@@ -219,7 +220,7 @@ final class MainViewModel {
         do {
             if sysexData.count > 40 {
                 let receivedConfig = try MiniworksSysExCodec.decodeAllDump(bytes: sysexData)
-                configuration = receivedConfig
+                deviceProfile = receivedConfig
                 debugPrint(icon: "➡️📡", message: "Config (All Dump) SysEx Decoded!!!!")
             }
             else {
@@ -273,12 +274,12 @@ final class MainViewModel {
     
     
     private func isValidChannel(_ channel: UInt8) -> Bool {
-        channel == 0 || channel == configuration.midiChannel
+        channel == 0 || channel == deviceProfile.midiChannel
     }
     
     
     private func isValidNote(_ note: UInt8) -> Bool {
-        note == configuration.noteNumber
+        note == deviceProfile.noteNumber
     }
     
     

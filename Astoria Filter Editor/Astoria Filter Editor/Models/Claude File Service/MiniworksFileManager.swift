@@ -177,7 +177,8 @@ class MiniworksFileManager {
         let url = try FileManagerPaths.profilesDirectory
             .appendingPathComponent("\(filename).json")
         
-        guard fileManager.fileExists(atPath: url.path) else {
+        guard fileManager.fileExists(atPath: url.path)
+        else {
             throw MiniworksFileError.fileNotFound(name)
         }
         
@@ -474,13 +475,15 @@ class MiniworksFileManager {
         // Validate basic structure
         guard bytes.first == SysExFormat.startByte,
               bytes.last == SysExFormat.endByte,
-              bytes.count > 6 else {
+              bytes.count > 6
+        else {
             throw MiniworksFileError.invalidSysEx
         }
         
         // Check manufacturer and model ID
         guard bytes[1] == SysExFormat.waldorfID,
-              bytes[2] == SysExFormat.miniworksID else {
+              bytes[2] == SysExFormat.miniworksID
+        else {
             throw MiniworksFileError.invalidSysEx
         }
         

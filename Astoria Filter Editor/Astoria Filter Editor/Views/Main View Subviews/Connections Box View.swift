@@ -98,7 +98,7 @@ struct ConnectionsBox: View {
 
 
 #Preview {
-    @Previewable @State var vm = MainViewModel()
+    @Previewable @State var vm = MainViewModel(profile: MiniworksDeviceProfile.newMachineConfiguration())
     
     ConnectionsBox(viewModel: $vm)
 }

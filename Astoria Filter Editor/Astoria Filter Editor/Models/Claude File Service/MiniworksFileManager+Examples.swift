@@ -425,8 +425,8 @@ struct ProfilePickerView: View {
         .padding()
         .sheet(isPresented: $showingSaveDialog) {
             SaveProfileDialog(
-                profileName: $newProfileName,
-                onSave: {
+//                profileName: $newProfileName,
+                onSave: { _ in 
                     Task {
                         await viewModel.saveProfile(named: newProfileName)
                         showingSaveDialog = false
@@ -446,35 +446,35 @@ struct ProfilePickerView: View {
 /**
  ## Example: Save Dialog
  */
-struct SaveProfileDialog: View {
-    @Binding var profileName: String
-    let onSave: () -> Void
-    @Environment(\.dismiss) var dismiss
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Save Profile")
-                .font(.headline)
-            
-            TextField("Profile Name", text: $profileName)
-                .textFieldStyle(.roundedBorder)
-            
-            HStack {
-                Button("Cancel") {
-                    dismiss()
-                }
-                
-                Button("Save") {
-                    onSave()
-                }
-                .disabled(profileName.isEmpty)
-                .buttonStyle(.borderedProminent)
-            }
-        }
-        .padding()
-        .frame(width: 300)
-    }
-}
+//struct SaveProfileDialog: View {
+//    @Binding var profileName: String
+//    let onSave: () -> Void
+//    @Environment(\.dismiss) var dismiss
+//    
+//    var body: some View {
+//        VStack(spacing: 20) {
+//            Text("Save Profile")
+//                .font(.headline)
+//            
+//            TextField("Profile Name", text: $profileName)
+//                .textFieldStyle(.roundedBorder)
+//            
+//            HStack {
+//                Button("Cancel") {
+//                    dismiss()
+//                }
+//                
+//                Button("Save") {
+//                    onSave()
+//                }
+//                .disabled(profileName.isEmpty)
+//                .buttonStyle(.borderedProminent)
+//            }
+//        }
+//        .padding()
+//        .frame(width: 300)
+//    }
+//}
 
 // MARK: - 6. Error Handling Patterns
 

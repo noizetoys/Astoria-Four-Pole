@@ -16,11 +16,8 @@ import SwiftUI
 import SwiftUI
 
 
-
-
-
 struct MainView: View {
-    @State private var viewModel = MainViewModel()
+    @State private var viewModel: MainViewModel
     
     @State private var showConnections: Bool = false
     @State private var showSettings: Bool = false
@@ -29,6 +26,7 @@ struct MainView: View {
     @State private var requestAll: Bool = false
     @State private var sendAll: Bool = false
 
+    @Binding var deviceProfile: MiniworksDeviceProfile
     
 
     private func columnWidth(from proxy: GeometryProxy) -> CGFloat {
@@ -37,6 +35,14 @@ struct MainView: View {
     
     private func rowHeight(from proxy: GeometryProxy) -> CGFloat {
         proxy.size.height / 3
+    }
+    
+    
+    // MARK: - Lifecycle
+    
+    init(deviceProfile: Binding<MiniworksDeviceProfile>) {
+        viewModel = MainViewModel(profile: deviceProfile.wrappedValue)
+        self._deviceProfile = deviceProfile
     }
     
     
@@ -108,6 +114,8 @@ struct MainView: View {
 
 
 #Preview {
-    MainView()
+    @Previewable @State var deviceProfile = MiniworksDeviceProfile.newMachineConfiguration()
+    
+    MainView(deviceProfile: $deviceProfile)
         .frame(width: 1200, height: 800)
 }

@@ -10,6 +10,7 @@ import Foundation
 /// Reflects the current state of the device including user programs and global settings
 class MiniworksDeviceProfile: Identifiable, Sendable {
     var id: Date
+    var name: String = ""
     
     // (20) User Programs (1...20)
     var programs: [MiniWorksProgram] = []
@@ -97,6 +98,15 @@ class MiniworksDeviceProfile: Identifiable, Sendable {
         
         return programBytes + globalBytes
     }
+    
+}
+
+
+extension MiniworksDeviceProfile: Equatable {
+    static func == (lhs: MiniworksDeviceProfile, rhs: MiniworksDeviceProfile) -> Bool {
+        lhs.id == rhs.id
+    }
+    
     
 }
 
