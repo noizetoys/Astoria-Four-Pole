@@ -29,7 +29,7 @@ import SwiftUI
 struct LowPassFilterEditor: View {
     // Filter parameters (0-127 MIDI-style range)
     // CUSTOMIZATION: Change initial values here
-    @State var program: MiniWorksProgram
+    var program: MiniWorksProgram
     
 //    @State private var cutoff: UInt8 = 64      // 0 = 20Hz, 127 = 20kHz
 //    @State private var resonance: UInt8 = 0       // 0 = no resonance, 127 = max resonance
@@ -52,23 +52,19 @@ struct LowPassFilterEditor: View {
                     // CUSTOMIZATION: Adjust .frame(height:) to change graph size
                 FilterResponseView(program: program, fillStyle: fillStyle)
                     .frame(maxHeight: .infinity)
-                    //                .frame(height: 250)  // CUSTOMIZATION: Graph height in points
+//                .frame(height: 250)  // CUSTOMIZATION: Graph height in points
                     .background(Color.black)  // CUSTOMIZATION: Graph background color
                     .cornerRadius(10)  // CUSTOMIZATION: Corner rounding
             }
             
-//            VStack {
-                    // Frequency Controls
-                HStack {
-                    cutoffFrequency
-                    Spacer()
-                    resonanceKnob
-                }
-//                .padding([.horizontal, .top])
-                
-//                Spacer()
-//            }
+                // Frequency Controls
+            HStack {
+                cutoffFrequency
+                Spacer()
+                resonanceKnob
+            }
         }
+        
     }
     
     
@@ -83,7 +79,7 @@ struct LowPassFilterEditor: View {
             Text("Mod Source:")
                 .font(.caption)
             
-            Picker("", selection: $program.cutoffModulationSource.modulationSource) {
+            Picker("", selection: program.cutoffModulationSource.modulationBinding) {
                 ForEach(ModulationSource.allCases) { source in
                     Text(source.name).tag(source)
                 }
@@ -133,14 +129,13 @@ struct LowPassFilterEditor: View {
                 .font(.caption)
                 .padding(.bottom, 10)
             
-            
-                //            Text("\(frequencyToHz(program.cutoff.value), specifier: "%.0f") Hz")
-                //                .font(.caption)
-                //                .foregroundColor(.blue)
-            
-                //            Text("[\(Int(program.cutoff.value))]")
-                //                .font(.caption)
-                //                .foregroundColor(.gray)
+//            Text("\(frequencyToHz(program.cutoff.value), specifier: "%.0f") Hz")
+//                .font(.caption)
+//                .foregroundColor(.blue)
+
+//            Text("[\(Int(program.cutoff.value))]")
+//                .font(.caption)
+//                .foregroundColor(.gray)
         }
         .background(Color.black.opacity(0.7))
         .cornerRadius(10)
@@ -167,7 +162,7 @@ struct LowPassFilterEditor: View {
             Text("Mod Source:")
                 .font(.caption)
             
-            Picker("", selection: $program.resonanceModulationSource.modulationSource) {
+            Picker("", selection: program.resonanceModulationSource.modulationBinding) {
                 ForEach(ModulationSource.allCases) { source in
                     Text(source.name).tag(source)
                 }

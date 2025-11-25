@@ -16,10 +16,11 @@ struct MusicalNote {
 
     /// SwiftUI wrapper for the high-performance CALayer-based LFO view
 struct LFOAnimationView: View {
-    var lfoSpeed: ProgramParameter
-    var lfoShape: ProgramParameter
-    var lfoModulationSource: ProgramParameter
-    var lfoModulationAmount: ProgramParameter
+//    var lfoSpeed: ProgramParameter
+//    var lfoShape: ProgramParameter
+//    var lfoModulationSource: ProgramParameter
+//    var lfoModulationAmount: ProgramParameter
+    var program: MiniWorksProgram
     @State private var isRunning: Bool = true
     @State private var snapToNote: Bool = false
     
@@ -36,7 +37,7 @@ struct LFOAnimationView: View {
                 GroupBox {
                     VStack {
                         Text("Amount")
-                        PercentageArrowView(rawValue: lfoModulationAmount.doubleBinding)
+                        PercentageArrowView(rawValue: program.lfoSpeedModulationAmount.doubleBinding)
                     }
                     .padding(.horizontal, -20)
                     
@@ -44,7 +45,7 @@ struct LFOAnimationView: View {
                         .bold()
                     
                     VStack(spacing: 0) {
-                        ArrowPickerGlowView(selection: lfoModulationSource.modulationBinding,
+                        ArrowPickerGlowView(selection: program.lfoSpeedModulationSource.modulationBinding,
                                             direction: .right,
                                             arrowColor: .green)
                         Text("Source")
@@ -60,12 +61,11 @@ struct LFOAnimationView: View {
                     // The high-performance CALayer view
                 VStack {
                     LFOLayerViewRepresentable(
-                        lfoSpeed: lfoSpeed,
-                        lfoShape: lfoShape,
+                        lfoSpeed: program.lfoSpeed,
+                        lfoShape: program.lfoShape,
                         isRunning: isRunning
                     )
                     .allowsHitTesting(true)
-//                    .padding(.horizontal, -20)
                     .cornerRadius(12)
                     .contextMenu {
                         ForEach(LFOType.allCases, id: \.self) { waveform in
@@ -83,18 +83,13 @@ struct LFOAnimationView: View {
                     }
                     
                     frequencyControlView
-                        //            infoDisplayView
-                    
-                        //            Spacer()
                 }
-//                .frame(maxWidth: geometry.size.width * (4/5))
-                
-//                Modulation_Destination_View(type: .lfo)
-//                    .frame(maxWidth: geometry.size.width * (1/5))
             }
+            
         }
         .padding()
     }
+    
     
         // MARK: - View Components
     
@@ -254,7 +249,7 @@ struct LFOAnimationView: View {
     
     private var frequency: Double {
         get {
-            let normalized = Double(lfoSpeed.value) / 127.0
+            let normalized = Double(program.lfoSpeed.value) / 127.0
             let logMin = log10(minFrequency)
             let logMax = log10(maxFrequency)
             let logFreq = logMin + normalized * (logMax - logMin)
@@ -267,13 +262,13 @@ struct LFOAnimationView: View {
             let logFreq = log10(newValue)
             let normalized = (logFreq - logMin) / (logMax - logMin)
             let midiValue = UInt8(max(0, min(127, normalized * 127)))
-            lfoSpeed.setValue(midiValue)
+            program.lfoSpeed.setValue(midiValue)
         }
     }
     
     
     private var selectedWaveform: LFOType {
-        if case .lfo(let lfoType) = lfoShape.containedParameter {
+        if case .lfo(let lfoType) = program.lfoShape.containedParameter {
             return lfoType
         }
         return .sine
@@ -281,16 +276,16 @@ struct LFOAnimationView: View {
     
     
     private func setWaveform(_ waveform: LFOType) {
-        lfoShape.containedParameter = .lfo(waveform)
+        program.lfoShape.containedParameter = .lfo(waveform)
     }
     
     
-    private func waveformBinding() -> Binding<LFOType> {
-        Binding(
-            get: { selectedWaveform },
-            set: { setWaveform($0) }
-        )
-    }
+//    private func waveformBinding() -> Binding<LFOType> {
+//        Binding(
+//            get: { selectedWaveform },
+//            set: { setWaveform($0) }
+//        )
+//    }
     
     
     private func frequencySliderBinding() -> Binding<Double> {
@@ -344,9 +339,10 @@ struct LFOAnimationView: View {
 //    @Previewable @State var lfoShape: ProgramParameter = .init(type: .LFOShape)
     @Previewable @State var program: MiniWorksProgram = .init()
 
-    LFOAnimationView(lfoSpeed: program.lfoSpeed,
-                     lfoShape: program.lfoShape,
-                     lfoModulationSource: program.lfoSpeedModulationSource,
-                     lfoModulationAmount: program.lfoSpeedModulationAmount)
+    LFOAnimationView(program: program)
+//    LFOAnimationView(lfoSpeed: program.lfoSpeed,
+//                     lfoShape: program.lfoShape,
+//                     lfoModulationSource: program.lfoSpeedModulationSource,
+//                     lfoModulationAmount: program.lfoSpeedModulationAmount)
         .frame(width: 800, height: 260)
 }

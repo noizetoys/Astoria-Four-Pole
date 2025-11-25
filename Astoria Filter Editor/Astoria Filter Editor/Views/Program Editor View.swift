@@ -66,7 +66,6 @@ struct Program_Editor_View: View {
 
             VCF_Editor_View(program: program, showControls: true)
             .frame(maxWidth: cut(geometry, by: 1/3))
-//            .padding(.top, 30)
             
             LPF_Editor_View(program: program)
         }
@@ -80,18 +79,19 @@ struct Program_Editor_View: View {
                 .frame(maxWidth: geometry.size.width * (1/3))
             
             GroupBox {
-                LFOAnimationView(lfoSpeed: program.lfoSpeed,
-                                 lfoShape: program.lfoShape,
-                                 lfoModulationSource: program.lfoSpeedModulationSource,
-                                 lfoModulationAmount: program.lfoSpeedModulationAmount)
+                LFOAnimationView(program: program)
+//                LFOAnimationView(lfoSpeed: program.lfoSpeed,
+//                                 lfoShape: program.lfoShape,
+//                                 lfoModulationSource: program.lfoSpeedModulationSource,
+//                                 lfoModulationAmount: program.lfoSpeedModulationAmount)
             }
             .background(Color.blue.opacity(0.2))
             
             
-            colorthing(color: .orange, geometry: geometry, width: 1/6, height: 1/3)
-//            Color.orange.cornerRadius(10)
-//            Modulation_Destination_View(type: .aftertouch)
-//                .frame(maxWidth: geometry.size.width * (1/6))
+//            colorthing(color: .orange, geometry: geometry, width: 1/6, height: 1/3)
+            
+                            Modulation_Destination_View(type: .aftertouch)
+                .frame(maxWidth: geometry.size.width * (1/6))
             
         }
         
@@ -100,10 +100,9 @@ struct Program_Editor_View: View {
     
     private func bottomViews(_ geometry: GeometryProxy) -> some View {
         HStack {
-            VCA_Editor_View(program: program, showControls: false)
+            VCA_Editor_View(program: program, showControls: true)
                 .frame(maxWidth: cut(geometry, by: 1/3))
             
-//            colorthing(color: .orange, geometry: geometry, width: 1/3, height: 1/3)
                 Pan_Editor(program: program)
 //                    .frame(maxWidth: cut(geometry, by: 1/3) - 20)
                     .padding(.horizontal)

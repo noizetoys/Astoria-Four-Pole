@@ -78,18 +78,6 @@ struct MainView: View {
                     
                     
                         // Programs
-//                    Button {
-//                        withAnimation {
-//                            showROMPrograms.toggle()
-//                        }
-//                    } label: {
-//                        Text("Show \(showROMPrograms ? "User" : "ROM") Programs")
-//                            .frame(maxWidth: .infinity)
-//                            .padding()
-//                    }
-//                    .padding()
-                    
-                    
                     Program_Matrix(viewModel: viewModel)
                         .frame(maxHeight: rowHeight(from: geometry) * 2.5)
                         .padding([.horizontal, .bottom])
@@ -138,5 +126,5 @@ struct MainView: View {
 
 #Preview {
     MainView()
-        .frame(width: 1696, height: 1051)
+        .frame(width: 1200, height: 800)
 }

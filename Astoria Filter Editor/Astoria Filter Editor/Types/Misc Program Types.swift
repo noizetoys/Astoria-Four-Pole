@@ -18,8 +18,8 @@ enum ContainedParameter: Codable, Equatable {
     var name: String {
         switch self {
             case .lfo(let lfo): return lfo.rawValue
-            case .trigger(let trigger): return trigger.rawValue
-            case .mode(let mode): return mode.rawValue
+            case .trigger(let trigger): return trigger.name
+            case .mode(let mode): return mode.name
         }
     }
     
@@ -29,8 +29,8 @@ enum ContainedParameter: Codable, Equatable {
     var value: UInt8 {
         switch self {
             case .lfo(let lfo): return lfo.value
-            case .trigger(let trigger): return trigger.value
-            case .mode(let mode): return mode.value
+            case .trigger(let trigger): return trigger.rawValue
+            case .mode(let mode): return mode.rawValue
         }
     }
     
@@ -62,30 +62,30 @@ enum LFOType: String, Codable, CaseIterable {
 
 
     // MARK: - Trigger Sources
-enum TriggerSource: String, Codable, CaseIterable {
-    case audio = "Audio"
-    case MIDI = "MIDI"
-    case all = "All"
+enum TriggerSource: UInt8, Codable, CaseIterable {
+    case audio = 0
+    case MIDI = 1
+    case all = 2
     
-    var value: UInt8 {
+    var name: String {
         switch self {
-            case .audio: 0
-            case .MIDI: 1
-            case .all: 2
+            case .audio: "Audio"
+            case .MIDI: "MIDI"
+            case .all: "All"
         }
     }
 }
-
-
-    // MARK: - Trigger Modes
-enum TriggerMode: String, Codable, CaseIterable {
-    case multi = "Multi"
-    case single = "Single"
     
-    var value: UInt8 {
+    
+        // MARK: - Trigger Modes
+    enum TriggerMode: UInt8, Codable, CaseIterable {
+        case multi = 0
+    case single = 1
+    
+    var name: String {
         switch self {
-            case .multi: 0
-            case .single: 1
+            case .multi: "Multi"
+            case .single: "Single"
         }
     }
 }

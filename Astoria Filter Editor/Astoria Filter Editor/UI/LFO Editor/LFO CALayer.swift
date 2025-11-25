@@ -58,6 +58,11 @@ struct LFOLayerViewRepresentable: NSViewRepresentable {
 #Preview {
     @Previewable @State var program = MiniWorksProgram()
     
-    LFOAnimationView(lfoSpeed: program.lfoSpeed, lfoShape: program.lfoShape, lfoModulationSource: program.lfoSpeedModulationSource, lfoModulationAmount: program.lfoSpeedModulationAmount)
+    LFOAnimationView(program: program)
+    
+//    LFOAnimationView(lfoSpeed: program.lfoSpeed,
+//                     lfoShape: program.lfoShape,
+//                     lfoModulationSource: program.lfoSpeedModulationSource,
+//                     lfoModulationAmount: program.lfoSpeedModulationAmount)
         .frame(width: 800, height: 260)
 }

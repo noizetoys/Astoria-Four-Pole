@@ -75,13 +75,21 @@ final class ProgramParameter: Identifiable {
     }
     
     
-//    var triggerSourceBinding: Binding<TriggerSource> {
-//        Binding<TriggerSource>(
-//            get: { TriggerSource(rawValue: self._value) ?? .all},
-//            set: { self._value = $0.rawValue }
-//        )
-//    }
-
+    var triggerSourceBinding: Binding<TriggerSource> {
+        Binding<TriggerSource>(
+            get: { TriggerSource(rawValue: self._value) ?? .all},
+            set: { self._value = $0.rawValue }
+        )
+    }
+    
+    
+    var triggerModeBinding: Binding<TriggerMode> {
+        Binding<TriggerMode>(
+            get: { TriggerMode(rawValue: self._value) ?? .multi },
+            set: { self._value = $0.rawValue}
+        )
+    }
+    
     
         // MARK: - Computed
     

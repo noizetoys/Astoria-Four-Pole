@@ -14,53 +14,50 @@ struct LPF_Editor_View: View {
     var body: some View {
         GeometryReader { geometry in
             HStack {
-                    // Modulation (Left Side)
-//                HStack {
-                    
-                        // Cutoff Mod
-                    GroupBox {
-                        VStack {
-                            Text("Amount")
-                            PercentageArrowView(rawValue: program.cutoffModulationAmount.doubleBinding)
-                        }
-                        .padding(.horizontal, -20)
-                        
-                        Text("Cutoff Mod.")
-                            .bold()
-                        
-                        VStack(spacing: 0) {
-                            ArrowPickerGlowView(selection: program.cutoffModulationSource.modulationBinding,
-                                                direction: .right,
-                                                arrowColor: .blue)
-                            Text("Source")
-                        }
-                        .padding(.horizontal, -20)
+                
+                    // Cutoff Mod
+                GroupBox {
+                    VStack {
+                        Text("Amount")
+                        PercentageArrowView(rawValue: program.cutoffModulationAmount.doubleBinding)
                     }
-                    .frame(maxWidth: geometry.size.width * (1/5))
-
+                    .padding(.horizontal, -20)
+                    
+                    Text("Cutoff Mod.")
+                        .bold()
+                    
+                    VStack(spacing: 0) {
+                        ArrowPickerGlowView(selection: program.cutoffModulationSource.modulationBinding,
+                                            direction: .right,
+                                            arrowColor: .blue)
+                        Text("Source")
+                    }
+                    .padding(.horizontal, -20)
+                }
+                .frame(maxWidth: geometry.size.width * (1/5))
+                
                 LowPassFilterEditor(program: program)
-
-                        // Resonance Mod
-                    GroupBox {
-                        VStack {
-                            Text("Amount")
-                            PercentageArrowView(rawValue: program.resonanceModulationAmount.doubleBinding)
-                        }
-                        .padding(.horizontal, -20)
-                        
-                        Text("Resonance Mod.")
-                            .bold()
-                        
-                        VStack {
-                            ArrowPickerGlowView(selection: program.resonanceModulationSource.modulationBinding,
-                                                direction: .left,
-                                                arrowColor: .purple)
-                            Text("Source")
-                        }
-                        .padding(.horizontal, -20)
+                
+                    // Resonance Mod
+                GroupBox {
+                    VStack {
+                        Text("Amount")
+                        PercentageArrowView(rawValue: program.resonanceModulationAmount.doubleBinding)
                     }
+                    .padding(.horizontal, -20)
                     
-//                }
+                    Text("Resonance Mod.")
+                        .bold()
+                    
+                    VStack {
+                        ArrowPickerGlowView(selection: program.resonanceModulationSource.modulationBinding,
+                                            direction: .left,
+                                            arrowColor: .purple)
+                        Text("Source")
+                    }
+                    .padding(.horizontal, -20)
+                }
+                
                 .frame(maxWidth: geometry.size.width * (1/5))
                 
                 
@@ -76,5 +73,5 @@ struct LPF_Editor_View: View {
     @Previewable @State var program: MiniWorksProgram = MiniWorksProgram()
     
     LPF_Editor_View(program: program)
-                .frame(width: 600, height: 260)
+        .frame(width: 600, height: 260)
 }
