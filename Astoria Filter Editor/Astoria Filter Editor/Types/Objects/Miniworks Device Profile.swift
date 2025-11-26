@@ -14,11 +14,10 @@ class MiniworksDeviceProfile: Identifiable, Sendable {
     
     // (20) User Programs (1...20)
     var programs: [MiniWorksProgram] = []
+    // (21...40) Read Only programs (21...40)
+    // Pulled from ROMPrograms, no need to store
     
-    // (20) Read Only programs (21...40)
-    // Loaded from app, available to copy
-    var ROMprograms: [MiniWorksProgram] = []
-    
+    // Stored in User Defaults
     var globalSetup: MiniWorksGlobalData = .init()
     
     

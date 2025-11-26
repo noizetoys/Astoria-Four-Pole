@@ -62,8 +62,131 @@ import Foundation
  4. Change directory structure in `FileManagerPaths` as needed
  */
 
+// MARK: - Error Handling
 
+enum MiniworksFileError: LocalizedError {
+    case invalidPath
+    case fileNotFound(String)
+    case invalidJSON
+    case invalidSysEx
+    case encodingFailed
+    case decodingFailed
+    case writePermissionDenied
+    case checksumMismatch
+    case directoryCreationFailed
+    
+    var errorDescription: String? {
+        switch self {
+        case .invalidPath:
+            return "The specified file path is invalid"
+        case .fileNotFound(let name):
+            return "File not found: \(name)"
+        case .invalidJSON:
+            return "The JSON data is malformed or incompatible"
+        case .invalidSysEx:
+            return "The SysEx data is invalid or corrupted"
+        case .encodingFailed:
+            return "Failed to encode data for writing"
+        case .decodingFailed:
+            return "Failed to decode data from file"
+        case .writePermissionDenied:
+            return "Permission denied when writing to file"
+        case .checksumMismatch:
+            return "SysEx checksum validation failed"
+        case .directoryCreationFailed:
+            return "Failed to create required directories"
+        }
+    }
+}
 
+// MARK: - File Manager Paths
+
+/**
+ Manages application directory structure and provides path generation.
+ 
+ ## Customization
+ Replace `bundleIdentifier` with your app's identifier.
+ Modify directory names as needed for your application structure.
+ */
+struct FileManagerPaths {
+    static let bundleIdentifier = "com.yourcompany.MiniworksEditor"
+    
+    /// Base directory for all application files
+    static var applicationSupport: URL {
+        get throws {
+            let fileManager = FileManager.default
+            let appSupport = try fileManager.url(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true
+            )
+            return appSupport.appendingPathComponent(bundleIdentifier)
+        }
+    }
+    
+    /// Device Profiles directory
+    static var profilesDirectory: URL {
+        get throws {
+            try applicationSupport.appendingPathComponent("Profiles")
+        }
+    }
+    
+    /// Individual Programs directory
+    static var programsDirectory: URL {
+        get throws {
+            try applicationSupport.appendingPathComponent("Programs")
+        }
+    }
+    
+    /// SysEx export directory
+    static var sysExDirectory: URL {
+        get throws {
+            try applicationSupport.appendingPathComponent("SysEx")
+        }
+    }
+    
+    /// Logs directory
+    static var logsDirectory: URL {
+        get throws {
+            try applicationSupport.appendingPathComponent("Logs")
+        }
+    }
+    
+    /// Factory presets directory
+    static var factoryPresetsDirectory: URL {
+        get throws {
+            try programsDirectory.appendingPathComponent("Factory")
+        }
+    }
+}
+
+// MARK: - SysEx Format Definitions
+
+/**
+ Defines SysEx message types for the Waldorf Miniworks.
+ 
+ ## Customization Point
+ Modify these values to match your specific hardware's SysEx specification.
+ */
+enum SysExFormat {
+    /// SysEx message headers
+    static let startByte: UInt8 = 0xF0
+    static let endByte: UInt8 = 0xF7
+    static let waldorfID: UInt8 = 0x3E
+    static let miniworksID: UInt8 = 0x04
+    
+    /// Message type identifiers
+    static let programDump: UInt8 = 0x00      // Single program dump
+    static let programRequest: UInt8 = 0x01   // Request single program
+    static let allDump: UInt8 = 0x08          // All programs + globals dump
+    static let allRequest: UInt8 = 0x09       // Request all data
+    
+    /// Create SysEx header for different message types
+    static func header(deviceID: UInt8, messageType: UInt8) -> [UInt8] {
+        [startByte, waldorfID, miniworksID, deviceID, messageType]
+    }
+}
 
 // MARK: - Main File Manager
 
@@ -140,7 +263,6 @@ class MiniworksFileManager {
         }
     }
     
-    
     // MARK: - Device Profile Operations
     
     /**
@@ -178,8 +300,7 @@ class MiniworksFileManager {
         let url = try FileManagerPaths.profilesDirectory
             .appendingPathComponent("\(filename).json")
         
-        guard fileManager.fileExists(atPath: url.path)
-        else {
+        guard fileManager.fileExists(atPath: url.path) else {
             throw MiniworksFileError.fileNotFound(name)
         }
         
@@ -476,15 +597,13 @@ class MiniworksFileManager {
         // Validate basic structure
         guard bytes.first == SysExFormat.startByte,
               bytes.last == SysExFormat.endByte,
-              bytes.count > 6
-        else {
+              bytes.count > 6 else {
             throw MiniworksFileError.invalidSysEx
         }
         
         // Check manufacturer and model ID
         guard bytes[1] == SysExFormat.waldorfID,
-              bytes[2] == SysExFormat.miniworksID
-        else {
+              bytes[2] == SysExFormat.miniworksID else {
             throw MiniworksFileError.invalidSysEx
         }
         
@@ -622,7 +741,7 @@ class MiniworksFileManager {
         }
         
         // Extract device ID
-//        let deviceID = bytes[3]
+        let deviceID = bytes[3]
         
         // Parse programs (20 programs, 29 bytes each = 580 bytes)
         var programs: [MiniWorksProgram] = []
@@ -665,12 +784,9 @@ class MiniworksFileManager {
         }
         
         // Parse program
-        if let program = try MiniWorksProgram(bytes: bytes) {
-            return program
-        }
-        else {
-            throw MiniworksFileError.decodingFailed
-        }
+        let program = try MiniWorksProgram(bytes: bytes)
+        
+        return program
     }
     
     /**

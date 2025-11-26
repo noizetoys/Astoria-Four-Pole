@@ -8,8 +8,16 @@
 import Foundation
 
 
+// MARK: - MIDI Control
+
 enum GlobalMIDIControl: UInt8, Codable, CaseIterable, Identifiable {
     var id: UInt8 { self.rawValue }
+    var storedValue: Self { self }
+    
+    init?(storedValue: Self) {
+        self = storedValue
+    }
+
     
     case off = 0
     
@@ -31,8 +39,33 @@ enum GlobalMIDIControl: UInt8, Codable, CaseIterable, Identifiable {
 }
 
 
+extension GlobalSetting {
+    init(wrappedValue: T, _ key: GlobalMIDIControl) {
+        self.init(wrappedValue: wrappedValue, key: key.name)
+    }
+}
+
+extension GlobalMIDIControl: UserDefaultsSerializable {
+    public var userDefaultsValue: Any { rawValue }
+    
+    public static func fromUserDefaultsValue(_ value: Any) -> GlobalMIDIControl? {
+        if let int = value as? Int { return Self(rawValue: UInt8(int)) }
+        if let num = value as? UInt8 { return Self(rawValue: num) }
+        if let num = value as? NSNumber { return Self(rawValue: num.uint8Value) }
+        return nil
+    }
+}
+
+
+// MARK: - Knob Mode
+
 enum GlobalKnobMode: UInt8, Codable, CaseIterable, Identifiable {
     var id: UInt8 { self.rawValue }
+    var storedValue: Self { self }
+    
+    init?(storedValue: Self) {
+        self = storedValue
+    }
     
     case jump = 0
     case relative = 1
@@ -47,6 +80,25 @@ enum GlobalKnobMode: UInt8, Codable, CaseIterable, Identifiable {
     
 }
 
+extension GlobalSetting {
+    init(wrappedValue: T, _ key: GlobalKnobMode) {
+        self.init(wrappedValue: wrappedValue, key: key.name)
+    }
+}
+
+extension GlobalKnobMode: UserDefaultsSerializable {
+    public var userDefaultsValue: Any { rawValue }
+    
+    public static func fromUserDefaultsValue(_ value: Any) -> GlobalKnobMode? {
+        if let int = value as? Int { return Self(rawValue: UInt8(int)) }
+        if let num = value as? UInt8 { return Self(rawValue: num) }
+        if let num = value as? NSNumber { return Self(rawValue: num.uint8Value) }
+        return nil
+    }
+}
+
+
+// MARK: - Global Types
 
 enum MiniWorksGlobalTypes: Int, Codable {
     case globalMidiChannel = 585 // Byte #

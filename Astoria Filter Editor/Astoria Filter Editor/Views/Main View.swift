@@ -33,6 +33,7 @@ struct MainView: View {
         proxy.size.width / 5
     }
     
+    
     private func rowHeight(from proxy: GeometryProxy) -> CGFloat {
         proxy.size.height / 3
     }
