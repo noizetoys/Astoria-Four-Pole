@@ -7,29 +7,37 @@
 import SwiftUI
 
 struct Program_Title_View: View {
-    let program: MiniWorksProgram?
+    let viewModel: MainViewModel
     
     @State private var canComparePrograms: Bool = false
     @State private var programIsEdited: Bool = false
     
 
     // TODO: Add 'tags' to Program
-    let sampleTags = ["Guitar", "Compressed", "Bright"]
-    
     private var programText: String {
-        guard let program else { return "No Program Selected"}
+        guard
+            let program = viewModel.program
+        else { return "No Program Selected"}
         
-        return "[\(program.programNumber)] \(program.programName)"
+        // Uses zero index, device is 1 index
+        let programNumber = program.programNumber + 1
+        let name = programNumber > 20
+        ? "ROM Program #\(programNumber)"
+        : program.programName
+        
+        return "[\(programNumber)] \(name)"
     }
+    
     
     var programNameView: some View {
         HStack {
             Text(programText)
                 .font(.title)
             
-            if program != nil {
+            if programIsEdited {
                 Text("- Edited")
                     .font(.title)
+                    .italic()
                     .foregroundStyle(.gray)
             }
             
@@ -40,8 +48,8 @@ struct Program_Title_View: View {
     
     // MARK: - Lifecycle
     
-    init(program: MiniWorksProgram?) {
-        self.program = program
+    init(viewModel: MainViewModel) {
+        self.viewModel = viewModel
     }
     
     
@@ -52,7 +60,6 @@ struct Program_Title_View: View {
                 
                 tagsView
                 
-//                Spacer()
             }
             .padding(.leading)
             
@@ -60,7 +67,7 @@ struct Program_Title_View: View {
                 bigButton("Compare", color: .green)
             }
             
-        } // VStack
+        }
     }
     
 
@@ -80,39 +87,22 @@ struct Program_Title_View: View {
     
     @ViewBuilder
     private var tagsView: some View {
-        if program != nil {
+        if viewModel.program != nil {
             HStack {
-                ForEach(sampleTags, id: \.self) { tag in
-                    tagView(for: tag)
+                ForEach(viewModel.program?.tags ?? [], id: \.self) { tag in
+                    ProgramTagView(tagItem: tag)
                 }
                 Spacer()
             }
         }
-        else {
-            EmptyView()
-        }
+        else { EmptyView() }
     }
 
-    
-    private func tagView(for text: String) -> some View {
-        Text(text)
-            .foregroundStyle(.white)
-            .font(.footnote)
-            .bold()
-            .padding(.vertical, 5)
-            .padding(.horizontal)
-            .background(
-                RoundedRectangle(cornerRadius: 6)
-                    .foregroundStyle(.red)
-            )
-        
-    }
-    
 }
 
 
 #Preview {
-        Program_Title_View(program: MiniWorksProgram())
+    Program_Title_View(viewModel: MainViewModel(profile: MiniworksDeviceProfile.newMachineConfiguration()))
             .frame(width: 480, height: 67)
             .background(.gray.opacity(0.3))
             .padding()

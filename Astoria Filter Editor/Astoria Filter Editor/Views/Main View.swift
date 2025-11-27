@@ -75,29 +75,18 @@ struct MainView: View {
                 VStack {
                     HStack {
                         GroupBox {
-                            Program_Title_View(program: viewModel.program)
-//                            DimensionBoxView(name: "Program Title",
-//                                         color: .green,
-//                                         geometry: geometry,
-//                                             width: 2/5,
-//                                             height: 1/12)
+                            Program_Title_View(viewModel: viewModel)
                         }
                         .background(.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
 
                         GroupBox {
-//                            DimensionBoxView(name: "Quick Actions",
-//                                         color: .purple,
-//                                         geometry: geometry,
-//                                             width: 2/5,
-//                                             height: 1/12)
                             QuickActionsView(newProgram: $newProgram,
                                              sendProgram: $sendProgram,
                                              requestProgram: $requestProgram,
                                              newProfile: $newProfile,
                                              sendProfile: $sendProfile,
                                              requestProfile: $requestProfile)
-//                                .frame(maxWidth: columnWidth(from: geometry))
                         }
                         .background(.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 10))

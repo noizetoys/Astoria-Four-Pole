@@ -8,6 +8,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 
 typealias SysExDump = [UInt8]
@@ -24,6 +25,7 @@ func programNumber(from data: SysExDump) -> Int? {
     return Int(index) + 1
 }
 
+
     /// If you ever need the raw device index (20–39) instead:
 func programIndex(from data: SysExDump) -> Int? {
     guard data.count > 5 else { return nil }
@@ -35,16 +37,28 @@ class MiniworksROMPrograms {
     private init() { }
     
     static func sysEx(for program: Int) throws -> [UInt8] {
+        debugPrint(message: "program: \(program)", type: .trace)
         guard (21...40).contains(program)
         else { throw SysExError.invalideProgramNumber(number: UInt8(program))}
             
-        return ROMProgramsData[program]
+        return ROMProgramsData[program - 21]
     }
     
     
     static func program(_ number: Int) throws -> MiniWorksProgram {
+        debugPrint(message: "number: \(number)", type: .trace)
+        
         let sysEx: SysExDump = try sysEx(for: number)
-        return try MiniWorksProgram(bytes: sysEx)!
+        
+        if let newProgram = try? MiniWorksProgram(bytes: sysEx) {
+            newProgram.tags = ROMProgramTags[number - 21]
+            print("tags = \(newProgram.tags.count)")
+            return newProgram
+        }
+        else {
+            print("Not")
+            return try MiniWorksProgram(bytes: sysEx)!
+        }
     }
     
     
@@ -228,6 +242,82 @@ class MiniworksROMPrograms {
         program38,
         program39,
         program40
+    ]
+    
+    
+    static private let ROMProgramTags: [[ProgramTag]] = [
+        // 21
+        [
+            ProgramTag(name: "Guitar", color: .purple, shape: .roundedRectangle),
+            ProgramTag(name: "Drum", color: .deepRed, shape: .roundedRectangle),
+            ProgramTag(name: "External Audio", color: .orange, shape: .roundedRectangle)
+        ],
+        // 22
+        [
+            ProgramTag(name: "Guitar", color: .purple, shape: .roundedRectangle),
+            ProgramTag(name: "Drum", color: .deepRed, shape: .roundedRectangle),
+            ProgramTag(name: "External Audio", color: .orange, shape: .roundedRectangle)
+        ],
+        // 23
+        [
+            ProgramTag(name: "Guitar", color: .purple, shape: .roundedRectangle),
+            ProgramTag(name: "Drum", color: .deepRed, shape: .roundedRectangle),
+            ProgramTag(name: "External Audio", color: .orange, shape: .roundedRectangle)
+        ],
+        // 24
+        [
+            ProgramTag(name: "Guitar", color: .purple, shape: .roundedRectangle),
+            ProgramTag(name: "Drum", color: .deepRed, shape: .roundedRectangle),
+            ProgramTag(name: "External Audio", color: .orange, shape: .roundedRectangle)
+        ],
+        // 25
+        [
+            ProgramTag(name: "Drum Pad", color: .neonBlue, shape: .roundedRectangle),
+            ProgramTag(name: "Audio In", color: .orange, shape: .roundedRectangle),
+            ProgramTag(name: "External Audio", color: .orange, shape: .roundedRectangle)
+        ],
+        // 26
+        [
+            ProgramTag(name: "DeNoiser", color: .purple, shape: .roundedRectangle),
+            ProgramTag(name: "Audio In", color: .orange, shape: .roundedRectangle),
+        ],
+        // 27
+        [
+        ],
+        // 28
+        [
+            ProgramTag(name: "Ring Modulator", color: .rainbow, shape: .roundedRectangle),
+        ],
+        // 29
+        [
+            ProgramTag(name: "Panning", color: .gold, shape: .roundedRectangle),
+        ],
+        // 30
+        [
+            ProgramTag(name: "Compressor", color: .silver, shape: .roundedRectangle),
+        ],
+        // 31
+        [],
+        // 32
+        [],
+        // 33
+        [],
+        // 34
+        [],
+        // 35
+        [],
+        // 36
+        [],
+        // 37
+        [],
+        // 38
+        [],
+        // 39
+        [],
+        // 40
+        [],
+
+
     ]
     
 }

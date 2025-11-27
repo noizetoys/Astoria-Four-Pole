@@ -220,6 +220,7 @@ let soundSourceTags: [ProgramTag] = [
     ProgramTag(name: "Piano", color: .brown),
     ProgramTag(name: "Acoustic Guitar", color: .sand),
     ProgramTag(name: "Electric Guitar", color: .purple),
+    ProgramTag(name: "Guitar", color: .purple),
     ProgramTag(name: "Bass Guitar", color: .deepRed),
     ProgramTag(name: "Violin", color: .orange),
     ProgramTag(name: "Cello", color: .brown),
@@ -233,6 +234,7 @@ let soundSourceTags: [ProgramTag] = [
     
     // Percussion
     ProgramTag(name: "Kick Drum", color: .deepRed),
+    ProgramTag(name: "Drum", color: .deepRed),
     ProgramTag(name: "Snare", color: .silver),
     ProgramTag(name: "Hi-hats", color: .white),
     ProgramTag(name: "Toms", color: .brown),
@@ -240,7 +242,8 @@ let soundSourceTags: [ProgramTag] = [
     ProgramTag(name: "Shakers", color: .yellow),
     ProgramTag(name: "Cowbell", color: .silver),
     ProgramTag(name: "Drum Machine", color: .neonBlue),
-    
+    ProgramTag(name: "Drum Pad", color: .neonBlue),
+
     // Electronic
     ProgramTag(name: "Synth Oscillator", color: .neonGreen),
     ProgramTag(name: "Wavetable", color: .purple),
@@ -275,7 +278,18 @@ let triggerSourceTags: [ProgramTag] = [
     ProgramTag(name: "Arpeggiator", color: .blue),
     ProgramTag(name: "Sensor Input", color: .mint),
     ProgramTag(name: "Tape Input", color: .brown),
-    ProgramTag(name: "Vinyl Input", color: .white)
+    ProgramTag(name: "Vinyl Input", color: .orange),
+    ProgramTag(name: "Audio In", color: .orange, shape: .roundedRectangle),
+    
+    ProgramTag(name: "DeNoiser", color: .purple, shape: .roundedRectangle),
+    ProgramTag(name: "Single Trigger", color: .yellow, shape: .roundedRectangle),
+    ProgramTag(name: "Long Release", color: .blue, shape: .roundedRectangle),
+    
+    ProgramTag(name: "Ring Modulator", color: .rainbow, shape: .roundedRectangle),
+    ProgramTag(name: "Panning", color: .gold, shape: .roundedRectangle),
+    ProgramTag(name: "Compressor", color: .silver, shape: .roundedRectangle),
+
+
 ]
 
 

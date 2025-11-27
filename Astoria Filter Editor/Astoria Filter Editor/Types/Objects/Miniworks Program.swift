@@ -130,6 +130,7 @@ extension MiniWorksProgram {
 //        debugPrint(message: "program #\(number + 1), byte count: \(bytes.count), \(bytes.hexString)")
         
         self.init(bytes: bytes, number: number)
+        self.programName = "ROM Program #\(number)"
         self.isReadOnly = true
     }
     

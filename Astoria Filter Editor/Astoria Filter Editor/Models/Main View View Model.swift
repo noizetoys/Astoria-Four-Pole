@@ -320,6 +320,15 @@ final class MainViewModel {
     
     
     func requestLoadProgram(_ number: Int, isROM: Bool) throws {
+        debugPrint(icon: "👇🏻", message: "Loading \(isROM ? "ROM" : "") Program #\(number + 1)", type: .trace)
+        
+        if isROM {
+            print("Is ROM")
+            program = try MiniworksROMPrograms.program(number)
+            print("program: \(program?.programName)")
+            return
+        }
+        
         Task {
             try await midiService.send(.programChange(channel: 1, program: UInt8(number)), to: selectedDestination)
             
@@ -332,7 +341,6 @@ final class MainViewModel {
             }
             
         }
-        debugPrint(icon: "👇🏻", message: "Loading \(isROM ? "ROM" : "") Program #\(number + 1)", type: .trace)
     }
     
     

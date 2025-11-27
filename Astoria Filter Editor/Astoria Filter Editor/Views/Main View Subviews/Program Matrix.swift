@@ -125,7 +125,7 @@ struct ButtonMatrix: View {
         showROMs ? .gray.opacity(0.3) : .white
     }
 
-    
+    private var offSet: Int { showROMs ? 21 : 0}
     
     var body: some View {
                 
@@ -160,12 +160,13 @@ struct ButtonMatrix: View {
             ForEach(range, id: \.self) { num in
                 ProgramCellView(program: programs[num], backgroundColor: cellColor)
                     .onTapGesture {
-                        try? viewModel.requestLoadProgram(num, isROM: showROMs)
+                        try? viewModel.requestLoadProgram(num + offSet, isROM: showROMs)
                     }
             }
             
         }
     }
+    
 }
 
 
