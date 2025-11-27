@@ -45,35 +45,95 @@ enum DebugPrintLevel: Equatable {
 }
 
 
-func dimensionBox(name: String,
-                  color: Color,
-                  geometry: GeometryProxy,
-                  width: CGFloat,
-                  height: CGFloat) -> some View {
-    let newWidth = geometry.size.width * width
-    let newHeight = geometry.size.height * height
+struct DimensionBoxView: View {
+    let name: String
+    let color: Color
+    let geometry: GeometryProxy
+    var width: CGFloat?
+    var height: CGFloat?
     
-    return color
-        .cornerRadius(10)
-        .overlay {
-            Text("\(name):\n\(describeSize(geometry, width: width, height: height))")
-                .font(.title)
-                .multilineTextAlignment(.center)
+    
+    private var newWidth: CGFloat {
+        width != nil
+        ? geometry.size.width * width!
+        : .infinity
+    }
+
+    
+    private var newHeight: CGFloat {
+        height != nil
+        ? geometry.size.height * height!
+        : .infinity
+    }
+    
+    
+    private var textString: String {
+        let widthValue = width ?? geometry.size.width
+        let heightValue = height ?? geometry.size.height
+        
+        let proxyWidth = String(format: "%.0f", geometry.size.width)
+        let proxyHeight = String(format: "%.0f", geometry.size.height)
+        
+        var adjustedWidth: String {
+            var newWidth: CGFloat = widthValue
+            
+            if let width {
+                newWidth = geometry.size.width * width
+            }
+            return String(format: "%.0f", newWidth)
         }
-        .frame(width: newWidth, height: newHeight)
+        
+        var adjustedHeight : String {
+            var newHeight: CGFloat = heightValue
+            
+            if let height {
+                newHeight = geometry.size.height * height
+            }
+            
+            return String(format: "%.0f", newHeight)
+        }
+
+        return "\(name):\n(\(proxyWidth),\(proxyHeight))->  (\(adjustedWidth), \(adjustedHeight))"
+    }
+    
+    var body: some View {
+        color
+            .cornerRadius(10)
+            .overlay {
+                Text(textString)
+//                    .font(.title)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(width: newWidth, height: newHeight)
+    }
+}
+
+
+#Preview {
+    GeometryReader { geo in
+        VStack {
+            DimensionBoxView(name: "Test",
+                             color: .orange,
+                             geometry: geo)
+            
+            HStack {
+                DimensionBoxView(name: "Second",
+                                 color: .blue,
+                                 geometry: geo,
+                                 width: 1/2)
+                
+                DimensionBoxView(name: "Third",
+                                 color: .red,
+                                 geometry: geo,
+                                 width: 1/2)
+            }
+        }
+        
+    }
 }
 
 
     // For Debugging
-func describeSize(_ proxy: GeometryProxy, width wD: CGFloat, height hD: CGFloat) -> String {
-    let proxyWidth = String(format: "%.0f", proxy.size.width)
-    let proxyHeight = String(format: "%.0f", proxy.size.height)
-    let adjustedWidth = String(format: "%.0f", proxy.size.width * wD)
-    let adjustedHeight = String(format: "%.0f", proxy.size.height * hD)
-    return "Size for (\(proxyWidth),\(proxyHeight)):\n  width: \(adjustedWidth),  height: \(adjustedHeight)"
-}
-
-
 func cut(_ proxy: GeometryProxy, by div: CGFloat, isWidth: Bool = true) -> CGFloat {
     let value = isWidth ? proxy.size.width : proxy.size.height
     return value * div

@@ -8,35 +8,30 @@
 import SwiftUI
 
 struct QuickActionsView: View {
-    @Binding var showSettings: Bool
-    @Binding var showFileManager: Bool
-    @Binding var requestAll: Bool
-    @Binding var sendAll: Bool
+//    @Binding var showSettings: Bool
+//    @Binding var showFileManager: Bool
+    
+    @Binding var newProgram: Bool
+    @Binding var sendProgram: Bool
+    @Binding var requestProgram: Bool
+    
+    @Binding var newProfile: Bool
+    @Binding var sendProfile: Bool
+    @Binding var requestProfile: Bool
 
     
     var body: some View {
-        GroupBox {
-            HStack {
-                
-                VStack {
-                    button(for: "Get Profile", property: $requestAll, color: .orange)
-                    button(for: "Send Profile", property: $sendAll, color: .purple, lightText: true)
-                }
-
-                
-                VStack {
-                    button(for: "Profiles", property: $showFileManager, color: .red, lightText: true)
-                    button(for: "Programs", property: $showFileManager, color: .yellow)
-                }
-
-//                VStack {
-//                    button(for: "Settings", property: $showSettings, color: .green)
-//                    button(for: "Programs", property: $showFileManager, color: .blue, lightText: true)
-//                }
-                
-            }
-//            .padding()
+        HStack {
+            button(for: "New\nProgram", property: $newProgram, color: .red.opacity(0.8), lightText: true)
+            button(for: "Send\nProgram", property: $sendProgram, color: .red.opacity(0.8), lightText: true)
+            button(for: "Receive\nProgram", property: $requestProgram, color: .red.opacity(0.8), lightText: true)
+            
+            button(for: "New\nProfile", property: $newProfile, color: .blue.opacity(0.9), lightText: true)
+            button(for: "Send\nProfile", property: $sendProfile, color: .blue.opacity(0.9), lightText: true)
+            button(for: "Receive\nProfile", property: $requestProfile, color: .blue.opacity(0.9), lightText: true)
+            
         }
+        
     }
     
     
@@ -45,9 +40,11 @@ struct QuickActionsView: View {
             property.wrappedValue.toggle()
         } label: {
             Text(title)
-                .font(.caption)
+                .font(.headline)
                 .bold()
                 .foregroundStyle(lightText ? .white : .black)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(color)
@@ -59,15 +56,21 @@ struct QuickActionsView: View {
 
 
 #Preview {
-    @Previewable @State var showSettings: Bool = false
-    @Previewable @State var showFileManager: Bool = false
-    @Previewable @State var requestAll: Bool = false
-    @Previewable @State var sendAll: Bool = false
+    @Previewable @State var newProgram: Bool = false
+    @Previewable @State var sendProgram: Bool = false
+    @Previewable @State var requestProgram: Bool = false
+    @Previewable @State var newProfile: Bool = false
+    @Previewable @State var sendProfile: Bool = false
+    @Previewable @State var requestProfile: Bool = false
 
-    QuickActionsView(showSettings: $showSettings,
-                         showFileManager: $showFileManager,
-                         requestAll: $requestAll,
-                         sendAll: $sendAll)
-    .frame(width: 300, height: 100)
+    QuickActionsView(newProgram: $newProgram,
+                     sendProgram: $sendProgram,
+                     requestProgram: $requestProgram,
+                     newProfile: $newProfile,
+                     sendProfile: $sendProfile,
+                     requestProfile: $requestProfile)
+    .frame(width: 480, height: 67)
+    .background(.gray.opacity(0.3))
+
 }
 

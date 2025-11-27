@@ -87,7 +87,7 @@ struct ProgramCodable: Codable {
     let programNumber: UInt8
     let programName: String
     let isReadOnly: Bool
-    let tags: [ProgramTagCodable]
+    let tags: [ProgramTag]
     
     // VCF Envelope
     let vcfEnvelopeAttack: UInt8
@@ -140,7 +140,7 @@ struct ProgramCodable: Codable {
         self.programNumber = program.programNumber
         self.programName = program.programName
         self.isReadOnly = program.isReadOnly
-        self.tags = program.tags.map { ProgramTagCodable(tag: $0) }
+        self.tags = program.tags//.map { ProgramTagCodable(tag: $0) }
         
         // VCF Envelope
         self.vcfEnvelopeAttack = program.vcfEnvelopeAttack.value
@@ -201,7 +201,7 @@ struct ProgramCodable: Codable {
         // Metadata
         program.programNumber = programNumber
         program.programName = programName
-        program.tags = tags.map { $0.toTag() }
+        program.tags = tags//.map { $0.toTag() }
         
         // VCF Envelope
         program.vcfEnvelopeAttack.setValue(vcfEnvelopeAttack)

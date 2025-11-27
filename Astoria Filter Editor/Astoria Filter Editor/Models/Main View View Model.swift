@@ -103,15 +103,29 @@ final class MainViewModel {
         availableSources = await midiService.availableSources()
         availableDestinations = await midiService.availableDestinations()
         
-        if !availableSources.isEmpty {
+        let sourcesDetected = !availableSources.isEmpty
+        if sourcesDetected {
             selectedSource = availableSources.first
         }
         
-        if !availableDestinations.isEmpty {
+        let destinationsDetected = !availableDestinations.isEmpty
+            if destinationsDetected {
             selectedDestination = availableDestinations.first
         }
         
-        statusMessage = "Found \(availableSources.count) source(s) and \(availableDestinations.count) destination(s)."
+        if sourcesDetected && destinationsDetected {
+            statusMessage = "Ready to Connect..."
+        }
+        else if sourcesDetected && !destinationsDetected {
+            statusMessage = "No Destinations Found"
+        }
+        else if !sourcesDetected && destinationsDetected {
+            statusMessage = "No Sources Found"
+        }
+        else {
+            statusMessage = "Not able to connect"
+        }
+//        statusMessage = "Found \(availableSources.count) source(s) and \(availableDestinations.count) destination(s)."
     }
     
     

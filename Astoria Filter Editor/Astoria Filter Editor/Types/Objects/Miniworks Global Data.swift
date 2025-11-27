@@ -26,7 +26,7 @@ class MiniWorksGlobalData: Codable, Sendable {
     var midiChannel: UInt8 = 0x01
     
     /// How controls are transmitted or received
-    @GlobalSetting(key: SysExConstant.midiControlKey)
+//    @GlobalSetting(key: SysExConstant.midiControlKey)
     var midiControl: GlobalMIDIControl = .ctr
     
     /// User settable 0-126
@@ -42,7 +42,7 @@ class MiniWorksGlobalData: Codable, Sendable {
     var noteNumber: UInt8 = 60
     
     /// How knobs sync with value display
-    @GlobalSetting(key: SysExConstant.knobModeKey)
+//    @GlobalSetting(key: SysExConstant.knobModeKey)
     var knobMode: GlobalKnobMode = .relative
 
     private enum CodingKeys: String, CodingKey {

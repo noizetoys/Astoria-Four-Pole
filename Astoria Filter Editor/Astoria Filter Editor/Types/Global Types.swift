@@ -39,9 +39,9 @@ enum GlobalMIDIControl: UInt8, Codable, CaseIterable, Identifiable {
 }
 
 
-extension GlobalSetting {
-    init(wrappedValue: T, _ key: GlobalMIDIControl) {
-        self.init(wrappedValue: wrappedValue, key: key.name)
+extension GlobalSetting where T == GlobalMIDIControl {
+    init(wrappedValue: T, _ key: String) {
+        self.init(wrappedValue: GlobalMIDIControl(rawValue: wrappedValue.rawValue ?? 0) ?? .ctr, key: key)
     }
 }
 
@@ -80,9 +80,9 @@ enum GlobalKnobMode: UInt8, Codable, CaseIterable, Identifiable {
     
 }
 
-extension GlobalSetting {
-    init(wrappedValue: T, _ key: GlobalKnobMode) {
-        self.init(wrappedValue: wrappedValue, key: key.name)
+extension GlobalSetting where T == GlobalKnobMode {
+    init(wrappedValue: GlobalKnobMode, _ key: String) {
+        self.init(wrappedValue: GlobalKnobMode(rawValue: wrappedValue.rawValue) ?? .relative, key: key)
     }
 }
 

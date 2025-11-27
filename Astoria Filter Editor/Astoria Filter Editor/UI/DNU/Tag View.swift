@@ -1,25 +1,7 @@
 import SwiftUI
 
-// MARK: - Models
 
-struct Tag: Identifiable, Hashable {
-    let id = UUID()
-    let name: String
-    let color: Color
-    
-    static let sampleTags: [Tag] = [
-        Tag(name: "Work", color: .blue),
-        Tag(name: "Personal", color: .green),
-        Tag(name: "Urgent", color: .red),
-        Tag(name: "Ideas", color: .purple),
-        Tag(name: "Home", color: .orange),
-        Tag(name: "Finance", color: .yellow),
-        Tag(name: "Health", color: .pink),
-        Tag(name: "Travel", color: .cyan),
-        Tag(name: "Shopping", color: .indigo),
-        Tag(name: "Learning", color: .teal)
-    ]
-}
+    // MARK: - Models
 
 struct TaggedItem: Identifiable {
     let id = UUID()

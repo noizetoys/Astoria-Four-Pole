@@ -9,6 +9,10 @@ import SwiftUI
 struct Program_Title_View: View {
     let program: MiniWorksProgram?
     
+    @State private var canComparePrograms: Bool = false
+    @State private var programIsEdited: Bool = false
+    
+
     // TODO: Add 'tags' to Program
     let sampleTags = ["Guitar", "Compressed", "Bright"]
     
@@ -17,13 +21,6 @@ struct Program_Title_View: View {
         
         return "[\(program.programNumber)] \(program.programName)"
     }
-    
-    
-    init(program: MiniWorksProgram?) {
-        self.program = program
-    }
-    
-    
     
     var programNameView: some View {
         HStack {
@@ -39,47 +36,35 @@ struct Program_Title_View: View {
             Spacer()
         }
     }
+
     
-    @ViewBuilder
-    var tagsView: some View {
-        if program != nil {
-            HStack {
-                ForEach(sampleTags, id: \.self) { tag in
-                    tagView(for: tag)
-                }
-                Spacer()
-            }
-        }
-        else {
-            EmptyView()
-        }
+    // MARK: - Lifecycle
+    
+    init(program: MiniWorksProgram?) {
+        self.program = program
     }
-    
     
     
     var body: some View {
         HStack(spacing: 0) {
-                // Top
             VStack {
                 programNameView
                 
                 tagsView
                 
-                Spacer()
+//                Spacer()
             }
+            .padding(.leading)
             
-                // Buttons (Reset/Save)
-            HStack(spacing: 20) {
-                    //                    bigButton("Save", color: .blue)
-                    //                    bigButton("Cancel", color: .red)
+            HStack {
                 bigButton("Compare", color: .green)
             }
             
         } // VStack
     }
     
-    
-    func bigButton(_ text: String, color: Color) -> some View {
+
+    private func bigButton(_ text: String, color: Color) -> some View {
         Text(text)
             .font(.title3)
             .bold()
@@ -92,6 +77,22 @@ struct Program_Title_View: View {
             .frame(maxHeight: .infinity)
     }
     
+    
+    @ViewBuilder
+    private var tagsView: some View {
+        if program != nil {
+            HStack {
+                ForEach(sampleTags, id: \.self) { tag in
+                    tagView(for: tag)
+                }
+                Spacer()
+            }
+        }
+        else {
+            EmptyView()
+        }
+    }
+
     
     private func tagView(for text: String) -> some View {
         Text(text)
@@ -111,9 +112,8 @@ struct Program_Title_View: View {
 
 
 #Preview {
-    GeometryReader { proxy in
         Program_Title_View(program: MiniWorksProgram())
-            .frame(maxWidth: 600, maxHeight: 100)
-//            .frame(maxWidth: proxy.size.width * (4/5), maxHeight: proxy.size.height * 1/6)
-    }
+            .frame(width: 480, height: 67)
+            .background(.gray.opacity(0.3))
+            .padding()
 }

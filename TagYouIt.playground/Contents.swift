@@ -1,21 +1,27 @@
+//: A UIKit based Playground for presenting user interface
+  
+import SwiftUI
+import PlaygroundSupport
+
+
 import SwiftUI
 #if os(macOS)
 import AppKit
 #endif
 
-// MARK: - Extensions
+    // MARK: - Extensions
 
 extension Color {
     static var controlBackground: Color {
-        #if os(macOS)
+#if os(macOS)
         Color.controlBackground
-        #else
+#else
         Color(uiColor: .systemBackground)
-        #endif
+#endif
     }
 }
 
-// MARK: - Models
+    // MARK: - Models
 
 enum TagShape: String, CaseIterable, Codable {
     case capsule = "Capsule"
@@ -25,13 +31,36 @@ enum TagShape: String, CaseIterable, Codable {
     
     var iconName: String {
         switch self {
-        case .capsule: return "capsule"
-        case .roundedRectangle: return "square"
-        case .circle: return "circle"
-        case .diamond: return "diamond"
+            case .capsule: return "capsule"
+            case .roundedRectangle: return "square"
+            case .circle: return "circle"
+            case .diamond: return "diamond"
         }
     }
 }
+
+
+struct TagDiamond: InsettableShape {
+    var insetAmount: CGFloat = 0
+    
+    func path(in rect: CGRect) -> Path {
+        Path { path in
+            let adjustedRect = rect.insetBy(dx: insetAmount, dy: insetAmount)
+            path.move(to: CGPoint(x: adjustedRect.midX, y: adjustedRect.minY))
+            path.addLine(to: CGPoint(x: adjustedRect.maxX, y: adjustedRect.midY))
+            path.addLine(to: CGPoint(x: adjustedRect.midX, y: adjustedRect.maxY))
+            path.addLine(to: CGPoint(x: adjustedRect.minX, y: adjustedRect.midY))
+            path.closeSubpath()
+        }
+    }
+    
+    func inset(by amount: CGFloat) -> Self {
+        var diamond = self
+        diamond.insetAmount += amount
+        return diamond
+    }
+}
+
 
 struct Tag: Identifiable, Hashable, Codable {
     var id = UUID()
@@ -63,7 +92,7 @@ struct Tag: Identifiable, Hashable, Codable {
         try container.encode(id, forKey: .id)
         try container.encode(name, forKey: .name)
         try container.encode(shape, forKey: .shape)
-        #if os(macOS)
+#if os(macOS)
         let nsColor = NSColor(color)
         let components = [
             Double(nsColor.redComponent),
@@ -71,7 +100,7 @@ struct Tag: Identifiable, Hashable, Codable {
             Double(nsColor.blueComponent),
             Double(nsColor.alphaComponent)
         ]
-        #else
+#else
         let uiColor = UIColor(color)
         var red: CGFloat = 0
         var green: CGFloat = 0
@@ -79,7 +108,7 @@ struct Tag: Identifiable, Hashable, Codable {
         var alpha: CGFloat = 0
         uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
         let components = [Double(red), Double(green), Double(blue), Double(alpha)]
-        #endif
+#endif
         try container.encode(components, forKey: .colorComponents)
     }
     
@@ -142,7 +171,7 @@ struct TaggedItem: Identifiable {
     ]
 }
 
-// MARK: - View Model
+    // MARK: - View Model
 
 @Observable
 class TagSystemViewModel {
@@ -164,9 +193,9 @@ class TagSystemViewModel {
         
         return items.filter { item in
             let matchesTags = searchTags.isEmpty || searchTags.isSubset(of: item.tags)
-            let matchesText = searchText.isEmpty || 
-                item.title.localizedCaseInsensitiveContains(searchText) ||
-                item.description.localizedCaseInsensitiveContains(searchText)
+            let matchesText = searchText.isEmpty ||
+            item.title.localizedCaseInsensitiveContains(searchText) ||
+            item.description.localizedCaseInsensitiveContains(searchText)
             return matchesTags && matchesText
         }
     }
@@ -186,7 +215,7 @@ class TagSystemViewModel {
             let oldTag = availableTags[index]
             availableTags[index] = tag
             
-            // Update the tag in all items that use it
+                // Update the tag in all items that use it
             for itemIndex in items.indices {
                 if items[itemIndex].tags.contains(oldTag) {
                     items[itemIndex].tags.remove(oldTag)
@@ -194,7 +223,7 @@ class TagSystemViewModel {
                 }
             }
             
-            // Update search tags if the old tag was selected
+                // Update search tags if the old tag was selected
             if searchTags.contains(oldTag) {
                 searchTags.remove(oldTag)
                 searchTags.insert(tag)
@@ -205,17 +234,17 @@ class TagSystemViewModel {
     func deleteTag(_ tag: Tag) {
         availableTags.removeAll { $0.id == tag.id }
         
-        // Remove the tag from all items
+            // Remove the tag from all items
         for index in items.indices {
             items[index].tags.remove(tag)
         }
         
-        // Remove from search tags
+            // Remove from search tags
         searchTags.remove(tag)
     }
 }
 
-// MARK: - Tag Display View
+    // MARK: - Tag Display View
 
 struct TagView: View {
     let tag: Tag
@@ -245,21 +274,20 @@ struct TagView: View {
     @ViewBuilder
     private var tagShape: some InsettableShape {
         switch tag.shape {
-        case .capsule:
-            Capsule()
-        case .roundedRectangle:
-            RoundedRectangle(cornerRadius: 6)
-        case .circle:
-            Circle()
-        case .diamond:
-            // Use a rotated square for diamond shape
-            RoundedRectangle(cornerRadius: 2)
-                .rotation(.degrees(45))
+            case .capsule:
+                Capsule()
+            case .roundedRectangle:
+                RoundedRectangle(cornerRadius: 6)
+            case .circle:
+                Circle()
+            case .diamond:
+                TagDiamond()
+                    .rotation(.degrees(45))
         }
     }
 }
 
-// MARK: - Tag Collection View
+    // MARK: - Tag Collection View
 
 struct TagCollectionView: View {
     let tags: [Tag]
@@ -279,7 +307,7 @@ struct TagCollectionView: View {
     }
 }
 
-// MARK: - Flow Layout for Tags
+    // MARK: - Flow Layout for Tags
 
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8
@@ -345,7 +373,7 @@ struct FlowLayout: Layout {
     }
 }
 
-// MARK: - Item Card View
+    // MARK: - Item Card View
 
 struct ItemCardView: View {
     let item: TaggedItem
@@ -378,7 +406,7 @@ struct ItemCardView: View {
     }
 }
 
-// MARK: - Tag Editor View
+    // MARK: - Tag Editor View
 
 struct TagEditorView: View {
     @Binding var selectedTags: Set<Tag>
@@ -436,7 +464,7 @@ struct TagEditorView: View {
     }
 }
 
-// MARK: - Item Editor View
+    // MARK: - Item Editor View
 
 struct ItemEditorView: View {
     @Binding var item: TaggedItem
@@ -467,7 +495,7 @@ struct ItemEditorView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
+                // Header
             HStack {
                 Text("Edit Item")
                     .font(.headline)
@@ -490,7 +518,7 @@ struct ItemEditorView: View {
             
             Divider()
             
-            // Content
+                // Content
             Form {
                 Section("Details") {
                     TextField("Title", text: $editedItem.title)
@@ -513,7 +541,7 @@ struct ItemEditorView: View {
     }
 }
 
-// MARK: - Tag Creator/Editor View
+    // MARK: - Tag Creator/Editor View
 
 struct TagCreatorView: View {
     let tag: Tag?
@@ -545,7 +573,7 @@ struct TagCreatorView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
+                // Header
             HStack {
                 Text(tag == nil ? "Create Tag" : "Edit Tag")
                     .font(.headline)
@@ -578,7 +606,7 @@ struct TagCreatorView: View {
             
             Divider()
             
-            // Content
+                // Content
             Form {
                 Section("Tag Name") {
                     TextField("Enter tag name", text: $name)
@@ -655,7 +683,7 @@ struct TagCreatorView: View {
     }
 }
 
-// MARK: - Tag Management View
+    // MARK: - Tag Management View
 
 struct TagManagementView: View {
     let tags: [Tag]
@@ -669,7 +697,7 @@ struct TagManagementView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Header
+                // Header
             HStack {
                 Text("Manage Tags")
                     .font(.headline)
@@ -693,7 +721,7 @@ struct TagManagementView: View {
             
             Divider()
             
-            // Content
+                // Content
             if tags.isEmpty {
                 ContentUnavailableView(
                     "No Tags",
@@ -742,7 +770,7 @@ struct TagManagementView: View {
     }
 }
 
-// MARK: - Search Bar View
+    // MARK: - Search Bar View
 
 struct SearchBarView: View {
     @Binding var searchText: String
@@ -816,7 +844,7 @@ struct SearchBarView: View {
     }
 }
 
-// MARK: - Main Content View
+    // MARK: - Main Content View
 
 enum ActiveSheet: Identifiable {
     case editItem(TaggedItem)
@@ -826,10 +854,10 @@ enum ActiveSheet: Identifiable {
     
     var id: String {
         switch self {
-        case .editItem(let item): return "editItem-\(item.id)"
-        case .createTag: return "createTag"
-        case .editTag(let tag): return "editTag-\(tag.id)"
-        case .manageTags: return "manageTags"
+            case .editItem(let item): return "editItem-\(item.id)"
+            case .createTag: return "createTag"
+            case .editTag(let tag): return "editTag-\(tag.id)"
+            case .manageTags: return "manageTags"
         }
     }
 }
@@ -888,74 +916,73 @@ struct TagSystemView: View {
     @ViewBuilder
     private func sheetContent(for sheet: ActiveSheet) -> some View {
         switch sheet {
-        case .editItem(let item):
-            if let binding = Binding(
-                get: { viewModel.items.first { $0.id == item.id } ?? item },
-                set: { _ in }
-            ) {
-                ItemEditorView(
-                    item: binding,
-                    availableTags: viewModel.availableTags,
-                    onSave: { updatedItem in
-                        viewModel.updateItemTags(updatedItem, tags: updatedItem.tags)
+            case .editItem(let item):
+                let binding = Binding(
+                    get: { viewModel.items.first { $0.id == item.id } ?? item },
+                    set: { _ in }
+                )
+                    ItemEditorView(
+                        item: binding,
+                        availableTags: viewModel.availableTags,
+                        onSave: { updatedItem in
+                            viewModel.updateItemTags(updatedItem, tags: updatedItem.tags)
+                            activeSheet = nil
+                        },
+                        onCancel: {
+                            activeSheet = nil
+                        },
+                        onCreateTag: {
+                            activeSheet = .createTag
+                        },
+                        onManageTags: {
+                            activeSheet = .manageTags
+                        }
+                    )
+                
+            case .createTag:
+                TagCreatorView(
+                    onSave: { newTag in
+                        viewModel.addTag(newTag)
                         activeSheet = nil
                     },
                     onCancel: {
                         activeSheet = nil
-                    },
-                    onCreateTag: {
-                        activeSheet = .createTag
-                    },
-                    onManageTags: {
-                        activeSheet = .manageTags
                     }
                 )
-            }
-            
-        case .createTag:
-            TagCreatorView(
-                onSave: { newTag in
-                    viewModel.addTag(newTag)
-                    activeSheet = nil
-                },
-                onCancel: {
-                    activeSheet = nil
-                }
-            )
-            
-        case .editTag(let tag):
-            TagCreatorView(
-                tag: tag,
-                onSave: { updatedTag in
-                    viewModel.updateTag(updatedTag)
-                    activeSheet = nil
-                },
-                onCancel: {
-                    activeSheet = nil
-                }
-            )
-            
-        case .manageTags:
-            TagManagementView(
-                tags: viewModel.availableTags,
-                onEdit: { tag in
-                    activeSheet = .editTag(tag)
-                },
-                onDelete: { tag in
-                    viewModel.deleteTag(tag)
-                },
-                onCreate: {
-                    activeSheet = .createTag
-                },
-                onDone: {
-                    activeSheet = nil
-                }
-            )
+                
+            case .editTag(let tag):
+                TagCreatorView(
+                    tag: tag,
+                    onSave: { updatedTag in
+                        viewModel.updateTag(updatedTag)
+                        activeSheet = nil
+                    },
+                    onCancel: {
+                        activeSheet = nil
+                    }
+                )
+                
+            case .manageTags:
+                TagManagementView(
+                    tags: viewModel.availableTags,
+                    onEdit: { tag in
+                        activeSheet = .editTag(tag)
+                    },
+                    onDelete: { tag in
+                        viewModel.deleteTag(tag)
+                    },
+                    onCreate: {
+                        activeSheet = .createTag
+                    },
+                    onDone: {
+                        activeSheet = nil
+                    }
+                )
         }
     }
 }
 
-// MARK: - Preview
+    // MARK: - Preview
 
 #Preview {
     TagSystemView()
@@ -965,3 +992,9 @@ struct TagSystemView: View {
 #Playground {
     TagSystemView()
 }
+
+
+
+
+// Present the view controller in the Live View window
+PlaygroundPage.current.setLiveView()

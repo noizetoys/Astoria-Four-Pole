@@ -19,12 +19,15 @@ import SwiftUI
 struct MainView: View {
     @State private var viewModel: MainViewModel
     
-    @State private var showConnections: Bool = false
-    @State private var showSettings: Bool = false
+//    @State private var showConnections: Bool = false
+//    @State private var showSettings: Bool = false
     
-    @State private var showFileManager: Bool = false
-    @State private var requestAll: Bool = false
-    @State private var sendAll: Bool = false
+    @State var newProgram: Bool = false
+    @State var sendProgram: Bool = false
+    @State var requestProgram: Bool = false
+    @State var newProfile: Bool = false
+    @State var sendProfile: Bool = false
+    @State var requestProfile: Bool = false
 
     @Binding var deviceProfile: MiniworksDeviceProfile
     
@@ -57,6 +60,8 @@ struct MainView: View {
                     GroupBox {
                         ConnectionsBox(viewModel:  $viewModel)
                     }
+                    .background(.gray.opacity(0.2))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                     .padding(.horizontal)
                     
                     
@@ -71,29 +76,41 @@ struct MainView: View {
                     HStack {
                         GroupBox {
                             Program_Title_View(program: viewModel.program)
+//                            DimensionBoxView(name: "Program Title",
+//                                         color: .green,
+//                                         geometry: geometry,
+//                                             width: 2/5,
+//                                             height: 1/12)
                         }
-                        .background(.gray.opacity(05))
+                        .background(.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
 
                         GroupBox {
-                            QuickActionsView(showSettings: $showSettings,
-                                                 showFileManager: $showFileManager,
-                                                 requestAll: $requestAll,
-                                                 sendAll: $sendAll)
-                                .frame(maxWidth: columnWidth(from: geometry))
+//                            DimensionBoxView(name: "Quick Actions",
+//                                         color: .purple,
+//                                         geometry: geometry,
+//                                             width: 2/5,
+//                                             height: 1/12)
+                            QuickActionsView(newProgram: $newProgram,
+                                             sendProgram: $sendProgram,
+                                             requestProgram: $requestProgram,
+                                             newProfile: $newProfile,
+                                             sendProfile: $sendProfile,
+                                             requestProfile: $requestProfile)
+//                                .frame(maxWidth: columnWidth(from: geometry))
                         }
-                        .background(.gray.opacity(05))
+                        .background(.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
+                    // Width = 1/5, height = 1/3
                     .frame(width: columnWidth(from: geometry) * 4, height: rowHeight(from: geometry) / 4)
-//                    .background(.gray.opacity(05))
-//                    .clipShape(RoundedRectangle(cornerRadius: 10))
 
                         // Edit View
                     if let program = viewModel.program {
                         GroupBox {
                             Program_Editor_View(program: program)
                         }
+
                     }
                     else {
                         RoundedRectangle(cornerRadius: 10)
@@ -102,12 +119,14 @@ struct MainView: View {
                                 Text("Select a program to edit")
                                     .font(.title)
                             }
+
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
             } // Stack
-        } // Geometry 
+        } // Geometry
+        .navigationTitle("Profile Name - Edited")
     }
     
 }
