@@ -10,6 +10,7 @@ import SwiftUI
 struct Pan_Editor: View {
     let program: MiniWorksProgram
     
+    
     var body: some View {
         GeometryReader { geo in
             VStack {
@@ -17,37 +18,37 @@ struct Pan_Editor: View {
                     .bold()
                 
                 PanControl(value: program.panning.knobBinding)
-                    .padding()
-//                    .frame(maxHeight: 40)
+                    .padding(10)
                 
                 
                 HStack {
-                    
                     Gate_Trigger_View(program: program)
                     
+                    // Panning Modulation
                     GroupBox {
-                        VStack {
-                            VStack {
-                                PercentageArrowView(rawValue: program.panningModulationAmount.doubleBinding)
-                                    .offset(y: 5)
-                                
-                                Text("Modulation Amount")
-                            }
-                            
-                            VStack(spacing: 0) {
-                                ArrowPickerGlowView(selection: program.panningModulationSource.modulationBinding,
-                                                    direction: .left,
-                                                    arrowColor: .green)
-                                
-                                Text("Modulation Source")
-                                    .padding(.top)
-                            }
+                        VStack(spacing: 0) {
+                            Text("Amount")
+                            PercentageArrowView(rawValue: program.panningModulationAmount.doubleBinding)
                         }
+                        .padding(.horizontal, -20)
                         
+                        Text("Panning Mod.")
+                            .bold()
+                        
+                        VStack(spacing: 0) {
+                            ArrowPickerGlowView(selection: program.panningModulationSource.modulationBinding,
+                                                direction: .left,
+                                                arrowColor: .blue)
+                            .padding(.top, -10)
+                            
+                            Text("Source")
+                                .padding(.leading, 15)
+                        }
+                        .padding(.horizontal, -20)
                     }
-                    .foregroundStyle(.red)
-                    .frame(maxWidth: geo.size.width / 2)
-                    .padding([.bottom, .trailing])
+                    .foregroundStyle(.blue)
+                    .frame(maxWidth: geo.size.width / 3, maxHeight: .infinity)
+//                    .padding([.bottom, .trailing])
                     
                 }
             } // HStack
@@ -56,8 +57,8 @@ struct Pan_Editor: View {
     }
     
     
-
-
+    
+    
 }
 
 

@@ -8,110 +8,166 @@
 import SwiftUI
 
 struct Modulation_Destination_View: View {
-//    let destinations = ["Cutoff", "Resonance", "Panning"]
-    @State private var destinations: [MiniWorksParameter] = []
-    
-    private var destinationNames: Set<String> {
-        Set<String>(destinations.map(\.rawValue))
+    enum ModSourceFilter: String, Identifiable, CaseIterable {
+        var id: Self { self }
+        
+        case sources = "Sources"
+        case destinations = "Destinations"
     }
     
-    private let type: ModulationSource
     
-    init(type: ModulationSource) {
-        self.type = type
-        debugPrint(message: "type: \(type) or \(type.rawValue)!)")
-    }
+    @State private var sortFilter: ModSourceFilter = .sources
+    
+    let program: MiniWorksProgram
     
 
     var body: some View {
         VStack {
-            Text("Modulation Destinations")
-                .multilineTextAlignment(.center)
             
-            if destinationNames.isEmpty {
-                Spacer()
-                Text("None")
-                    .frame(maxWidth: .infinity)
-                Spacer()
+            Text("Modulation Sources:")
+                .bold()
+                .font(.title)
+//            Picker("Mod ", selection: $sortFilter) {
+//                ForEach(ModSourceFilter.allCases) { filter in
+//                    Text(filter.rawValue)
+//                        .tag(filter)
+//                }
+//            }
+//            .padding(10)
+            
+            
+            if sortFilter == .destinations {
+                
+                VStack(alignment: .leading, spacing: 5) {
+                    if modDestinations.isEmpty {
+                        Spacer()
+                        
+                        Text("No Destinations Selected")
+                    }
+                    else {
+                        ForEach(Array(modDestinations.keys), id: \.self) { key in
+                            destinationCell(key: key)
+                        }
+                    }
+                    
+                    Spacer()
+                }
             }
             else {
-                ForEach(Array(destinationNames).sorted(), id: \.self) { mod in
-                    Color
-                        .green
-                        .cornerRadius(5)
-                        .overlay {
-                            Text(mod)
-                        }
+                VStack(alignment: .leading, spacing: 5) {
+                    ForEach(program.modParameters, id: \.self) { parameter in
+                        sourceCell(parameter: parameter)
+                    }
+                    
+                    Spacer()
                 }
-                .background(.orange)
-                .cornerRadius(10)
+            }
+            
+        }
+        
+    }
+    
+    
+    private func destinationCell(key: ModulationSource) -> some View {
+        VStack {
+            HStack {
+                Text(key.shortName)
+                    .bold()
+                Spacer()
+            }
+            
+            ForEach(modDestinations[key] ?? [], id: \.self) { value in
+                HStack {
+                    Text(value)
+                        .padding(.leading)
+                    Spacer()
+                }
             }
         }
-        .frame(maxHeight: .infinity)
-//        .onAppear {
-//            destinations = []
-//        }
-        .onReceive(NotificationCenter.default.publisher(for: .programParameterUpdated)) { notification in
-            debugPrint(icon: "❎", message: "received notification: data: \(notification.userInfo?.debugDescription)", type: .info)
-            
-            guard
-                let userInfo = notification.userInfo,
-                let type = userInfo[SysExConstant.parameterType] as? MiniWorksParameter,
-                type.isModulationSourceSelector
-            else {
-                debugPrint(message: "Invalid notification. Skipping.")
-                return
-            }
+        .padding(10)
+        .frame(maxWidth: .infinity)
+        .foregroundStyle(.black)
+        .background {
+            key.color
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+        }
+    }
+    
+    
+    private func sourceCell(parameter: ProgramParameter) -> some View {
+        let shouldBeDim = parameter.modulationSource == nil || parameter.modulationSource == .off
+        
+        return VStack(alignment: .leading) {
+            HStack {
+                Text("\(parameter.type.modulationShortName):")
+                    .bold()
                 
-                
-//            for (key, value) in userInfo {
-//                print("key: \(key), value: \(value)")
-//            }
-            
-//            let type = userInfo[SysExConstant.parameterType] as? MiniWorksParameter
-            let value = userInfo[SysExConstant.parameterValue] as? UInt8
-//            print("type: \(type?.rawValue ?? "nil"), value: \(value?.hexString ?? "No Value")")
-//            print("isModulationSource: \(type?.isModulationSourceSelector ?? false)")
-            let valueType = ModulationSource(rawValue: value ?? 0)
-//            print("valueType : \(valueType?.rawValue)")
-//            print("Current Type: \(self.type.rawValue), source: \(self.type.rawValue)")
-
-            guard
-//                let data = notification.userInfo,
-//                let type = userInfo[SysExConstant.parameterType] as? MiniWorksParameter,
-//                let value = userInfo[SysExConstant.parameterValue] as? UInt8,
-//                let type,
-                let value,
-                type.isModulationSourceSelector,
-//                  let source = ModulationSource(rawValue: value),
-                let valueType,
-                valueType == self.type
-            else {
-                debugPrint(icon: "❌❎", message: "Not a Modulation Source Selector. Skipping.\n \(notification.userInfo?.debugDescription)", type: .info)
-                return
+                Text(parameter.modulationSource?.name ?? "Off")
+                Spacer()
             }
-
-            debugPrint(icon: "💕", message: "type: \(type), value: \(value), valueType: \(valueType)", type: .info)
-            
-            Task { @MainActor in
-                if case .off = valueType {
-                    debugPrint(icon: "📤", message: "\n -----> Turning off Modulation Source: \(type), self is: \(self.type)", type: .info)
-                    self.destinations.removeAll { $0 == type }
-                }
-                else if valueType.relatedSources.contains(valueType){
-                    debugPrint(icon: "✅", message: "Adding Modulation: \(type), self is: \(self.type)", type: .info)
-                    destinations.append(type)
-                    debugPrint(icon: "✅", message: "Modulation Destinations: [\(destinations)]", type: .info)
-                }
-            }
-            
+            .padding(10)
+        }
+        .frame(maxWidth: .infinity)
+        .foregroundStyle(.black)
+        .background {
+            parameter.type.color.opacity(shouldBeDim ? 0.5 : 1)
+                .clipShape(RoundedRectangle(cornerRadius: 4))
         }
 
     }
+    
+
+    private var modDestinations: [ModulationSource: [String]] {
+        var modDict: [ModulationSource: [String]] = [:]
+        
+        debugPrint(icon: "🔥", message: "Will This work????", type: .trace)
+        
+        for parameter in program.modParameters {
+            print("\t\tParameter: \(parameter.type.modulationShortName)")
+            if let parameterSource = parameter.modulationSource, parameterSource.isLocalModSource {
+                print("paramaterSource: \(parameterSource)")
+                
+                if let values = modDict[parameterSource] {
+                    modDict[parameterSource] = values + [parameter.type.modulationShortName]
+                }
+                else {
+                    modDict[parameterSource] = [parameter.type.modulationShortName]
+                }
+                
+                print("mods...\(modDict)")
+            }
+//            else {
+//                print("Not a modulation source....")
+//            }
+        }
+        
+        return modDict
+    }
+    
+    
 }
 
 
 #Preview {
-    Modulation_Destination_View(type: .lfo)
-        .frame(maxWidth: 200, maxHeight: 267)
+    let viewModel = MainViewModel(profile:  MiniworksDeviceProfile.newMachineConfiguration())
+    let program = MiniWorksProgram.init()
+    // Source
+//    program.cutoffModulationSource.modulationSource = ModulationSource.aftertouch
+//    program.resonanceModulationSource.modulationSource = ModulationSource.breathControl
+//    program.volumeModulationSource.modulationSource = ModulationSource.footcontroller
+//    program.lfoSpeedModulationSource.modulationSource = ModulationSource.keytrack
+//    program.panningModulationSource.modulationSource = ModulationSource.lfo
+
+    // Destinations
+    program.cutoffModulationSource.modulationSource = ModulationSource.lfo
+    program.resonanceModulationSource.modulationSource = ModulationSource.vcaEnvelope
+    program.volumeModulationSource.modulationSource = ModulationSource.lfo
+    program.lfoSpeedModulationSource.modulationSource = ModulationSource.keytrack
+    program.panningModulationSource.modulationSource = ModulationSource.lfo
+
+//    viewModel.program = program
+    
+    return Modulation_Destination_View(program: program)
+//    return Modulation_Destination_View(viewModel: viewModel)
+        .frame(maxWidth: 220, maxHeight: 267)
 }

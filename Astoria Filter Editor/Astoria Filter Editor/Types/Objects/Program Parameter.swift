@@ -23,19 +23,28 @@ final class ProgramParameter: Identifiable {
     
     var _value: UInt8 = 64 {
         didSet {
+//            debugPrint(icon: "🎹", message: "\(type.rawValue) Updated to: \(_value)", type: .trace)
+
             if shouldSendCC {
                 Task { @MainActor in
-                    debugPrint(message: "posting notification for: \(type), value: \(_value)", type: .info)
+                    debugPrint(icon: "📡", message: "posting notification for: \(type), value: \(_value)", type: .info)
                     NotificationCenter.default.post(name: .programParameterUpdated,
                                                     object: self,
                                                     userInfo: [SysExConstant.parameterType: type,
                                                                SysExConstant.parameterValue: _value])
                 }
             }
+            
         }
     }
     
-    var modulationSource: ModulationSource?
+    var modulationSource: ModulationSource? {
+        didSet {
+            NotificationCenter.default.post(name: .programParameterModSourceUpdated, object: self)
+            debugPrint(icon: "📡", message: "\(type.rawValue) Updated to: \(modulationSource?.name)", type: .trace)
+        }
+    }
+    
     var containedParameter: ContainedParameter?
     
     
@@ -69,8 +78,13 @@ final class ProgramParameter: Identifiable {
     
     var modulationBinding: Binding<ModulationSource> {
         Binding<ModulationSource>(
-            get: { ModulationSource(rawValue: self._value) ?? .off },
-            set: { self._value = $0.rawValue }
+//            get: { ModulationSource(rawValue: self._value) ?? .off },
+            get: { self.modulationSource ?? .off },
+            set: {
+                debugPrint(message: "set to \($0.name)", type: .trace)
+                self._value = $0.rawValue
+                self.modulationSource = $0
+            }
         )
     }
     
@@ -117,9 +131,12 @@ final class ProgramParameter: Identifiable {
             return contained.value
         }
         
-        if let modSource = modulationSource {
-            return modSource.rawValue
-        }
+//        if type.isModulationSourceSelector {
+//            return ModulationSource(rawValue: <#T##UInt8#>)
+//        }
+//        if let modSource = modulationSource {
+//            return modSource.rawValue
+//        }
         
         return _value
     }
@@ -148,9 +165,9 @@ final class ProgramParameter: Identifiable {
         self.type = type
         self._value = startingValue ?? type.initialValue
         
-        if type.isModulationSourceSelector {
-            self.modulationSource = ModulationSource(rawValue: startingValue ?? type.initialValue)
-        }
+//        if type.isModulationSourceSelector {
+//            self.modulationSource = ModulationSource(rawValue: startingValue ?? type.initialValue)
+//        }
         
         if type.containedOptions != nil {
             self.containedParameter = type.containedOptions?.first(where: { $0.value == startingValue ??  type.initialValue })
@@ -177,9 +194,9 @@ final class ProgramParameter: Identifiable {
                 self.containedParameter = selectedCase
         }
         
-        else if type.isModulationSourceSelector, let selectedSource = ModulationSource(rawValue: rawValue) {
-                self.modulationSource = selectedSource
-        }
+//        else if type.isModulationSourceSelector, let selectedSource = ModulationSource(rawValue: rawValue) {
+//                self.modulationSource = selectedSource
+//        }
         
         self._value = rawValue
     }
@@ -238,7 +255,7 @@ extension ProgramParameter: CustomStringConvertible {
 //            }).joined(separator: ",\n ")
 //        }
         
-        let mod = modulationSource != nil ? "(mod): \(modulationSource!.name),\n\tOptions: \n\(options)"  : ""
+        let mod = type.isModulationSourceSelector ? "(mod): \(ModulationSource(rawValue: _value)?.name ?? "No Name"),\n\tOptions: \n\(options)"  : ""
     
         let cont = containedParameter != nil ? "(contained): \(containedParameter!.name),\n\tOptions: \n\(options)" : ""
         

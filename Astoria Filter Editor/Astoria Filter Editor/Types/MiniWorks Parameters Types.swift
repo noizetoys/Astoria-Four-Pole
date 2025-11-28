@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import SwiftUI
 
 
 enum MiniWorksParameter: String, Codable {
@@ -49,6 +49,33 @@ enum MiniWorksParameter: String, Codable {
     
     
     // Computed Properties
+    
+    
+    var modulationShortName: String {
+        switch self {
+            case .LFOSpeedModulationSource: "LFO Speed"
+            case .cutoffModulationSource: "Cutoff"
+            case .resonanceModulationSource: "Resonace"
+            case .volumeModulationSource: "Volume"
+            case .panningModulationSource: "Panning"
+                
+            default: ""
+        }
+    }
+    
+    
+    var color: Color {
+        switch self {
+            case .LFOSpeedModulationSource: .green
+            case .cutoffModulationSource: .yellow
+            case .resonanceModulationSource: .red
+            case .volumeModulationSource: .orange
+            case .panningModulationSource: .blue
+                
+            default: .white
+        }
+    }
+    
     
     var ccValue: UInt8 {
         switch self {
@@ -171,7 +198,7 @@ enum MiniWorksParameter: String, Codable {
             case .LFOSpeed: 40
             case .LFOSpeedModulationAmount: 64
             case .LFOShape: 0
-            case .LFOSpeedModulationSource: 64
+            case .LFOSpeedModulationSource: 0
                 
             case .cutoffModulationAmount,
             .resonanceModulationAmount,
@@ -193,6 +220,7 @@ enum MiniWorksParameter: String, Codable {
             case .triggerMode: 0
         }
     }
+    
     
     // TODO: Finish Tool Tips
     
@@ -256,6 +284,7 @@ enum MiniWorksParameter: String, Codable {
 //                <#code#>
         }
     }
+    
     
         /// Determines if this parameter selects a ModulationSource enum case. (5 parameters)
     var isModulationSourceSelector: Bool {

@@ -57,12 +57,12 @@ struct LowPassFilterEditor: View {
                     .cornerRadius(10)  // CUSTOMIZATION: Corner rounding
             }
             
-                // Frequency Controls
-            HStack {
-                cutoffFrequency
-                Spacer()
-                resonanceKnob
-            }
+//                // Frequency Controls
+//            HStack {
+//                cutoffFrequency
+//                Spacer()
+//                resonanceKnob
+//            }
         }
         
     }
@@ -116,30 +116,30 @@ struct LowPassFilterEditor: View {
     }
     
     
-    var cutoffFrequency: some View {
-        VStack {
-            CircularFader(value: program.cutoff.knobBinding,
-                          size: 40,
-                          mode: .unidirectional(color: .blue), primaryColor: .yellow)
-            .frame(width: 60)
-            .padding(.top)
-            .padding([.bottom, .horizontal], 10)
-            
-            Text("Cutoff:")
-                .font(.caption)
-                .padding(.bottom, 10)
-            
-//            Text("\(frequencyToHz(program.cutoff.value), specifier: "%.0f") Hz")
+//    var cutoffFrequency: some View {
+//        VStack {
+//            CircularFader(value: program.cutoff.knobBinding,
+//                          size: 40,
+//                          mode: .unidirectional(color: .blue), primaryColor: .yellow)
+//            .frame(width: 60)
+//            .padding(.top)
+//            .padding([.bottom, .horizontal], 10)
+//            
+//            Text("Cutoff:")
 //                .font(.caption)
-//                .foregroundColor(.blue)
-
-//            Text("[\(Int(program.cutoff.value))]")
-//                .font(.caption)
-//                .foregroundColor(.gray)
-        }
-        .background(Color.black.opacity(0.7))
-        .cornerRadius(10)
-    }
+//                .padding(.bottom, 10)
+//            
+////            Text("\(frequencyToHz(program.cutoff.value), specifier: "%.0f") Hz")
+////                .font(.caption)
+////                .foregroundColor(.blue)
+//
+////            Text("[\(Int(program.cutoff.value))]")
+////                .font(.caption)
+////                .foregroundColor(.gray)
+//        }
+//        .background(Color.black.opacity(0.7))
+//        .cornerRadius(10)
+//    }
     
     
     var resonanceHeader: some View {
@@ -200,33 +200,33 @@ struct LowPassFilterEditor: View {
     }
     
     
-    var resonanceKnob: some View {
-        VStack {
-            CircularFader(value: program.resonance.knobBinding,
-                          size: 40,
-                          mode: .unidirectional(color: .pink), primaryColor: .red)
-            .frame(width: 60)
-            .padding(.top)
-            .padding([.bottom, .horizontal], 10)
-
-            Text("Resonance:")
-                .font(.caption)
-                .padding(.bottom, 10)
-
-
-//            Text("\(modAmountToPercentage(program.resonance.value), specifier: "%.0f")%")
+//    var resonanceKnob: some View {
+//        VStack {
+//            CircularFader(value: program.resonance.knobBinding,
+//                          size: 40,
+//                          mode: .unidirectional(color: .pink), primaryColor: .red)
+//            .frame(width: 60)
+//            .padding(.top)
+//            .padding([.bottom, .horizontal], 10)
+//
+//            Text("Resonance:")
 //                .font(.caption)
-//                .foregroundColor(.orange)
-//                .frame(width: 50)
-
-//            Text("[\(Int(program.resonance.value))]")
-//                .font(.caption)
-//                .foregroundColor(.gray)
-        }
-        .background(Color.black.opacity(0.7))
-        .cornerRadius(10)
-
-    }
+//                .padding(.bottom, 10)
+//
+//
+////            Text("\(modAmountToPercentage(program.resonance.value), specifier: "%.0f")%")
+////                .font(.caption)
+////                .foregroundColor(.orange)
+////                .frame(width: 50)
+//
+////            Text("[\(Int(program.resonance.value))]")
+////                .font(.caption)
+////                .foregroundColor(.gray)
+//        }
+//        .background(Color.black.opacity(0.7))
+//        .cornerRadius(10)
+//
+//    }
     
     /*
      FREQUENCY CONVERSION: 0-127 to 20Hz-20kHz

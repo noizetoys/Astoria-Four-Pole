@@ -57,6 +57,12 @@ final class MainViewModel {
     init(profile: MiniworksDeviceProfile) {
         self.deviceProfile = profile
         
+        // For Testing
+        do {
+            program = try MiniworksROMPrograms.program(1)
+        }
+        catch { }
+        
         Task {
             await refreshDevices()
         }
@@ -322,10 +328,9 @@ final class MainViewModel {
     func requestLoadProgram(_ number: Int, isROM: Bool) throws {
         debugPrint(icon: "👇🏻", message: "Loading \(isROM ? "ROM" : "") Program #\(number + 1)", type: .trace)
         
-        if isROM {
-            print("Is ROM")
+        guard !isROM
+        else {
             program = try MiniworksROMPrograms.program(number)
-            print("program: \(program?.programName)")
             return
         }
         

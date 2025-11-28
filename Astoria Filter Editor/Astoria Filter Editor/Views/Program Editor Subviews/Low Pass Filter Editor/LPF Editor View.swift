@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+
+
 struct LPF_Editor_View: View {
     var program: MiniWorksProgram
     
@@ -15,11 +17,13 @@ struct LPF_Editor_View: View {
         GeometryReader { geometry in
             HStack {
                 
-                
+                    // Left Side
                 VStack {
                     GroupBox {
                         VStack(spacing: 0) {
-                            Text("VCF Amount")
+                            Text("VCF Env. Amount")
+                                .bold()
+                                .foregroundStyle(.white)
                             PercentageArrowView(rawValue: program.vcfEnvelopeCutoffAmount.doubleBinding)
                         }
                         .padding(.horizontal, -20)
@@ -40,37 +44,57 @@ struct LPF_Editor_View: View {
                         VStack(spacing: 0) {
                             ArrowPickerGlowView(selection: program.cutoffModulationSource.modulationBinding,
                                                 direction: .right,
-                                                arrowColor: .blue)
+                                                arrowColor: .yellow)
                             .padding(.top, -10)
+                            
                             Text("Source")
+                                .padding(.trailing, 15)
                         }
                         .padding(.horizontal, -20)
                     }
+                    .foregroundStyle(.yellow)
                 }
                 .frame(maxWidth: geometry.size.width * (1/5))
                 
-                LowPassFilterEditor(program: program)
-                
-                    // Resonance Mod
-                GroupBox {
-                    VStack {
-                        Text("Amount")
-                        PercentageArrowView(rawValue: program.resonanceModulationAmount.doubleBinding)
-                    }
-                    .padding(.horizontal, -20)
-                    
-                    Text("Resonance Mod.")
+                    // Center
+                VStack {
+                    Text("Low Pass Filter")
                         .bold()
+                        .foregroundStyle(.white)
+                    LowPassFilterEditor(program: program)
                     
-                    VStack {
-                        ArrowPickerGlowView(selection: program.resonanceModulationSource.modulationBinding,
-                                            direction: .left,
-                                            arrowColor: .purple)
-                        Text("Source")
-                    }
-                    .padding(.horizontal, -20)
                 }
                 
+                    // Right Side
+                VStack {
+                    HStack(spacing: 0) {
+                        cutoffFrequency
+                        resonanceKnob
+                    }
+                    
+                    GroupBox {
+                        VStack(spacing: 0) {
+                            Text("Amount")
+                            PercentageArrowView(rawValue: program.resonanceModulationAmount.doubleBinding)
+                        }
+                        .padding(.horizontal, -20)
+                        
+                        Text("Resonance Mod.")
+                            .bold()
+                        
+                        VStack(spacing: 0) {
+                            ArrowPickerGlowView(selection: program.resonanceModulationSource.modulationBinding,
+                                                direction: .left,
+                                                arrowColor: .red)
+                            .padding(.top, -10)
+                            
+                            Text("Source")
+                                .padding(.leading, 15)
+                        }
+                        .padding(.horizontal, -20)
+                    }
+                    .foregroundStyle(.red)
+                }
                 .frame(maxWidth: geometry.size.width * (1/5))
                 
                 
@@ -78,6 +102,67 @@ struct LPF_Editor_View: View {
             .foregroundStyle(.blue)
         } // Geo
     }
+    
+    
+    var cutoffFrequency: some View {
+        VStack {
+            CircularFader(value: program.cutoff.knobBinding,
+                          size: 40,
+                          mode: .unidirectional(color: .blue), primaryColor: .yellow)
+            .frame(width: 60)
+            .padding(.vertical)
+                //            .padding([.bottom, .horizontal], 10)
+            
+            Text("Cutoff")
+                .font(.caption)
+                .foregroundStyle(.yellow)
+                .bold()
+                //                .padding(.bottom, 10)
+            
+                //            Text("\(frequencyToHz(program.cutoff.value), specifier: "%.0f") Hz")
+                //                .font(.caption)
+                //                .foregroundColor(.blue)
+            
+                //            Text("[\(Int(program.cutoff.value))]")
+                //                .font(.caption)
+                //                .foregroundColor(.gray)
+        }
+            //        .background(Color.black.opacity(0.7))
+            //        .cornerRadius(10)
+    }
+    
+    
+    
+    var resonanceKnob: some View {
+        VStack {
+            CircularFader(value: program.resonance.knobBinding,
+                          size: 40,
+                          mode: .unidirectional(color: .pink), primaryColor: .red)
+            .frame(width: 60)
+            .padding(.vertical)
+                //            .padding([.bottom, .horizontal], 10)
+            
+            Text("Resonance")
+                .font(.caption)
+                .foregroundStyle(.red)
+                .bold()
+                //                .padding(.bottom, 10)
+            
+            
+                //            Text("\(modAmountToPercentage(program.resonance.value), specifier: "%.0f")%")
+                //                .font(.caption)
+                //                .foregroundColor(.orange)
+                //                .frame(width: 50)
+            
+                //            Text("[\(Int(program.resonance.value))]")
+                //                .font(.caption)
+                //                .foregroundColor(.gray)
+        }
+            //        .background(Color.black.opacity(0.7))
+            //        .cornerRadius(10)
+        
+    }
+    
     
 }
 

@@ -209,7 +209,9 @@ struct ArrowPickerGlowView: View {
                         // for .left so the picker label is not upside-down.
                         Picker("", selection: $selection) {
                             ForEach(ModulationSource.allCases) { option in
-                                Text(option.name).tag(option)
+                                Text(option.shortName)
+                                    .font(.caption)
+                                    .tag(option)
                             }
                         }
                         .labelsHidden()

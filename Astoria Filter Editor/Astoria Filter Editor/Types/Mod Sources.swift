@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 
 enum ModulationSource: UInt8, Codable, CaseIterable, Identifiable {
@@ -37,14 +38,38 @@ enum ModulationSource: UInt8, Codable, CaseIterable, Identifiable {
     case footcontroller = 15    // MIDI Controller #4
     
     
+    var color: Color {
+        switch self {
+            case .lfo, .lfo_ModWheel, .lfo_Aftertouch, .lfo_VCAEnvelope: .green
+            case .vcfEnvelope: .blue
+            case .vcaEnvelope, .velocity_VCAEnvelope, .signalEnvelope: .orange
+                
+            default: .white
+        }
+
+    }
+    
+    
     var relatedSources: [ModulationSource] {
         switch self {
             case .lfo: [.lfo, .lfo_ModWheel, .lfo_Aftertouch, .lfo_VCAEnvelope]
             case .vcfEnvelope: [.vcfEnvelope]
-            case .vcaEnvelope: [.vcaEnvelope, .velocity_VCAEnvelope]
+            case .vcaEnvelope: [.vcaEnvelope, .velocity_VCAEnvelope, .signalEnvelope]
                 
             default: []
         }
+    }
+    
+    
+    var isLocalModSource: Bool {
+        switch self {
+            case .lfo, .lfo_ModWheel, .lfo_Aftertouch, .lfo_VCAEnvelope: true
+            case .vcfEnvelope: true
+            case .vcaEnvelope, .velocity_VCAEnvelope: true
+                
+            default: false
+        }
+
     }
     
     
@@ -52,16 +77,16 @@ enum ModulationSource: UInt8, Codable, CaseIterable, Identifiable {
         switch self {
             case .off: return "Off"
             case .lfo: return "LFO"
-            case .lfo_ModWheel: return "LFO * ModWhl"
-            case .lfo_Aftertouch: return "LFO * AftTch"
-            case .lfo_VCAEnvelope: return "LFO * VCAEnv"
+            case .lfo_ModWheel: return "LFO*MW"
+            case .lfo_Aftertouch: return "LFO*AT"
+            case .lfo_VCAEnvelope: return "LFO*VCA"
             case .vcfEnvelope: return "VCF Env"
             case .vcaEnvelope: return "VCA Env"
             case .signalEnvelope: return "Signal Env"
-            case .velocity_VCAEnvelope: return "Vel * VCA Env"
+            case .velocity_VCAEnvelope: return "Vel*VCA"
             case .velocity: return "Vel"
             case .keytrack: return "Keytrk"
-            case .pitchbend: return "Pttchbnd"
+            case .pitchbend: return "Pitchbnd"
             case .modWheel: return "ModWhl"
             case .aftertouch: return "AftTch"
             case .breathControl: return "Breath"

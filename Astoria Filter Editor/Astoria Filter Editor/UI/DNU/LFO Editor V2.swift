@@ -157,15 +157,19 @@ struct LFOAnimationView: View {
                 Text("Musical Note:")
                     .font(.caption)
                     .foregroundColor(.gray)
+                
                 Spacer()
+                
                 Text(musicalNote.description)
                     .font(.system(.caption, design: .monospaced))
                     .foregroundColor(.cyan)
+                
                 if abs(musicalNote.cents) < 1.0 {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.caption)
                         .foregroundColor(.green)
                 }
+                
                 Text("(MIDI: \(musicalNote.midiNote))")
                     .font(.caption)
                     .foregroundColor(.gray)

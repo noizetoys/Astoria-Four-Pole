@@ -65,6 +65,7 @@
 				"UI/Getting There/Useful Knob.swift",
 				"UI/Getting There/XXXXX knobview.swift",
 				"Views/Program Editor Subviews/ADSR Envelope Editor/ADSR Envelope Editor.swift",
+				"Views/Tracking ADSR.swift",
 			);
 			target = 2EC3F4CB2EBFEE8700D70CC0 /* Astoria Filter Editor */;
 		};

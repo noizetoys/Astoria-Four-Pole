@@ -19,9 +19,6 @@ import SwiftUI
 struct MainView: View {
     @State private var viewModel: MainViewModel
     
-//    @State private var showConnections: Bool = false
-//    @State private var showSettings: Bool = false
-    
     @State var newProgram: Bool = false
     @State var sendProgram: Bool = false
     @State var requestProgram: Bool = false
@@ -66,8 +63,6 @@ struct MainView: View {
                         VStack {
                             HStack {
                                 Text("Connections")
-                                
-//                                Image(systemName: "gear")
                             }
                             .font(.title2)
                             .bold()
@@ -143,6 +138,10 @@ struct MainView: View {
             } // Stack
         } // Geometry
         .navigationTitle("Profile Name - Edited")
+        // For Testing
+//        .onAppear {
+//            viewModel.program = try? MiniworksROMPrograms.program(1)
+//        }
     }
     
 }

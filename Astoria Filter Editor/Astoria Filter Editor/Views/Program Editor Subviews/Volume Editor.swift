@@ -66,8 +66,9 @@ struct Volume_Editor: View {
                     VStack(spacing: 0) {
                         ArrowPickerGlowView(selection: program.volumeModulationSource.modulationBinding,
                                             direction: .left,
-                                            arrowColor: .blue)
+                                            arrowColor: .orange)
                         Text("Source")
+                            .padding(.leading, 15)
                     }
                     .padding(.horizontal, -20)
                 }

@@ -33,9 +33,11 @@ class LFOLayerView: PlatformView {
     private var lastUpdateTime: CFTimeInterval = 0
     private var _isRunning: Bool = true
     
+    
         // Color range for tracer based on frequency
     private let minFrequency: Double = 0.008
     private let maxFrequency: Double = 261.6
+    
     
         // MARK: - Layers
     
@@ -57,10 +59,12 @@ class LFOLayerView: PlatformView {
         setup()
     }
     
+    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setup()
     }
+    
     
     private func setup() {
 #if os(iOS)
@@ -73,6 +77,7 @@ class LFOLayerView: PlatformView {
         setupLayers()
         startAnimation()
     }
+    
     
     private func setupLayers() {
 #if os(iOS)
@@ -127,6 +132,7 @@ class LFOLayerView: PlatformView {
         updateWaveformPath()
     }
     
+    
         // MARK: - Layout
     
 #if os(iOS)
@@ -158,6 +164,7 @@ class LFOLayerView: PlatformView {
         CATransaction.commit()
     }
     
+    
         // MARK: - Path Updates
     
     private func updateGridPath() {
@@ -167,6 +174,7 @@ class LFOLayerView: PlatformView {
         path.addLine(to: CGPoint(x: containerLayer.bounds.width, y: midY))
         gridLayer.path = path
     }
+    
     
     private func updateWaveformPath() {
         let width = containerLayer.bounds.width
@@ -192,6 +200,7 @@ class LFOLayerView: PlatformView {
         
         waveformLayer.path = path
     }
+    
     
         // MARK: - Animation
     
@@ -224,6 +233,7 @@ class LFOLayerView: PlatformView {
         
         lastUpdateTime = CACurrentMediaTime()
     }
+    
     
     private func stopAnimation() {
 #if os(iOS)
@@ -273,6 +283,7 @@ class LFOLayerView: PlatformView {
         updateTracerPosition()
     }
     
+    
     private func updateTracerPosition() {
         let width = containerLayer.bounds.width
         let height = containerLayer.bounds.height
@@ -319,6 +330,7 @@ class LFOLayerView: PlatformView {
         CATransaction.commit()
     }
     
+    
     private func getTracerColor() -> PlatformColor {
             // Map frequency to hue (red to cyan)
         let hue = min(log10(frequency / minFrequency) / log10(maxFrequency / minFrequency), 1.0)
@@ -329,6 +341,7 @@ class LFOLayerView: PlatformView {
         return NSColor(hue: hue * 0.6, saturation: 0.9, brightness: 1.0, alpha: 1.0)
 #endif
     }
+    
     
         // MARK: - Waveform Calculation
     
@@ -366,6 +379,7 @@ class LFOLayerView: PlatformView {
         }
     }
     
+    
         // MARK: - Parameter Updates
     
     func update(speed: UInt8, shape: ContainedParameter?, isRunning: Bool) {
@@ -392,6 +406,7 @@ class LFOLayerView: PlatformView {
             }
         }
     }
+    
     
         // MARK: - Cleanup
     

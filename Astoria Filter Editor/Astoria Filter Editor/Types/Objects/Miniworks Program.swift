@@ -67,7 +67,7 @@ class MiniWorksProgram: Identifiable, Sendable {
     var triggerMode = ProgramParameter(type: .triggerMode)
     
     
-    private var properties: [ProgramParameter] {
+    var properties: [ProgramParameter] {
         [
             vcfEnvelopeAttack, vcfEnvelopeDecay, vcfEnvelopeSustain, vcfEnvelopeRelease,
             vcaEnvelopeAttack, vcaEnvelopeDecay, vcaEnvelopeSustain, vcaEnvelopeRelease,
@@ -86,6 +86,16 @@ class MiniWorksProgram: Identifiable, Sendable {
             gateTime, triggerSource, triggerMode
         ]
     }
+    
+    
+    var modParameters: [ProgramParameter] {
+        [cutoffModulationSource,
+         resonanceModulationSource,
+         volumeModulationSource,
+         panningModulationSource,
+         lfoSpeedModulationSource]
+    }
+
     
     
     func updateFromCC(_ cc: UInt8, value: UInt8, onChannel: UInt8) {
