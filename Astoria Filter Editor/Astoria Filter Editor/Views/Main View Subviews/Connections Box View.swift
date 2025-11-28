@@ -17,6 +17,7 @@ extension Notification.Name {
 
 struct ConnectionsBox: View {
     @Binding var viewModel: MainViewModel
+    @Binding var showConnectionsBox: Bool
     
     
     var body: some View {
@@ -50,6 +51,7 @@ struct ConnectionsBox: View {
                                 await viewModel.connect()
                             }
                         }
+                        showConnectionsBox.toggle()
                     } label: {
                         Text(viewModel.isConnected ? "Disconnect" : "Connect")
                             .frame(maxWidth: .infinity)
@@ -82,15 +84,15 @@ struct ConnectionsBox: View {
             }
             
                 // Status
-            HStack {
-                Circle()
-                    .fill(viewModel.isConnected ? Color.green : Color.red)
-                    .frame(width: 10, height: 10)
-                
-                Text(viewModel.statusMessage)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
+//            HStack {
+//                Circle()
+//                    .fill(viewModel.isConnected ? Color.green : Color.red)
+//                    .frame(width: 10, height: 10)
+//                
+//                Text(viewModel.statusMessage)
+//                    .font(.caption)
+//                    .foregroundStyle(.secondary)
+//            }
         }
     }
 }
@@ -99,6 +101,7 @@ struct ConnectionsBox: View {
 
 #Preview {
     @Previewable @State var vm = MainViewModel(profile: MiniworksDeviceProfile.newMachineConfiguration())
-    
-    ConnectionsBox(viewModel: $vm)
+    @Previewable @State var show: Bool = false
+
+    ConnectionsBox(viewModel: $vm, showConnectionsBox: $show)
 }

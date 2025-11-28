@@ -57,10 +57,6 @@ struct Program_Matrix: View {
     
     var showROMPrograms: Bool { selectedProgramType == SelectedProgramType.ROM }
     
-    private var programSubtitle: String {
-        showROMPrograms ? "Tap below to select a Program" : "Tap below to select a Program to edit"
-    }
-    
     
     var body: some View {
         GroupBox {
@@ -75,10 +71,10 @@ struct Program_Matrix: View {
                 }
                 .pickerStyle(.segmented)
                 
-                Text(programSubtitle)
-                    .foregroundStyle(.gray)
+                Text("Tap below to select a Program")
+                    .foregroundStyle(.white.opacity(0.6))
                     .font(.caption)
-                    .padding()
+                    .padding(10)
             }
             
             ButtonMatrix(viewModel: viewModel, showROMs: showROMPrograms)

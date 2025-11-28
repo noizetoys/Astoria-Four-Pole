@@ -225,6 +225,7 @@ class MiniworksFileManager {
         logOperation("Deleted profile: \(name)")
     }
     
+    
     // MARK: - Individual Program Operations
     
     /**

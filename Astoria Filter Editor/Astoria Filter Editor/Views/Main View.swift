@@ -28,6 +28,8 @@ struct MainView: View {
     @State var newProfile: Bool = false
     @State var sendProfile: Bool = false
     @State var requestProfile: Bool = false
+    @State var showConnectionsBox: Bool = false
+    
 
     @Binding var deviceProfile: MiniworksDeviceProfile
     
@@ -57,18 +59,43 @@ struct MainView: View {
                 
                     // Left Side Controls
                 VStack {
-                    GroupBox {
-                        ConnectionsBox(viewModel:  $viewModel)
-                    }
-                    .background(.gray.opacity(0.2))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .padding(.horizontal)
                     
+                    Button {
+                        showConnectionsBox.toggle()
+                    } label: {
+                        VStack {
+                            HStack {
+                                Text("Connections")
+                                
+//                                Image(systemName: "gear")
+                            }
+                            .font(.title2)
+                            .bold()
+
+                            HStack {
+                                Circle()
+                                    .fill(viewModel.isConnected ? Color.green : Color.red)
+                                    .frame(width: 10, height: 10)
+                                
+                                Text(viewModel.statusMessage)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .padding(.top)
+                    }
+                    .frame(maxHeight: rowHeight(from: geometry) / 4)
+                    .padding(.horizontal, 10)
+                    .popover(isPresented: $showConnectionsBox, arrowEdge: .trailing) {
+                        ConnectionsBox(viewModel:  $viewModel,
+                                       showConnectionsBox: $showConnectionsBox)
+                            .padding()
+                    }
                     
                         // Programs
                     Program_Matrix(viewModel: viewModel)
-                        .frame(maxHeight: rowHeight(from: geometry) * 2.5)
-                        .padding([.horizontal, .bottom])
+                        .padding([.horizontal, .bottom], 10)
                 }
                 
                 

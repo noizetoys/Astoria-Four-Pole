@@ -164,6 +164,7 @@ struct FileManagerView: View {
         }
     }
     
+    
     // MARK: - Sidebar
     
     private var sidebar: some View {
@@ -246,6 +247,7 @@ struct FileManagerView: View {
         }
         .padding(.vertical, FileManagerTheme.smallSpacing)
     }
+    
 }
 
 // MARK: - Tab Definition
