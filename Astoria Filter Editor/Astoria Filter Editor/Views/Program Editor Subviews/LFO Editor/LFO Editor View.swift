@@ -16,11 +16,8 @@ struct MusicalNote {
 
     /// SwiftUI wrapper for the high-performance CALayer-based LFO view
 struct LFOAnimationView: View {
-        //    var lfoSpeed: ProgramParameter
-        //    var lfoShape: ProgramParameter
-        //    var lfoModulationSource: ProgramParameter
-        //    var lfoModulationAmount: ProgramParameter
     var program: MiniWorksProgram
+    
     @State private var isRunning: Bool = true
     @State private var snapToNote: Bool = false
     
@@ -116,11 +113,12 @@ struct LFOAnimationView: View {
     
     private var frequencyControlView: some View {
         VStack(alignment: .leading, spacing: 10) {
+            
             HStack {
                 VStack {
                     Text("Freq.")
                         .font(.headline)
-                        //                Spacer()
+                    
                     Text(String(format: "%.1f Hz", frequency))
                         .font(.system(.body, design: .monospaced))
                         .foregroundColor(.blue)
@@ -137,6 +135,7 @@ struct LFOAnimationView: View {
                 .frame(maxWidth: .infinity)
                 
                 let musicalNote = frequencyToMusicalNote(frequency)
+                
                 VStack {
                     Text("Note:")
                         .font(.headline)
@@ -145,11 +144,11 @@ struct LFOAnimationView: View {
                         .font(.system(.caption, design: .monospaced))
                         .foregroundColor(.cyan)
                     
-                    if abs(musicalNote.cents) < 1.0 {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.caption)
-                            .foregroundColor(.green)
-                    }
+//                    if abs(musicalNote.cents) < 1.0 {
+//                        Image(systemName: "checkmark.circle.fill")
+//                            .font(.caption)
+//                            .foregroundColor(.green)
+//                    }
                 }
                 .frame(maxWidth: .infinity)
                 
@@ -307,7 +306,6 @@ struct LFOAnimationView: View {
     
     
     private func frequencyToMusicalNote(_ frequency: Double) -> (description: String, cents: Double, midiNote: Int) {
-        print("\(#function)")
         
         let noteNames = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
         let midiNoteFloat = 12.0 * log2(frequency / 440.0) + 69.0
@@ -318,6 +316,7 @@ struct LFOAnimationView: View {
         let noteName = noteNames[noteIndex]
         let centsSign = cents >= 0 ? "+" : ""
         let centsString = String(format: "%@%.0f¢", centsSign, cents)
+        
         return ("\(noteName)\(octave) \(centsString)", cents, midiNote)
     }
     

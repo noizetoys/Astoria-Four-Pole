@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct Gate_Trigger_View: View {
     let program: MiniWorksProgram
     
@@ -19,7 +20,8 @@ struct Gate_Trigger_View: View {
                 
                 Slider(value: program.gateTime.doubleBinding, in: 0...127)
                     .padding(.horizontal, 10)
-                
+                    .padding(.bottom)
+
                 Text("Trigger")
                     .frame(maxWidth: .infinity)
                 
@@ -30,6 +32,7 @@ struct Gate_Trigger_View: View {
                         
                     }
                 }
+                .padding(.bottom)
                 
                 Picker("Mode", selection: program.triggerMode.triggerModeBinding) {
                     ForEach(TriggerMode.allCases, id: \.self) { mode in
@@ -39,11 +42,11 @@ struct Gate_Trigger_View: View {
                 }
                 
             } // VStack
+            .frame(maxHeight: .infinity)
         }
     }
     
 }
-
 
 
 #Preview {

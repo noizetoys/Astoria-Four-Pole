@@ -23,7 +23,7 @@ final class ProgramParameter: Identifiable {
     
     var _value: UInt8 = 64 {
         didSet {
-//            debugPrint(icon: "🎹", message: "\(type.rawValue) Updated to: \(_value)", type: .trace)
+            debugPrint(icon: "🎹", message: "\(type.rawValue) Updated to: \(_value)", type: .info)
 
             if shouldSendCC {
                 Task { @MainActor in
@@ -38,12 +38,14 @@ final class ProgramParameter: Identifiable {
         }
     }
     
+    
     var modulationSource: ModulationSource? {
         didSet {
             NotificationCenter.default.post(name: .programParameterModSourceUpdated, object: self)
             debugPrint(icon: "📡", message: "\(type.rawValue) Updated to: \(modulationSource?.name)", type: .trace)
         }
     }
+    
     
     var containedParameter: ContainedParameter?
     
@@ -78,7 +80,6 @@ final class ProgramParameter: Identifiable {
     
     var modulationBinding: Binding<ModulationSource> {
         Binding<ModulationSource>(
-//            get: { ModulationSource(rawValue: self._value) ?? .off },
             get: { self.modulationSource ?? .off },
             set: {
                 debugPrint(message: "set to \($0.name)", type: .trace)
@@ -131,13 +132,6 @@ final class ProgramParameter: Identifiable {
             return contained.value
         }
         
-//        if type.isModulationSourceSelector {
-//            return ModulationSource(rawValue: <#T##UInt8#>)
-//        }
-//        if let modSource = modulationSource {
-//            return modSource.rawValue
-//        }
-        
         return _value
     }
     
@@ -165,10 +159,6 @@ final class ProgramParameter: Identifiable {
         self.type = type
         self._value = startingValue ?? type.initialValue
         
-//        if type.isModulationSourceSelector {
-//            self.modulationSource = ModulationSource(rawValue: startingValue ?? type.initialValue)
-//        }
-        
         if type.containedOptions != nil {
             self.containedParameter = type.containedOptions?.first(where: { $0.value == startingValue ??  type.initialValue })
         }
@@ -193,10 +183,6 @@ final class ProgramParameter: Identifiable {
         if let options = containedOptions, let selectedCase = options.first(where: { $0.value == rawValue }) {
                 self.containedParameter = selectedCase
         }
-        
-//        else if type.isModulationSourceSelector, let selectedSource = ModulationSource(rawValue: rawValue) {
-//                self.modulationSource = selectedSource
-//        }
         
         self._value = rawValue
     }
