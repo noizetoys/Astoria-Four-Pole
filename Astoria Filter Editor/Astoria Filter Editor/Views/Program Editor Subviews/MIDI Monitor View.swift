@@ -105,27 +105,19 @@ struct MIDIMonitorView: View {
             .background(Color.black.opacity(0.6))
             
                 // Graph
-//            MIDIGraphView(viewModel: viewModel)
-            MIDIGraphView(ccNumber: ContinuousController.breathControl, channel: 1)
+            MIDIGraphView(ccNumber: ContinuousController.breathControl,
+                          channel: 1,
+                          isOn: $isOn,
+                          showVelocity: $showVelocity,
+                          showNotes: $showNotes)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(Color(red: 0.1, green: 0.1, blue: 0.15))
-        .onAppear {
-        }
-//        .onDisappear {
-//            viewModel.stop()
-//        }
         .onReceive(NotificationCenter.default.publisher(for: .midiSourceConnected)) { _ in
             isOn = true
-//            Task {
-//                await viewModel.start()
-//            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .midiSourceDisconnected)) { _ in
             isOn = false
-//            Task {
-//                viewModel.stop()
-//            }
             
         }
 
@@ -137,10 +129,6 @@ struct MIDIMonitorView: View {
             withAnimation {
                 isOn.toggle()
             }
-            
-//            Task {
-//                await isOn ? viewModel.start() : viewModel.stop()
-//            }
         } label: {
             HStack {
                 Image(systemName: isOn ? "power.circle" : "power.circle.fill")
@@ -162,10 +150,6 @@ struct MIDIMonitorView: View {
             withAnimation {
                 showVelocity.toggle()
             }
-            
-                //                    Task {
-                //                        await isOn ? viewModel.start() : viewModel.stop()
-                //                    }
         } label: {
             HStack(spacing: 8) {
                 Circle()
@@ -185,17 +169,12 @@ struct MIDIMonitorView: View {
             withAnimation {
                 showNotes.toggle()
             }
-            
-                //                    Task {
-                //
-                //                    }
         } label: {
             HStack(spacing: 8) {
                 Circle()
                     .fill(showNotes ? Color.orange : Color.gray )
                     .frame(width: 8, height: 8)
                 
-                    //                        Text("Notes \(showNotes ? "On" : "Off")")
                 Text("Notes")
                     .font(.system(size: 12))
                     .foregroundColor(.white)
