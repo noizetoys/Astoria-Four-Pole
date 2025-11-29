@@ -65,21 +65,21 @@ enum NoteType: String, CaseIterable, Identifiable {
  * - UI updates automatically via @Published properties
  */
 struct MIDIMonitorView: View {
-    @State private var viewModel: GraphViewModel
+//    @State private var viewModel: GraphViewModel
     
     @State private var showSettings = false
     @State private var monitoredCC: Int = 2       // Default: Breath Control (CC2)
     @State private var monitoredNote: Int = 48    // Default: C3
     @State private var noteType: NoteType = .both // Default: Monitor both On and Off
     
-    @State private var isOn: Bool = false
+    @State private var isOn: Bool = true
     @State private var showVelocity: Bool = true
     @State private var showNotes: Bool = true
 
     
     init() {
-        debugPrint(message: "Creating.....")
-        viewModel = GraphViewModel()
+        debugPrint(icon: "🔥1️⃣", message: "1 Creating MIDIMonitorView...", type: .trace)
+//        viewModel = GraphViewModel()
     }
     
     
@@ -105,26 +105,27 @@ struct MIDIMonitorView: View {
             .background(Color.black.opacity(0.6))
             
                 // Graph
-            MIDIGraphView(viewModel: viewModel)
+//            MIDIGraphView(viewModel: viewModel)
+            MIDIGraphView(ccNumber: ContinuousController.breathControl, channel: 1)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(Color(red: 0.1, green: 0.1, blue: 0.15))
         .onAppear {
         }
-        .onDisappear {
-            viewModel.stop()
-        }
+//        .onDisappear {
+//            viewModel.stop()
+//        }
         .onReceive(NotificationCenter.default.publisher(for: .midiSourceConnected)) { _ in
             isOn = true
-            Task {
-                await viewModel.start()
-            }
+//            Task {
+//                await viewModel.start()
+//            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .midiSourceDisconnected)) { _ in
             isOn = false
-            Task {
-                viewModel.stop()
-            }
+//            Task {
+//                viewModel.stop()
+//            }
             
         }
 
@@ -137,9 +138,9 @@ struct MIDIMonitorView: View {
                 isOn.toggle()
             }
             
-            Task {
-                await isOn ? viewModel.start() : viewModel.stop()
-            }
+//            Task {
+//                await isOn ? viewModel.start() : viewModel.stop()
+//            }
         } label: {
             HStack {
                 Image(systemName: isOn ? "power.circle" : "power.circle.fill")
@@ -206,7 +207,7 @@ struct MIDIMonitorView: View {
     
     private var clearButton: some View {
         Button {
-            viewModel.dataPoints = []
+//            viewModel.dataPoints = []
         } label: {
             Text("Clear")
         }
