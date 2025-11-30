@@ -8,7 +8,17 @@
 import Foundation
 
 
-enum GlobalMIDIControl: UInt8, Codable, CaseIterable {
+// MARK: - MIDI Control
+
+enum GlobalMIDIControl: UInt8, Codable, CaseIterable, Identifiable {
+    var id: UInt8 { self.rawValue }
+    var storedValue: Self { self }
+    
+    init?(storedValue: Self) {
+        self = storedValue
+    }
+
+    
     case off = 0
     
     // Allows for sending control changes to be
@@ -20,29 +30,75 @@ enum GlobalMIDIControl: UInt8, Codable, CaseIterable {
     
     var name: String {
         switch self {
-            case .off: return "Off"
-            case .ctr: return "Control Changes"
-            case .cts: return "Signal Envelope"
+            case .off:  "Off"
+            case .ctr:  "Controls"
+            case .cts:  "Signal"
         }
     }
     
 }
 
 
-enum GlobalKnobMode: UInt8, Codable, CaseIterable {
+extension GlobalSetting where T == GlobalMIDIControl {
+    init(wrappedValue: T, _ key: String) {
+        self.init(wrappedValue: GlobalMIDIControl(rawValue: wrappedValue.rawValue ?? 0) ?? .ctr, key: key)
+    }
+}
+
+extension GlobalMIDIControl: UserDefaultsSerializable {
+    public var userDefaultsValue: Any { rawValue }
+    
+    public static func fromUserDefaultsValue(_ value: Any) -> GlobalMIDIControl? {
+        if let int = value as? Int { return Self(rawValue: UInt8(int)) }
+        if let num = value as? UInt8 { return Self(rawValue: num) }
+        if let num = value as? NSNumber { return Self(rawValue: num.uint8Value) }
+        return nil
+    }
+}
+
+
+// MARK: - Knob Mode
+
+enum GlobalKnobMode: UInt8, Codable, CaseIterable, Identifiable {
+    var id: UInt8 { self.rawValue }
+    var storedValue: Self { self }
+    
+    init?(storedValue: Self) {
+        self = storedValue
+    }
+    
     case jump = 0
     case relative = 1
     
     
     var name: String {
         switch self {
-            case .jump: return "Jump"
-            case .relative: return "Relative"
+            case .jump:  "Jump"
+            case .relative:  "Relative"
         }
     }
     
 }
 
+extension GlobalSetting where T == GlobalKnobMode {
+    init(wrappedValue: GlobalKnobMode, _ key: String) {
+        self.init(wrappedValue: GlobalKnobMode(rawValue: wrappedValue.rawValue) ?? .relative, key: key)
+    }
+}
+
+extension GlobalKnobMode: UserDefaultsSerializable {
+    public var userDefaultsValue: Any { rawValue }
+    
+    public static func fromUserDefaultsValue(_ value: Any) -> GlobalKnobMode? {
+        if let int = value as? Int { return Self(rawValue: UInt8(int)) }
+        if let num = value as? UInt8 { return Self(rawValue: num) }
+        if let num = value as? NSNumber { return Self(rawValue: num.uint8Value) }
+        return nil
+    }
+}
+
+
+// MARK: - Global Types
 
 enum MiniWorksGlobalTypes: Int, Codable {
     case globalMidiChannel = 585 // Byte #
@@ -57,24 +113,24 @@ enum MiniWorksGlobalTypes: Int, Codable {
     
     var range: ClosedRange<UInt8> {
         switch self {
-            case .globalMidiChannel: return 0...16  // 0: Omni, 1-16: Channel
-            case .globalMidiControl: return 0...2   // 0: Off, 1: CtR, 2: CtS
-            case .globalDeviceID: return 0...126
-            case .startupProgramID: return 0...39   // Program 1-40
-            case .globalNoteNumber: return 0...127
-            case .globalKnobMode: return 0...1     // 0: Jump, 1: Relative
+            case .globalMidiChannel:  0...16  // 0: Omni, 1-16: Channel
+            case .globalMidiControl:  0...2   // 0: Off, 1: CtR, 2: CtS
+            case .globalDeviceID:  0...126
+            case .startupProgramID:  0...39   // Program 1-40
+            case .globalNoteNumber:  0...127
+            case .globalKnobMode:  0...1     // 0: Jump, 1: Relative
         }
     }
     
     
     var name: String {
         switch self {
-            case .globalMidiChannel: return "Global MIDI Channel"
-            case .globalMidiControl: return "Global MIDI Control"
-            case .globalDeviceID: return "Global Device ID"
-            case .startupProgramID: return "Startup Program ID"
-            case .globalNoteNumber: return "Global Note Number"
-            case .globalKnobMode: return "Global Knob Mode"
+            case .globalMidiChannel:  "Global MIDI Channel"
+            case .globalMidiControl:  "Global MIDI Control"
+            case .globalDeviceID:  "Global Device ID"
+            case .startupProgramID:  "Startup Program ID"
+            case .globalNoteNumber:  "Global Note Number"
+            case .globalKnobMode:  "Global Knob Mode"
         }
     }
     

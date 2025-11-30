@@ -6,9 +6,12 @@
 //
 
 import Foundation
+import SwiftUI
 
 
-enum ModulationSource: UInt8, Codable, CaseIterable {
+enum ModulationSource: UInt8, Codable, CaseIterable, Identifiable {
+    var id: UInt8 { self.rawValue }
+    
     case off = 0 // Selection/Option number
     
     case lfo = 1                // Low Frequency Oscillator
@@ -35,23 +38,80 @@ enum ModulationSource: UInt8, Codable, CaseIterable {
     case footcontroller = 15    // MIDI Controller #4
     
     
+    var color: Color {
+        switch self {
+            case .lfo, .lfo_ModWheel, .lfo_Aftertouch, .lfo_VCAEnvelope: .green
+            case .vcfEnvelope: .blue
+            case .vcaEnvelope, .velocity_VCAEnvelope, .signalEnvelope: .orange
+                
+            default: .white
+        }
+
+    }
+    
+    
+    var relatedSources: [ModulationSource] {
+        switch self {
+            case .lfo: [.lfo, .lfo_ModWheel, .lfo_Aftertouch, .lfo_VCAEnvelope]
+            case .vcfEnvelope: [.vcfEnvelope]
+            case .vcaEnvelope: [.vcaEnvelope, .velocity_VCAEnvelope, .signalEnvelope]
+                
+            default: []
+        }
+    }
+    
+    
+    var isLocalModSource: Bool {
+        switch self {
+            case .lfo, .lfo_ModWheel, .lfo_Aftertouch, .lfo_VCAEnvelope: true
+            case .vcfEnvelope: true
+            case .vcaEnvelope, .velocity_VCAEnvelope: true
+                
+            default: false
+        }
+
+    }
+    
+    
+    var shortName: String {
+        switch self {
+            case .off: return "Off"
+            case .lfo: return "LFO"
+            case .lfo_ModWheel: return "LFO * MW"
+            case .lfo_Aftertouch: return "LFO * AT"
+            case .lfo_VCAEnvelope: return "LFO * VCA"
+            case .vcfEnvelope: return "VCF Env"
+            case .vcaEnvelope: return "VCA Env"
+            case .signalEnvelope: return "Signal Env"
+            case .velocity_VCAEnvelope: return "Vel * VCA"
+            case .velocity: return "Velocity"
+            case .keytrack: return "Keytrack"
+            case .pitchbend: return "Pitchbend"
+            case .modWheel: return "ModWheel"
+            case .aftertouch: return "AfterTouch"
+            case .breathControl: return "Breath"
+            case .footcontroller: return "Foot Cntl"
+        }
+    }
+    
+    
     var name: String {
         switch self {
             case .off: return "Off"
             case .lfo: return "LFO"
             case .lfo_ModWheel: return "LFO * ModWheel"
-            case .lfo_Aftertouch: return "LFO * Aftertouch"
+            case .lfo_Aftertouch: return "LFO * AfterTouch"
             case .lfo_VCAEnvelope: return "LFO * VCAEnvelope"
             case .vcfEnvelope: return "VCF Envelope"
             case .vcaEnvelope: return "VCA Envelope"
             case .signalEnvelope: return "Signal Envelope Follower"
             case .velocity_VCAEnvelope: return "Vel * VCA Envelope"
             case .velocity: return "Velocity"
-            case .keytrack: return "Keytrack"
+            case .keytrack: return "Keytracking"
             case .pitchbend: return "Pitchbend"
             case .modWheel: return "ModWheel"
-            case .aftertouch: return "Aftertouch"
-            case .breathControl: return "Breath Control"
+            case .aftertouch: return "AfterTouch"
+            case .breathControl: return "Breath Controller"
             case .footcontroller: return "Foot Controller"
         }
     }

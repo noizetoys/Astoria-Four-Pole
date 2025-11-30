@@ -12,22 +12,22 @@ import Foundation
 
 
 struct MiniWorksErrorTests {
-    private static let programData: Data = singleProgramSampleData
-    private static let allDumpData: Data = allDumpSampleData
+    private static let programData: [UInt8] = singleProgramSampleData
+    private static let allDumpData: [UInt8] = allDumpSampleData
 
     
-    @Test("Malformed Message Error", arguments: [programData, allDumpData])
-    func malformedMessageError(_ theData: Data) async throws {
+    @Test("Start of Data Error", arguments: [programData, allDumpData])
+    func malformedMessageError(_ theData: [UInt8]) async throws {
         // Less than 6 bytes
         var malformedMessageData = theData
         malformedMessageData[0] = 0xFF
         
-        let malformedMessageError = #expect(throws: MiniWorksError.self) {
-            try SysExMessage.parseType(data: malformedMessageData)
+        let malformedMessageError = #expect(throws: SysExError.self) {
+            try MiniworksSysExCodec.parseDataType(from: malformedMessageData)
         }
         
         #expect({
-            if case .malformedMessage(_) = malformedMessageError { return true }
+            if case .sysExStartInvalid(_) = malformedMessageError { return true }
             else { return false }
         }())
         
@@ -35,17 +35,17 @@ struct MiniWorksErrorTests {
 
     
     @Test("Incomplete Message Error", arguments: [programData, allDumpData])
-    func imcompleteMessageError(_ theData: Data) async throws {
+    func imcompleteMessageError(_ theData: [UInt8]) async throws {
         // Less than 6 bytes
         var incompleteMessageData = theData
-        incompleteMessageData = Data(incompleteMessageData[0...4])
+        incompleteMessageData = Array(incompleteMessageData[0...4])
         
-        let incompleteMessageError = #expect(throws: MiniWorksError.self) {
-            try SysExMessage.parseType(data: incompleteMessageData)
+        let incompleteMessageError = #expect(throws: SysExError.self) {
+            try MiniworksSysExCodec.parseDataType(from: incompleteMessageData)
         }
         
         #expect({
-            if case .incompleteMessage(_) = incompleteMessageError { return true }
+            if case .invalidLength(_) = incompleteMessageError { return true }
             else { return false }
         }())
         
@@ -53,77 +53,77 @@ struct MiniWorksErrorTests {
     
     
     @Test("End of Data Error", arguments: [programData, allDumpData])
-    func endOfDataError(_ theData: Data) async throws {
+    func endOfDataError(_ theData: [UInt8]) async throws {
         var badMessage = theData
         let lastIndex = badMessage.endIndex
         badMessage[lastIndex.advanced(by: -1)] = 0xFF
         
-        let badMessageError = #expect(throws: MiniWorksError.self) {
-            try SysExMessage.parseType(data: badMessage)
+        let badMessageError = #expect(throws: SysExError.self) {
+            try MiniworksSysExCodec.parseDataType(from: badMessage)
         }
         
         #expect({
-            if case .malformedMessage(_) = badMessageError { return true }
+            if case .sysExEndInvalid(_) = badMessageError { return true }
             else { return false }
         }())
     }
     
     
     @Test("Manufacturer Error", arguments: [programData, allDumpData])
-    func manufacturerError(_ theData: Data) async throws {
+    func manufacturerError(_ theData: [UInt8]) async throws {
         var badManufacturerMessage = theData
         badManufacturerMessage[1] = 0xFF
         
-        let badMessageError = #expect(throws: MiniWorksError.self) {
-            try SysExMessage.parseType(data: badManufacturerMessage)
+        let badMessageError = #expect(throws: SysExError.self) {
+            try MiniworksSysExCodec.parseDataType(from: badManufacturerMessage)
         }
         
         #expect({
-            if case .wrongManufacturerID(_) = badMessageError { return true }
+            if case .invalidManufacturerID(_) = badMessageError { return true }
             else { return false }
         }())
     }
     
     
     @Test("Model/Device Error", arguments: [programData, allDumpData])
-    func modelError(_ theData: Data) async throws {
+    func modelError(_ theData: [UInt8]) async throws {
         var badModelMessage = theData
         badModelMessage[2] = 0xFF
         
-        let badModelError = #expect(throws: MiniWorksError.self) {
-            try SysExMessage.parseType(data: badModelMessage)
+        let badModelError = #expect(throws: SysExError.self) {
+            try MiniworksSysExCodec.parseDataType(from: badModelMessage)
         }
         
         #expect({
-            if case .wrongMachineID(_) = badModelError { return true }
+            if case .invalidMachineID(_) = badModelError { return true }
             else { return false }
         }())
     }
 
     
     @Test("Command Error", arguments: [programData, allDumpData])
-    func commandError(_ theData: Data) async throws {
+    func commandError(_ theData: [UInt8]) async throws {
         var badCommandMessage = theData
         badCommandMessage[4] = 0xFF
         
-        let badCommandError = #expect(throws: MiniWorksError.self) {
-            try SysExMessage.parseType(data: badCommandMessage)
+        let badCommandError = #expect(throws: SysExError.self) {
+            try MiniworksSysExCodec.parseDataType(from: badCommandMessage)
         }
         
         #expect({
-            if case .unknownCommandByte(_) = badCommandError { return true }
+            if case .invalidCommand(_) = badCommandError { return true }
             else { return false }
         }())
     }
 
 
     @Test("Checksum Error", arguments: [programData, allDumpData])
-    func checksumError(_ theData: Data) async throws {
+    func checksumError(_ theData: [UInt8]) async throws {
         var badChecksumMessage = theData
         badChecksumMessage[badChecksumMessage.count - 2] = 0xFF
         
-        let badChecksumError = #expect(throws: MiniWorksError.self) {
-            try SysExMessage.parseType(data: badChecksumMessage)
+        let badChecksumError = #expect(throws: SysExError.self) {
+            try MiniworksSysExCodec.parseDataType(from: badChecksumMessage)
         }
         
         #expect({
@@ -133,3 +133,4 @@ struct MiniWorksErrorTests {
     }
 
 }
+

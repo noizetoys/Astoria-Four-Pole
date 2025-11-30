@@ -8,58 +8,83 @@
 import Foundation
 
 
-enum SysExMessageType: UInt8, Codable, Equatable {
-    case programDumpMessage = 0x00
-    case programBulkDumpMessage = 0x01
-    case allDumpMessage = 0x08
+nonisolated
+enum SysExMessageType: Codable, Equatable {
+    case programDumpMessage([UInt8])
+    case programDumpRequest(UInt8)
     
+    case programBulkDumpMessage([UInt8])
+    case programBulkDumpRequest(UInt8)
     
-    var isRequest: Bool {
-        return self.rawValue.isMultiple(of: 0x40)
+    case allDumpRequest
+    case allDumpMessage([UInt8])
+
+    var rawValue: UInt8 {
+        switch self {
+            case .programDumpMessage(_): SysExConstant.programDumpMessage
+            case .programDumpRequest(_): SysExConstant.programDumpRequest
+                
+            case .programBulkDumpMessage(_): SysExConstant.programBulkDumpMessage
+            case .programBulkDumpRequest(_): SysExConstant.programBulkDumpRequest
+
+            case .allDumpMessage: SysExConstant.allDumpMessage
+            case .allDumpRequest: SysExConstant.allDumpRequest
+        }
     }
     
-    
-    var isResponse: Bool {
-        return !self.isRequest
-    }
+    var isRequest: Bool { self.rawValue.isMultiple(of: 0x40) }
+    var isResponse: Bool { !self.isRequest }
     
     
     var checksumStartIndex: Int {
-        let isDump = self == .allDumpMessage
-        return isDump ? 5 : 4
+        if case .allDumpMessage(_) = self { return 5 }
+        else { return 4 }
     }
     
     
     var checksumEndIndex: Int {
-        let isDump = self == .allDumpMessage
-        return isDump ? 590 : 34
+        if case .allDumpMessage(_) = self { return 590 }
+        else { return 34 }
     }
     
     
     var checksumIndex: Int {
-        return self == .allDumpMessage ? 591 : 35
+        if case .allDumpMessage(_) = self { return 591 }
+        else { return 35 }
     }
-}
-
-
-enum SysExRequestMessageType: Codable {
-    case programDumpRequest(Int)
-    case programBulkDumpRequest(Int)
-    case allDumpRequest
     
-    var hexValue: [UInt8] {
+    
+    func requestMessage() throws -> [UInt8] {
+        let header = SysExConstant.header   // [messageStart, manufacturerID, machineID]
+        let deviceID = UInt8(UserDefaults.standard.integer(forKey: SysExConstant.deviceIDKey))
+        var body: [UInt8] = []
+        
+        
         switch self {
-            case .programDumpRequest(let num): [0x40, UInt8(num)]
-            case .programBulkDumpRequest(let num): [0x41, UInt8(num)]
-            case .allDumpRequest: [0x48]
+            case .programDumpRequest(let program):
+                body = [SysExConstant.programDumpRequest, program]
+            case .programBulkDumpRequest(let program):
+                body = [SysExConstant.programBulkDumpRequest, program]
+            case .allDumpRequest:
+                body = [SysExConstant.allDumpRequest]
+            default: throw SysExError.invalidRequest(message: "Wrong request type for this method")
+        }
+        
+        return header + [deviceID] + body + [SysExConstant.endOfMessage]
+    }
+    
+    
+    static func type(from num: UInt8, bytes: [UInt8]) -> Self {
+        switch num {
+            case SysExConstant.programDumpMessage:  .programDumpMessage(bytes)
+            case SysExConstant.programDumpRequest:  .programDumpRequest(bytes.first ?? 00)
+            case SysExConstant.programBulkDumpMessage:  .programBulkDumpMessage(bytes)
+            case SysExConstant.programBulkDumpRequest:  .programBulkDumpRequest(bytes.first ?? 00)
+            case SysExConstant.allDumpMessage:  .allDumpMessage(bytes)
+            case SysExConstant.allDumpRequest:  .allDumpRequest
+            default: fatalError("Unhandled SysExMessageType raw value: \(num)")
         }
     }
 }
 
-
-enum SysExDataType: Equatable {
-    case programDump(Data)
-    case programBulkDump(Data)
-    case allDump(Data)
-}
 

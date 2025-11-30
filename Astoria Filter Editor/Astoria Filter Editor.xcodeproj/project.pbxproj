@@ -30,10 +30,43 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		8510BAE12EC24E8A00B2E6FA /* Exceptions for "Astoria Filter Editor" folder in "Astoria Filter Editor" target */ = {
+		85BD425B2ECAB2A3006875F3 /* Exceptions for "Astoria Filter Editor" folder in "Astoria Filter Editor" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"MIDI and Manager/GPT MIDI Manager.swift",
+				"UI/DNU/ADSR Ed close.swift",
+				"UI/DNU/ADSR Envelope Editor.swift",
+				UI/DNU/ADSRRRR.swift,
+				UI/DNU/Arrow.swift,
+				"UI/DNU/Claude Log.swift",
+				"UI/DNU/DNU Midi Monitoring (DNU).swift",
+				"UI/DNU/DNU MIDIManager (DNU).swift",
+				"UI/DNU/Envlope Settings View (DNU).swift",
+				"UI/DNU/Graph View Model Alt.swift",
+				"UI/DNU/GraphViewModel - Non Opt.swift",
+				UI/DNU/Knob.swift,
+				"UI/DNU/LFO Editor V2.swift",
+				"UI/DNU/LFO tracer - Simpler.swift",
+				"UI/DNU/LFO Tracer View.swift",
+				"UI/DNU/LFO View.swift",
+				"UI/DNU/LFOTracerView Old.swift",
+				UI/DNU/LogScaleView.swift,
+				"UI/DNU/LPF Editor.swift",
+				UI/DNU/MIDIGraphView.swift,
+				"UI/DNU/Pan Indicator.swift",
+				UI/DNU/PanIndicator.swift,
+				"UI/DNU/Tag Item View.swift",
+				"UI/DNU/Tag View.swift",
+				UI/DNU/TagYouIt.swift,
+				"UI/DNU/XXXXX adsrview.swift",
+				"UI/Getting There/complete_project.swift",
+				"UI/Getting There/Drag and Drop Patches.swift",
+				"UI/Getting There/envelope_model-3.swift",
+				"UI/Getting There/Keyboard View.swift",
+				"UI/Getting There/MIDITimeMappingVisualizer.swift",
+				"UI/Getting There/Useful Knob.swift",
+				"UI/Getting There/XXXXX knobview.swift",
+				"Views/Program Editor Subviews/Envelope Monitor/GraphViewModel.swift",
+				"Views/Tracking ADSR.swift",
 			);
 			target = 2EC3F4CB2EBFEE8700D70CC0 /* Astoria Filter Editor */;
 		};
@@ -43,7 +76,7 @@
 		2EC3F4CE2EBFEE8700D70CC0 /* Astoria Filter Editor */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				8510BAE12EC24E8A00B2E6FA /* Exceptions for "Astoria Filter Editor" folder in "Astoria Filter Editor" target */,
+				85BD425B2ECAB2A3006875F3 /* Exceptions for "Astoria Filter Editor" folder in "Astoria Filter Editor" target */,
 			);
 			path = "Astoria Filter Editor";
 			sourceTree = "<group>";
@@ -419,8 +452,7 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -431,13 +463,13 @@
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 26.1;
 			};
 			name = Debug;
@@ -463,8 +495,7 @@
 				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -475,13 +506,13 @@
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
 				XROS_DEPLOYMENT_TARGET = 26.1;
 			};
 			name = Release;
