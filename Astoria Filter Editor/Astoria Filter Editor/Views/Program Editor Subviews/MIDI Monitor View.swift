@@ -90,17 +90,14 @@ struct MIDIMonitorView: View {
                 .bold()
             
             HStack {
-                
                 onOffButton
                 
                 velocityButton
-                
-                notesButton
-                
-                clearButton
 
+                notesButton
             }
             .padding(.vertical, 8)
+            .padding(.horizontal)
             .frame(maxWidth: .infinity)
             .background(Color.black.opacity(0.6))
             
@@ -139,6 +136,7 @@ struct MIDIMonitorView: View {
                     .font(.system(size: 12))
                     .foregroundColor(isOn ? .green : .red)
             }
+            .frame(maxWidth: .infinity)
         }
         .buttonStyle(.bordered)
 
@@ -160,6 +158,7 @@ struct MIDIMonitorView: View {
                     .font(.system(size: 12))
                     .foregroundColor(.white)
             }
+            .frame(maxWidth: .infinity)
         }
     }
     
@@ -175,11 +174,13 @@ struct MIDIMonitorView: View {
                     .fill(showNotes ? Color.orange : Color.gray )
                     .frame(width: 8, height: 8)
                 
-                Text("Notes")
+                Text("Note On/Off")
                     .font(.system(size: 12))
                     .foregroundColor(.white)
             }
+            .frame(maxWidth: .infinity)
         }
+        .frame(maxWidth: .infinity)
 
     }
     

@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct Pan_Editor: View {
     let program: MiniWorksProgram
     
@@ -48,7 +49,6 @@ struct Pan_Editor: View {
                     }
                     .foregroundStyle(.blue)
                     .frame(maxWidth: geo.size.width / 3, maxHeight: .infinity)
-//                    .padding([.bottom, .trailing])
                     
                 }
             } // HStack

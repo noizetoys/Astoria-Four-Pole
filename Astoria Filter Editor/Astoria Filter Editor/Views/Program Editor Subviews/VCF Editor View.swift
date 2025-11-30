@@ -54,6 +54,5 @@ struct VCF_Editor_View: View {
 
     }
     .frame(maxWidth: 400, maxHeight: .infinity)
-//    .frame(maxWidth: 400)
     
 }

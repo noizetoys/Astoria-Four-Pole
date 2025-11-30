@@ -212,7 +212,7 @@ final class MainViewModel {
             guard let self else { return }
             
             for await (isNoteOn, channel, note, velocity) in await self.midiService.noteStream(from: source) {
-                debugPrint(message: "Received: \(isNoteOn ? "Note On" : "Note off"), ch: \(channel), note: \(note), vel: \(velocity)")
+//                debugPrint(message: "Received: \(isNoteOn ? "Note On" : "Note off"), ch: \(channel), note: \(note), vel: \(velocity)", type: .trace)
                 
                 if self.isValidChannel(channel), note == deviceProfile.noteNumber {
                     self.handingIncomingNote(isNoteOn: isNoteOn, channel: channel, note: note, velocity: velocity)

@@ -34,6 +34,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"UI/DNU/ADSR Ed close.swift",
+				"UI/DNU/ADSR Envelope Editor.swift",
 				UI/DNU/ADSRRRR.swift,
 				UI/DNU/Arrow.swift,
 				"UI/DNU/Claude Log.swift",
@@ -64,7 +65,6 @@
 				"UI/Getting There/MIDITimeMappingVisualizer.swift",
 				"UI/Getting There/Useful Knob.swift",
 				"UI/Getting There/XXXXX knobview.swift",
-				"Views/Program Editor Subviews/ADSR Envelope Editor/ADSR Envelope Editor.swift",
 				"Views/Program Editor Subviews/Envelope Monitor/GraphViewModel.swift",
 				"Views/Tracking ADSR.swift",
 			);

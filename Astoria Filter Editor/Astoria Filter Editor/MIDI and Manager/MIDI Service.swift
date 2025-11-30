@@ -759,10 +759,9 @@ final actor MIDIService {
             
             if var connection = self.connections[source.id] {
                 connection.ccContinuations.append(continuation)
-//                connection.ccContinuation = continuation
                 self.connections[source.id] = connection
                 
-                debugPrint(icon: "🎛️👍🏻", message: "CC Stream for \(source.name) was created")
+                debugPrint(icon: "🎛️👍🏻", message: "CC Stream for \(source.name) was created, connections Count == \(self.connections[source.id]?.ccContinuations.count)", type: .trace)
             }
             else {
                 debugPrint(icon: "🎛️❌", message: "Failed to create CC Stream for \(source.name)")
@@ -772,6 +771,7 @@ final actor MIDIService {
             continuation.onTermination = { _ in
                 Task {
                     await self.removeCCContinuation(for: source.id)
+                    debugPrint(icon: "❌", message: "Removed CCStream, connections Count == \(await  self.connections[source.id]?.ccContinuations.count)", type: .trace)
                 }
             }
         }
@@ -784,9 +784,8 @@ final actor MIDIService {
             
             if var connection = self.connections[source.id] {
                 connection.noteContinuations.append(continuation)
-//                connection.noteContinuation = continuation
                 self.connections[source.id] = connection
-                debugPrint(icon: "♫👍🏻", message: "Note Stream for \(source.name) was created")
+                debugPrint(icon: "♫👍🏻", message: "Note Stream for \(source.name) was created, connections Count == \(self.connections[source.id]?.noteContinuations.count)", type: .trace)
             }
             else {
                 debugPrint(icon: "♫❌", message: "Failed to create Note Stream for \(source.name)")
@@ -796,9 +795,11 @@ final actor MIDIService {
             continuation.onTermination = { _ in
                 Task {
                     await self.removeNoteContinuation(for: source.id)
+                    debugPrint(icon: "❌", message: "Removed NoteStream, connections Count == \(await self.connections[source.id]?.noteContinuations.count)", type: .trace)
                 }
             }
         }
+        
     }
     
     

@@ -73,7 +73,6 @@ struct Volume_Editor: View {
                     .padding(.horizontal, -20)
                 }
                 .foregroundStyle(.orange)
-                    //            .frame(maxWidth: geometry.size.width * (1/5))
                 
             }
         }

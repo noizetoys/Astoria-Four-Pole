@@ -1,5 +1,6 @@
 import SwiftUI
 
+
 enum PanVisualStyle: String, CaseIterable, Identifiable {
     case circles
     case squares
@@ -7,6 +8,7 @@ enum PanVisualStyle: String, CaseIterable, Identifiable {
     
     var id: String { rawValue }
 }
+
 
 struct PanControl: View {
     /// Pan value from -1 (full left) to +1 (full right)
@@ -54,7 +56,6 @@ struct PanControl: View {
                             lineStyle(width: width, height: height)
                     }
                 }
-//                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
                 .highPriorityGesture(dragGesture(width: width))   // horizontal drag
                 .simultaneousGesture(doubleTapResetGesture)       // double tap -> center
@@ -62,7 +63,6 @@ struct PanControl: View {
             }
             .frame(height: 40)
         }
-//        .padding(.horizontal)
     }
     
 }
@@ -159,7 +159,6 @@ private extension PanControl {
                 
                 Circle()
                     .fill(indicatorColor.opacity(opacity))
-//                    .frame(width: radius * 2, height: radius * 2)
                     .position(x: x, y: centerY)
                     .shadow(
                         color: glowColor.opacity(glowAlpha),
@@ -170,6 +169,7 @@ private extension PanControl {
         }
         .padding(.horizontal, spacing * 0.1) // slight side breathing room
     }
+    
     
     // Squares packed & centered, with glow + size falloff
     @ViewBuilder
@@ -209,6 +209,7 @@ private extension PanControl {
             }
         }
     }
+    
     
     // Slot with strong glow + orb
     @ViewBuilder
@@ -287,6 +288,7 @@ private extension PanControl {
         }
     }
 }
+
 
 // MARK: - Preview / Demo with ColorPicker
 
