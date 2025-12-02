@@ -231,68 +231,68 @@ enum MiniWorksParameter: String, Codable {
             case .LFOSpeedModulationAmount: 
                 "LFO Speed Modulation Amount"
             case .LFOShape:
-                "LFO Shape"
-            case .LFOSpeedModulationSource: 
-                "LFO Speed Modulation Source"
+                "Choose SIne, Triangle, Saw, Pulse, or Sample & Hold"
+            case .LFOSpeedModulationSource:
+                "Modulation Source for LFO Speed"
                 
             case .cutoffModulationAmount: 
-                "Cutoff Modulation Amount"
+                "Cutoff Modulation Amount\nNegative Values are 'Out of Phase'"
                 
             case .VCFEnvelopeAttack:
-                "VCFEnvelopeAttack"
+                "Attack - Ascent rate 2m to 1 minute"
             case .VCFEnvelopeDecay:
-                "VCFEnvelopeDecay"
+                "Decay - Descent rate to 'Sustain'"
             case .VCFEnvelopeSustain:
-                "VCFEnvelopeSustain"
+                "Sustain - Level until 'Release'"
             case .VCFEnvelopeRelease:
-                "VCFEnvelopeRelease"
+                "Release - Descent Rate to '0'"
                 
             case .VCAEnvelopeAttack:
-                "VCAEnvelopeAttack"
+                "Attack - Ascent rate 2m to 1 minute"
             case .VCAEnvelopeDecay:
-                "VCAEnvelopeDecay"
+                "Decay - Descent rate to 'Sustain'"
             case .VCAEnvelopeSustain:
-                "VCAEnvelopeSustain"
+                "Sustain - Level until 'Release'"
             case .VCAEnvelopeRelease:
-                "VCAEnvelopeRelease"
-                
+                "Release - Descent Rate to '0'"
+
             case .VCFEnvelopeCutoffAmount:
-                "VCFEnvelopeCutoffAmount"
+                "VCF Envelope Amount on Cutoff\nNegative values lower frequency"
                 
             case .VCAEnvelopeVolumeAmount:
-                "VCAEnvelopeVolumeAmount"
+                "VCA Envelope Amount on Volume\nNegative values lower level"
                 
             case .resonanceModulationAmount:
-                "resonanceModulationAmount"
+                "Resonance Modulation Amount\nNegative Values are 'Out of Phase'"
             case .volumeModulationAmount:
-                "volumeModulationAmount"
+                "Volume Modulation Amount\nNegative Values are 'Out of Phase'"
             case .panningModulationAmount:
-                "panningModulationAmount"
+                "Panning Modulation Amount\nNegative Values are 'Out of Phase'"
                 
             case .cutoffModulationSource:
-                "cutoffModulationSource"
+                "Cutoff Modulation Source"
             case .resonanceModulationSource:
-                "resonanceModulationSource"
+                "Resonance Modulation Source"
             case .volumeModulationSource:
-                "volumeModulationSource"
+                "Volume Modulation Source"
             case .panningModulationSource:
-                "panningModulationSource"
+                "Panning Modulation Source"
                 
             case .cutoff:
-                "cutoff"
+                "Cutoff Filter Frequency"
             case .resonance:
-                "resonance"
+                "Resonance - Amount of Amplification at cutoff Point.  Can Self-Oscillate"
             case .volume:
-                "volume"
+                "Volume - Starting Audio Level"
             case .panning:
-                "panning"
+                "Panning - Position of Signal in Stereo Field"
                 
             case .gateTime:
-                "gateTime"
+                "Gate Time of trigger - 000 to 508 ms."
             case .triggerSource:
-                "triggerSource"
+                "Trigger Source - Audio, MIDI, or Both"
             case .triggerMode:
-                "triggerMode"
+                "Trigger Mode - Multi (always) or Signal (after envelope runs)"
         }
     }
     

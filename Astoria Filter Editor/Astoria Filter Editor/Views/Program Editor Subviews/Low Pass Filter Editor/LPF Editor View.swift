@@ -25,20 +25,21 @@ struct LPF_Editor_View: View {
                                 .bold()
                                 .foregroundStyle(.white)
                             PercentageArrowView(rawValue: program.vcfEnvelopeCutoffAmount.doubleBinding)
+                                .help(program.vcfEnvelopeCutoffAmount.toolTip)
                         }
                         .padding(.horizontal, -20)
                     }
                     .frame(maxHeight: geometry.size.height / 3)
-                    .help(program.vcfEnvelopeCutoffAmount.toolTip)
                     
                         // Cutoff Mod
                     GroupBox {
                         VStack(spacing: 0) {
                             Text("Amount")
                             PercentageArrowView(rawValue: program.cutoffModulationAmount.doubleBinding)
+                                .help(program.cutoffModulationAmount.toolTip)
                         }
                         .padding(.horizontal, -20)
-                        
+
                         Text("Cutoff Mod.")
                             .bold()
                         
@@ -46,6 +47,7 @@ struct LPF_Editor_View: View {
                             ArrowPickerGlowView(selection: program.cutoffModulationSource.modulationBinding,
                                                 direction: .right,
                                                 arrowColor: .yellow)
+                            .help(program.cutoffModulationSource.toolTip)
                             .padding(.top, -10)
                             
                             Text("Source")
@@ -77,6 +79,7 @@ struct LPF_Editor_View: View {
                         VStack(spacing: 0) {
                             Text("Amount")
                             PercentageArrowView(rawValue: program.resonanceModulationAmount.doubleBinding)
+                                .help(program.resonanceModulationAmount.toolTip)
                         }
                         .padding(.horizontal, -20)
                         
@@ -87,6 +90,7 @@ struct LPF_Editor_View: View {
                             ArrowPickerGlowView(selection: program.resonanceModulationSource.modulationBinding,
                                                 direction: .left,
                                                 arrowColor: .red)
+                            .help(program.resonanceModulationSource.toolTip)
                             .padding(.top, -10)
                             
                             Text("Source")
