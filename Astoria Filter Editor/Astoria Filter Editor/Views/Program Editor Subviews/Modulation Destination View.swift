@@ -26,7 +26,7 @@ struct Modulation_Destination_View: View {
             
             Text("Modulation Sources:")
                 .bold()
-                .font(.title)
+                .font(.title3)
 //            Picker("Mod ", selection: $sortFilter) {
 //                ForEach(ModSourceFilter.allCases) { filter in
 //                    Text(filter.rawValue)

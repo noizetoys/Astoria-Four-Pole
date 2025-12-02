@@ -20,6 +20,7 @@ final class ProgramParameter: Identifiable {
     let id: UUID = UUID()
     
     let type: MiniWorksParameter
+    var toolTip: String { type.toolTip }
     
     var _value: UInt8 = 64 {
         didSet {

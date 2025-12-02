@@ -26,7 +26,8 @@ struct MainView: View {
     @State var sendProfile: Bool = false
     @State var requestProfile: Bool = false
     @State var showConnectionsBox: Bool = false
-    
+    @State var showInfoOverlay: Bool = false
+
 
     @Binding var deviceProfile: MiniworksDeviceProfile
     
@@ -87,10 +88,23 @@ struct MainView: View {
                                        showConnectionsBox: $showConnectionsBox)
                             .padding()
                     }
+                    .overlay {
+                        if showInfoOverlay {
+                            ConnectionsViewOverlay()
+                                .padding(.horizontal, 10)
+                        }
+                    }
                     
                         // Programs
                     Program_Matrix(viewModel: viewModel)
                         .padding([.horizontal, .bottom], 10)
+                        .overlay {
+                            if showInfoOverlay {
+                                ProgramMatrixViewOverlay()
+                                    .padding([.horizontal, .bottom], 10)
+                            }
+                        }
+
                 }
                 
                 
@@ -101,6 +115,12 @@ struct MainView: View {
                         }
                         .background(.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay {
+                            if showInfoOverlay {
+                                ProgramTitleViewOverlay()
+                            }
+                        }
+
 
                         GroupBox {
                             QuickActionsView(newProgram: $newProgram,
@@ -112,6 +132,27 @@ struct MainView: View {
                         }
                         .background(.gray.opacity(0.3))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .overlay {
+                            if showInfoOverlay {
+                                QuickActionsViewOverlay()
+                            }
+                        }
+
+                        
+                        Button {
+                            withAnimation {
+                                showInfoOverlay.toggle()
+                            }
+                        } label: {
+                            Image(systemName: "questionmark.circle.fill")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .font(.title2)
+                                .bold()
+                                .frame(maxWidth: 30, maxHeight: .infinity)
+                                .foregroundStyle(showInfoOverlay ? .red : .white)
+                        }
+
                     }
                     // Width = 1/5, height = 1/3
                     .frame(width: columnWidth(from: geometry) * 4, height: rowHeight(from: geometry) / 4)
@@ -119,7 +160,7 @@ struct MainView: View {
                         // Edit View
                     if let program = viewModel.program {
                         GroupBox {
-                            Program_Editor_View(program: program)
+                            Program_Editor_View(program: program, showInfoOverlay: $showInfoOverlay)
                         }
 
                     }

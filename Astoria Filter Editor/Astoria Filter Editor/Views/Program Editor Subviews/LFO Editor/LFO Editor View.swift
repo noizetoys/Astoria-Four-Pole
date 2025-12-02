@@ -26,6 +26,9 @@ struct LFOAnimationView: View {
     
     @State var musicNote: MusicalNote = .init(description: "", cents: 0, midiNote: 0)
     
+    private var musicNoteValue: String {
+        musicNote.midiNote > 0 ? "\(musicNote.midiNote)" : "N/A"
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -37,6 +40,7 @@ struct LFOAnimationView: View {
                         PercentageArrowView(rawValue: program.lfoSpeedModulationAmount.doubleBinding)
                     }
                     .padding(.horizontal, -20)
+                    .help(program.lfoSpeedModulationAmount.toolTip)
                     
                     Text("LFO Mod.")
                         .bold()
@@ -48,6 +52,8 @@ struct LFOAnimationView: View {
                         Text("Source")
                     }
                     .padding(.horizontal, -20)
+                    .help(program.lfoSpeedModulationSource.toolTip)
+
                 }
                 .frame(maxWidth: geometry.size.width * (1/5))
                 .foregroundStyle(Color.green)
@@ -121,18 +127,21 @@ struct LFOAnimationView: View {
                     
                     Text(String(format: "%.1f Hz", frequency))
                         .font(.system(.body, design: .monospaced))
-                        .foregroundColor(.blue)
+                        .foregroundColor(.cyan)
                 }
                 .frame(maxWidth: .infinity)
+                .help("'Speed' of the Oscillator")
                 
                 VStack {
                     Text("Period:")
                         .font(.headline)
                     
                     Text("\(String(format: "%.1f s", 1.0 / max(frequency, 0.001)))")
-                        .foregroundColor(.blue)
+                        .foregroundColor(.cyan)
+//                        .foregroundColor(.blue)
                 }
                 .frame(maxWidth: .infinity)
+                .help("Length of a full cycle")
                 
                 let musicalNote = frequencyToMusicalNote(frequency)
                 
@@ -141,7 +150,8 @@ struct LFOAnimationView: View {
                         .font(.headline)
                     
                     Text(musicalNote.description)
-                        .font(.system(.caption, design: .monospaced))
+                        .fontDesign(.monospaced)
+//                        .font(.system(.caption, design: .monospaced))
                         .foregroundColor(.cyan)
                     
 //                    if abs(musicalNote.cents) < 1.0 {
@@ -151,18 +161,19 @@ struct LFOAnimationView: View {
 //                    }
                 }
                 .frame(maxWidth: .infinity)
+                .help("Pitch of the Oscillator")
                 
                 
-                GroupBox {
-                    VStack {
-                        Text("MIDI #:")
-                            .font(.headline)
-                        
-                        Text("\(musicalNote.midiNote)")
-                            .foregroundColor(.blue)
-                    }
-                }
-                .frame(maxWidth: .infinity)
+//                GroupBox {
+//                    VStack {
+//                        Text("MIDI #:")
+//                            .font(.headline)
+//                        
+//                        Text(musicNoteValue)
+//                            .foregroundColor(.blue)
+//                    }
+//                }
+//                .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity)
             
@@ -207,39 +218,9 @@ struct LFOAnimationView: View {
             }
         }
         .toggleStyle(SwitchToggleStyle(tint: .blue))
+        .help("Matches Oscillator Frequency to Pitches")
     }
     
-    
-    private var infoDisplayView: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text("Period: \(String(format: "%.3f s", 1.0 / max(frequency, 0.001)))")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                    //                Spacer()
-            }
-            
-            let musicalNote = frequencyToMusicalNote(frequency)
-            HStack {
-                Text("Musical Note:")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                Spacer()
-                Text(musicalNote.description)
-                    .font(.system(.caption, design: .monospaced))
-                    .foregroundColor(.cyan)
-                if abs(musicalNote.cents) < 1.0 {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.caption)
-                        .foregroundColor(.green)
-                }
-                Text("(MIDI: \(musicalNote.midiNote))")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            }
-        }
-        .padding(.horizontal)
-    }
     
         // MARK: - Computed Properties & Helpers
     

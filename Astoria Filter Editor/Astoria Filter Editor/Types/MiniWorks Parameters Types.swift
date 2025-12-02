@@ -226,62 +226,73 @@ enum MiniWorksParameter: String, Codable {
     
     var toolTip: String {
         switch self {
-            case .LFOSpeed: return "LFO Speed"
-            case .LFOSpeedModulationAmount: return "LFO Speed Modulation Amount"
-            case .LFOShape: return "LFO Shape"
-            case .LFOSpeedModulationSource: return "LFO Speed Modulation Source"
+            case .LFOSpeed:  
+                "Rate from 0.008 to 261.6Hz"
+            case .LFOSpeedModulationAmount: 
+                "LFO Speed Modulation Amount"
+            case .LFOShape:
+                "LFO Shape"
+            case .LFOSpeedModulationSource: 
+                "LFO Speed Modulation Source"
                 
-            case .cutoffModulationAmount: return "Cutoff Modulation Amount"
+            case .cutoffModulationAmount: 
+                "Cutoff Modulation Amount"
                 
-            default: return "Unknown"
-//            case .VCFEnvelopeAttack:
-//                <#code#>
-//            case .VCFEnvelopeDecay:
-//                <#code#>
-//            case .VCFEnvelopeSustain:
-//                <#code#>
-//            case .VCFEnvelopeRelease:
-//                <#code#>
-//            case .VCAEnvelopeAttack:
-//                <#code#>
-//            case .VCAEnvelopeDecay:
-//                <#code#>
-//            case .VCAEnvelopeSustain:
-//                <#code#>
-//            case .VCAEnvelopeRelease:
-//                <#code#>
-//            case .VCFEnvelopeCutoffAmount:
-//                <#code#>
-//            case .VCAEnvelopeVolumeAmount:
-//                <#code#>
-//            case .resonanceModulationAmount:
-//                <#code#>
-//            case .volumeModulationAmount:
-//                <#code#>
-//            case .panningModulationAmount:
-//                <#code#>
-//            case .cutoffModulationSource:
-//                <#code#>
-//            case .resonanceModulationSource:
-//                <#code#>
-//            case .volumeModulationSource:
-//                <#code#>
-//            case .panningModulationSource:
-//                <#code#>
-//            case .cutoff:
-//                <#code#>
-//            case .resonance:
-//                <#code#>
-//            case .volume:
-//                <#code#>
-//            case .panning:
-//                <#code#>
-//            case .gateTime:
-//                <#code#>
-//            case .triggerSource:
-//                <#code#>
-//            case .triggerMode:
-//                <#code#>
+            case .VCFEnvelopeAttack:
+                "VCFEnvelopeAttack"
+            case .VCFEnvelopeDecay:
+                "VCFEnvelopeDecay"
+            case .VCFEnvelopeSustain:
+                "VCFEnvelopeSustain"
+            case .VCFEnvelopeRelease:
+                "VCFEnvelopeRelease"
+                
+            case .VCAEnvelopeAttack:
+                "VCAEnvelopeAttack"
+            case .VCAEnvelopeDecay:
+                "VCAEnvelopeDecay"
+            case .VCAEnvelopeSustain:
+                "VCAEnvelopeSustain"
+            case .VCAEnvelopeRelease:
+                "VCAEnvelopeRelease"
+                
+            case .VCFEnvelopeCutoffAmount:
+                "VCFEnvelopeCutoffAmount"
+                
+            case .VCAEnvelopeVolumeAmount:
+                "VCAEnvelopeVolumeAmount"
+                
+            case .resonanceModulationAmount:
+                "resonanceModulationAmount"
+            case .volumeModulationAmount:
+                "volumeModulationAmount"
+            case .panningModulationAmount:
+                "panningModulationAmount"
+                
+            case .cutoffModulationSource:
+                "cutoffModulationSource"
+            case .resonanceModulationSource:
+                "resonanceModulationSource"
+            case .volumeModulationSource:
+                "volumeModulationSource"
+            case .panningModulationSource:
+                "panningModulationSource"
+                
+            case .cutoff:
+                "cutoff"
+            case .resonance:
+                "resonance"
+            case .volume:
+                "volume"
+            case .panning:
+                "panning"
+                
+            case .gateTime:
+                "gateTime"
+            case .triggerSource:
+                "triggerSource"
+            case .triggerMode:
+                "triggerMode"
         }
     }
     

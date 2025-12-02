@@ -29,6 +29,7 @@ struct LPF_Editor_View: View {
                         .padding(.horizontal, -20)
                     }
                     .frame(maxHeight: geometry.size.height / 3)
+                    .help(program.vcfEnvelopeCutoffAmount.toolTip)
                     
                         // Cutoff Mod
                     GroupBox {
